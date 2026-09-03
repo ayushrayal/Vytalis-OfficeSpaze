@@ -1,24 +1,24 @@
 const mongoose = require('mongoose');
-const VirtualOffice = require('../models/VirtualOffice');
+const ManagedOffice = require('../models/ManagedOffice');
 const imagekitProvider = require('../providers/imagekit.provider');
 
-const VIRTUAL_OFFICE_FOLDER = '/VytalisOfficeSpaze/Virtual-Space/agreements';
+const MANAGED_OFFICE_FOLDER = '/VytalisOfficeSpaze/Managed-Office/agreements';
 
-const createVirtualOffice = async (data, file) => {
+const createManagedOffice = async (data, file) => {
   let uploadedAgreement = null;
 
   if (file) {
     uploadedAgreement = await imagekitProvider.uploadAgreement(
       file.buffer,
       file.originalname,
-      VIRTUAL_OFFICE_FOLDER
+      MANAGED_OFFICE_FOLDER
     );
     data.agreement = uploadedAgreement;
   }
 
   try {
-    const virtualOffice = await VirtualOffice.create(data);
-    return virtualOffice;
+    const managedOffice = await ManagedOffice.create(data);
+    return managedOffice;
   } catch (error) {
     // Rollback ImageKit file if MongoDB creation failed
     if (uploadedAgreement && uploadedAgreement.fileId) {
@@ -32,38 +32,38 @@ const createVirtualOffice = async (data, file) => {
   }
 };
 
-const getVirtualOffices = async () => {
-  const virtualOffices = await VirtualOffice.find().sort({ createdAt: -1 });
-  return virtualOffices;
+const getManagedOffices = async () => {
+  const managedOffices = await ManagedOffice.find().sort({ createdAt: -1 });
+  return managedOffices;
 };
 
-const getVirtualOfficeById = async (id) => {
+const getManagedOfficeById = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const error = new Error('Virtual office not found');
+    const error = new Error('Managed office not found');
     error.statusCode = 404;
     throw error;
   }
 
-  const virtualOffice = await VirtualOffice.findById(id);
-  if (!virtualOffice) {
-    const error = new Error('Virtual office not found');
+  const managedOffice = await ManagedOffice.findById(id);
+  if (!managedOffice) {
+    const error = new Error('Managed office not found');
     error.statusCode = 404;
     throw error;
   }
 
-  return virtualOffice;
+  return managedOffice;
 };
 
-const updateVirtualOffice = async (id, updateData, file) => {
+const updateManagedOffice = async (id, updateData, file) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const error = new Error('Virtual office not found');
+    const error = new Error('Managed office not found');
     error.statusCode = 404;
     throw error;
   }
 
-  const existingOffice = await VirtualOffice.findById(id);
+  const existingOffice = await ManagedOffice.findById(id);
   if (!existingOffice) {
-    const error = new Error('Virtual office not found');
+    const error = new Error('Managed office not found');
     error.statusCode = 404;
     throw error;
   }
@@ -73,13 +73,13 @@ const updateVirtualOffice = async (id, updateData, file) => {
     newAgreement = await imagekitProvider.uploadAgreement(
       file.buffer,
       file.originalname,
-      VIRTUAL_OFFICE_FOLDER
+      MANAGED_OFFICE_FOLDER
     );
     updateData.agreement = newAgreement;
   }
 
   try {
-    const updatedOffice = await VirtualOffice.findByIdAndUpdate(id, updateData, {
+    const updatedOffice = await ManagedOffice.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true
     });
@@ -107,23 +107,23 @@ const updateVirtualOffice = async (id, updateData, file) => {
   }
 };
 
-const deleteVirtualOffice = async (id) => {
+const deleteManagedOffice = async (id) => {
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const error = new Error('Virtual office not found');
+    const error = new Error('Managed office not found');
     error.statusCode = 404;
     throw error;
   }
 
-  const virtualOffice = await VirtualOffice.findByIdAndDelete(id);
-  if (!virtualOffice) {
-    const error = new Error('Virtual office not found');
+  const managedOffice = await ManagedOffice.findByIdAndDelete(id);
+  if (!managedOffice) {
+    const error = new Error('Managed office not found');
     error.statusCode = 404;
     throw error;
   }
 
-  if (virtualOffice.agreement && virtualOffice.agreement.fileId) {
+  if (managedOffice.agreement && managedOffice.agreement.fileId) {
     try {
-      await imagekitProvider.deleteAgreement(virtualOffice.agreement.fileId);
+      await imagekitProvider.deleteAgreement(managedOffice.agreement.fileId);
     } catch (cleanupError) {
       console.error('Failed to clean up ImageKit file after deletion:', cleanupError.message);
     }
@@ -133,9 +133,9 @@ const deleteVirtualOffice = async (id) => {
 };
 
 module.exports = {
-  createVirtualOffice,
-  getVirtualOffices,
-  getVirtualOfficeById,
-  updateVirtualOffice,
-  deleteVirtualOffice
+  createManagedOffice,
+  getManagedOffices,
+  getManagedOfficeById,
+  updateManagedOffice,
+  deleteManagedOffice
 };

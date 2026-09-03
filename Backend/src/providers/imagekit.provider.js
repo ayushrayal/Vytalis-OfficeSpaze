@@ -6,14 +6,14 @@ const client = new ImageKit({
   urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT
 });
 
-const uploadAgreement = async (fileBuffer, fileName) => {
+const uploadAgreement = async (fileBuffer, fileName, folder) => {
   const safeFileName = fileName || `agreement_${Date.now()}`;
   const file = await ImageKit.toFile(fileBuffer, safeFileName);
 
   const response = await client.files.upload({
     file,
     fileName: safeFileName,
-    folder: '/VytalisOfficeSpaze/Virtual-Space/agreements'
+    folder: folder || '/VytalisOfficeSpaze/agreements'
   });
 
   return {
