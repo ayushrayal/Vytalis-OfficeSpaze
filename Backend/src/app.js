@@ -3,6 +3,7 @@ const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const authRoutes = require('./routes/auth.routes');
 const walkInRoutes = require('./routes/walkin.routes');
+const virtualOfficeRoutes = require('./routes/virtualOffice.routes');
 const errorMiddleware = require('./middleware/error.middleware');
 
 const app = express();
@@ -29,6 +30,7 @@ app.get('/api/health', (req, res) => {
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/walkins', walkInRoutes);
+app.use('/api/virtual-offices', virtualOfficeRoutes);
 
 // 404 Handler for unknown routes
 app.use((req, res) => {
