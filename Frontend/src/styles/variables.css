@@ -1,0 +1,13 @@
+:root {
+  --brand-red: #ED1F23;
+  --black: #000000;
+  --white: #FFFFFF;
+  --warm-bg: #F5F0EB;
+  --soft-red: #FFF2F2;
+  --muted-text: #505050;
+  --light-gray: #B6B6B6;
+  --border: #E5E7EB;
+  --secondary-accent: #D78867;
+  --yellow-accent: #F7C81B;
+  --font-urbanist: 'Urbanist', sans-serif;
+}
