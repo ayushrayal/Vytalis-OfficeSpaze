@@ -10,6 +10,7 @@ const salaryRoutes = require('./routes/salary.routes');
 const operationBillRoutes = require('./routes/operationBill.routes');
 const coworkSpaceRoutes = require('./routes/coworkSpace.routes');
 const dedicatedSpaceRoutes = require('./routes/dedicatedSpace.routes');
+const invoiceTemplateRoutes = require('./routes/invoiceTemplate.routes');
 const errorMiddleware = require('./middleware/error.middleware');
 
 const app = express();
@@ -43,6 +44,7 @@ app.use('/api/salaries', salaryRoutes);
 app.use('/api/operation-bills', operationBillRoutes);
 app.use('/api/cowork-spaces', coworkSpaceRoutes);
 app.use('/api/dedicated-spaces', dedicatedSpaceRoutes);
+app.use('/api/invoice-templates', invoiceTemplateRoutes);
 
 // 404 Handler for unknown routes
 app.use((req, res) => {
