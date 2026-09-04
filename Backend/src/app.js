@@ -6,6 +6,7 @@ const walkInRoutes = require('./routes/walkin.routes');
 const virtualOfficeRoutes = require('./routes/virtualOffice.routes');
 const managedOfficeRoutes = require('./routes/managedOffice.routes');
 const utilityBillRoutes = require('./routes/utilityBill.routes');
+const salaryRoutes = require('./routes/salary.routes');
 const errorMiddleware = require('./middleware/error.middleware');
 
 const app = express();
@@ -35,6 +36,7 @@ app.use('/api/walkins', walkInRoutes);
 app.use('/api/virtual-offices', virtualOfficeRoutes);
 app.use('/api/managed-offices', managedOfficeRoutes);
 app.use('/api/utility-bills', utilityBillRoutes);
+app.use('/api/salaries', salaryRoutes);
 
 // 404 Handler for unknown routes
 app.use((req, res) => {
