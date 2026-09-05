@@ -28,7 +28,7 @@ export const NAVIGATION_SECTIONS = [
     items: [
       {
         label: 'Walk-ins',
-        path: '/walkins',
+        path: ROUTES.WALKINS,
         icon: UserCheck
       },
       {

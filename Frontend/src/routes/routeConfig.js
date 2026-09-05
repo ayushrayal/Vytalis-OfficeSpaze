@@ -8,5 +8,6 @@ export const ROUTES = {
   OPERATION_BILLS: '/operation-bills',
   COWORK_SPACE: '/cowork-space',
   DEDICATED_SPACE: '/dedicated-space',
-  INVOICE_TEMPLATES: '/invoice-templates'
+  INVOICE_TEMPLATES: '/invoice-templates',
+  WALKINS: '/walkins'
 };
