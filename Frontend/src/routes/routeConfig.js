@@ -3,5 +3,6 @@ export const ROUTES = {
   DASHBOARD: '/dashboard',
   VIRTUAL_OFFICES: '/virtual-offices',
   MANAGED_OFFICES: '/managed-offices',
-  UTILITY_BILLS: '/utility-bills'
+  UTILITY_BILLS: '/utility-bills',
+  SALARIES: '/salaries'
 };

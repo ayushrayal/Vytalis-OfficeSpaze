@@ -8,6 +8,7 @@ import DashboardPage from '../features/dashboard/pages/DashboardPage';
 import VirtualOfficesPage from '../features/virtual-offices/pages/VirtualOfficesPage';
 import ManagedOfficesPage from '../features/managed-offices/pages/ManagedOfficesPage';
 import UtilityBillsPage from '../features/utility-bills/pages/UtilityBillsPage';
+import SalariesPage from '../features/salaries/pages/SalariesPage';
 
 const AppRoutes = () => {
   return (
@@ -20,6 +21,7 @@ const AppRoutes = () => {
           <Route path={ROUTES.VIRTUAL_OFFICES} element={<VirtualOfficesPage />} />
           <Route path={ROUTES.MANAGED_OFFICES} element={<ManagedOfficesPage />} />
           <Route path={ROUTES.UTILITY_BILLS} element={<UtilityBillsPage />} />
+          <Route path={ROUTES.SALARIES} element={<SalariesPage />} />
         </Route>
       </Route>
 
