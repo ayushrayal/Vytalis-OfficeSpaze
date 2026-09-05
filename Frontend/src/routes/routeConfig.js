@@ -6,5 +6,6 @@ export const ROUTES = {
   UTILITY_BILLS: '/utility-bills',
   SALARIES: '/salaries',
   OPERATION_BILLS: '/operation-bills',
-  COWORK_SPACE: '/cowork-space'
+  COWORK_SPACE: '/cowork-space',
+  DEDICATED_SPACE: '/dedicated-space'
 };

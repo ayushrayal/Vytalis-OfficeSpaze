@@ -11,6 +11,7 @@ import UtilityBillsPage from '../features/utility-bills/pages/UtilityBillsPage';
 import SalariesPage from '../features/salaries/pages/SalariesPage';
 import OperationBillsPage from '../features/operation-bills/pages/OperationBillsPage';
 import CoworkSpacePage from '../features/cowork-space/pages/CoworkSpacePage';
+import DedicatedSpacePage from '../features/dedicated-space/pages/DedicatedSpacePage';
 
 const AppRoutes = () => {
   return (
@@ -26,6 +27,7 @@ const AppRoutes = () => {
           <Route path={ROUTES.SALARIES} element={<SalariesPage />} />
           <Route path={ROUTES.OPERATION_BILLS} element={<OperationBillsPage />} />
           <Route path={ROUTES.COWORK_SPACE} element={<CoworkSpacePage />} />
+          <Route path={ROUTES.DEDICATED_SPACE} element={<DedicatedSpacePage />} />
         </Route>
       </Route>
 
