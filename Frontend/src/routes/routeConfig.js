@@ -4,5 +4,6 @@ export const ROUTES = {
   VIRTUAL_OFFICES: '/virtual-offices',
   MANAGED_OFFICES: '/managed-offices',
   UTILITY_BILLS: '/utility-bills',
-  SALARIES: '/salaries'
+  SALARIES: '/salaries',
+  OPERATION_BILLS: '/operation-bills'
 };
