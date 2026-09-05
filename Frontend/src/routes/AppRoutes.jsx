@@ -7,6 +7,7 @@ import LoginPage from '../features/auth/pages/LoginPage';
 import DashboardPage from '../features/dashboard/pages/DashboardPage';
 import VirtualOfficesPage from '../features/virtual-offices/pages/VirtualOfficesPage';
 import ManagedOfficesPage from '../features/managed-offices/pages/ManagedOfficesPage';
+import UtilityBillsPage from '../features/utility-bills/pages/UtilityBillsPage';
 
 const AppRoutes = () => {
   return (
@@ -18,6 +19,7 @@ const AppRoutes = () => {
           <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
           <Route path={ROUTES.VIRTUAL_OFFICES} element={<VirtualOfficesPage />} />
           <Route path={ROUTES.MANAGED_OFFICES} element={<ManagedOfficesPage />} />
+          <Route path={ROUTES.UTILITY_BILLS} element={<UtilityBillsPage />} />
         </Route>
       </Route>
 

@@ -59,10 +59,8 @@ const utilityBillSchema = new mongoose.Schema(
     },
     cycleKey: {
       type: String,
-      default: null,
       unique: true,
-      sparse: true,
-      index: true
+      sparse: true
     }
   },
   {

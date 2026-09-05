@@ -1,0 +1,88 @@
+import React from 'react';
+import { AlertTriangle, Loader2 } from 'lucide-react';
+import { formatCurrencyINR } from '../utils/utilityBills.utils';
+
+const DeleteUtilityBillModal = ({
+  isOpen,
+  onClose,
+  onConfirm,
+  isLoading = false,
+  utilityBill = null
+}) => {
+  if (!isOpen || !utilityBill) return null;
+
+  const billName = utilityBill.billName || 'N/A';
+  const amount = utilityBill.billAmount ? formatCurrencyINR(utilityBill.billAmount) : 'N/A';
+  const status = utilityBill.status || 'N/A';
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+      <div
+        className="bg-white w-full max-w-md rounded-2xl border border-neutral-200 shadow-2xl overflow-hidden p-6 text-center space-y-4"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="w-12 h-12 rounded-full bg-red-100 border border-red-200 text-brand-red flex items-center justify-center mx-auto">
+          <AlertTriangle className="w-6 h-6" />
+        </div>
+
+        <div>
+          <h3 className="text-xl font-bold text-black tracking-tight my-0">
+            Delete Utility Bill
+          </h3>
+          <p className="text-sm font-medium text-muted-text mt-2">
+            Are you sure you want to delete this utility bill record?
+          </p>
+        </div>
+
+        <div className="bg-neutral-50 p-3.5 rounded-xl border border-neutral-200/80 text-left space-y-1.5 text-xs">
+          <div className="flex justify-between">
+            <span className="text-neutral-500 font-medium">Bill Name:</span>
+            <strong className="text-black font-bold">{billName}</strong>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-neutral-500 font-medium">Amount:</span>
+            <strong className="text-black font-semibold">{amount}</strong>
+          </div>
+          <div className="flex justify-between">
+            <span className="text-neutral-500 font-medium">Status:</span>
+            <strong className="text-black font-semibold">{status}</strong>
+          </div>
+        </div>
+
+        {utilityBill.parentBillId && (
+          <p className="text-[11px] font-medium text-neutral-500 italic text-left my-0">
+            Note: Deleting this record removes the selected monthly bill occurrence.
+          </p>
+        )}
+
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <button
+            type="button"
+            onClick={onClose}
+            disabled={isLoading}
+            className="px-4 py-2.5 rounded-xl border border-neutral-200 bg-white text-neutral-700 text-xs font-bold hover:bg-neutral-50 transition-all cursor-pointer disabled:opacity-50"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={() => onConfirm(utilityBill.id || utilityBill._id)}
+            disabled={isLoading}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-brand-red text-white text-xs font-bold shadow-xs hover:bg-brand-red/90 transition-all cursor-pointer disabled:opacity-50"
+          >
+            {isLoading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                <span>Deleting...</span>
+              </>
+            ) : (
+              <span>Delete</span>
+            )}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default DeleteUtilityBillModal;
