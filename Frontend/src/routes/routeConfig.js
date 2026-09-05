@@ -1,4 +1,5 @@
 export const ROUTES = {
   LOGIN: '/login',
-  DASHBOARD: '/dashboard'
+  DASHBOARD: '/dashboard',
+  VIRTUAL_OFFICES: '/virtual-offices'
 };

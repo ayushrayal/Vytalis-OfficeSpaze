@@ -5,6 +5,7 @@ import AppShell from '../components/layout/AppShell';
 import { ROUTES } from './routeConfig';
 import LoginPage from '../features/auth/pages/LoginPage';
 import DashboardPage from '../features/dashboard/pages/DashboardPage';
+import VirtualOfficesPage from '../features/virtual-offices/pages/VirtualOfficesPage';
 
 const AppRoutes = () => {
   return (
@@ -14,6 +15,7 @@ const AppRoutes = () => {
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
           <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
+          <Route path={ROUTES.VIRTUAL_OFFICES} element={<VirtualOfficesPage />} />
         </Route>
       </Route>
 
