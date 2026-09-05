@@ -16,12 +16,15 @@ export const formatCurrencyINR = (amount) => {
 /**
  * DetailSection: Grouped section container with heading and optional icon.
  */
-export const DetailSection = ({ title, icon: Icon, children, className = '' }) => (
+export const DetailSection = ({ title, icon: Icon, children, className = '', rightContent = null }) => (
   <div className={`space-y-3 font-urbanist ${className}`}>
     {title && (
-      <div className="flex items-center gap-2 border-b border-neutral-100 pb-2">
-        {Icon && <Icon className="w-4 h-4 text-[#ED1F23]" />}
-        <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500">{title}</h4>
+      <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
+        <div className="flex items-center gap-2">
+          {Icon && <Icon className="w-4 h-4 text-[#ED1F23]" />}
+          <h4 className="text-xs font-bold uppercase tracking-wider text-neutral-500">{title}</h4>
+        </div>
+        {rightContent}
       </div>
     )}
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">{children}</div>

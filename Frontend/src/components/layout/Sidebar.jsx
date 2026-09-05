@@ -16,15 +16,15 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
       <div className="h-16 px-4 flex items-center justify-between border-b border-neutral-800 shrink-0">
         <div className="flex items-center gap-2.5 overflow-hidden">
           <div className="w-9 h-9 bg-brand-red text-white flex items-center justify-center font-extrabold text-xl rounded-lg shrink-0 shadow-xs">
-            V
+            O
           </div>
           {!isCollapsed && (
             <div className="truncate">
-              <span className="font-extrabold text-base text-white tracking-tight block leading-none">
-                VYTALIS
+              <span className="font-extrabold text-sm text-white tracking-tight block leading-tight">
+                Vytalis Office Spaze
               </span>
-              <span className="text-[9px] font-bold text-brand-red tracking-widest uppercase block mt-0.5">
-                Office Spaze
+              <span className="text-[10px] font-medium text-neutral-400 block mt-0.5">
+                by Vytalis Media
               </span>
             </div>
           )}
@@ -76,16 +76,7 @@ const Sidebar = ({ isCollapsed, setIsCollapsed }) => {
         ))}
       </div>
 
-      {/* Footer System Status */}
-      {!isCollapsed && (
-        <div className="p-3 m-3 rounded-xl bg-neutral-900/60 border border-neutral-800 text-[10px] text-neutral-400 flex items-center justify-between shrink-0">
-          <span>System Status</span>
-          <span className="inline-flex items-center gap-1 text-emerald-400 font-semibold">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            V1 Active
-          </span>
-        </div>
-      )}
+
     </aside>
   );
 };

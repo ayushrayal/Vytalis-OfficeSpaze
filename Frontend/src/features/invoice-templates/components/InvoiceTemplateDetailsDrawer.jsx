@@ -161,38 +161,46 @@ const InvoiceTemplateDetailsDrawer = ({
       </DetailSection>
 
       {/* Line Items Table */}
-      <DetailSection title={`Line Items (${template.items?.length || 0})`} icon={Receipt}>
-        <div className="w-full overflow-hidden border border-neutral-200 rounded-xl bg-neutral-50/50">
+      <DetailSection
+        title="Line Items"
+        icon={Receipt}
+        rightContent={
+          <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-neutral-100 text-neutral-700 border border-neutral-200/80">
+            {template.items?.length || 0} {(template.items?.length || 0) === 1 ? 'Item' : 'Items'}
+          </span>
+        }
+      >
+        <div className="col-span-1 sm:col-span-2 w-full overflow-hidden border border-neutral-200 rounded-xl bg-white shadow-2xs">
           {template.items && template.items.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full text-xs text-left border-collapse">
+              <table className="w-full text-xs text-left border-collapse min-w-[480px]">
                 <thead>
-                  <tr className="bg-neutral-100 border-b border-neutral-200 font-semibold text-neutral-600">
+                  <tr className="bg-neutral-50 border-b border-neutral-200 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
                     <th className="py-2.5 px-3">Description</th>
-                    <th className="py-2.5 px-3 text-center">Qty</th>
-                    <th className="py-2.5 px-3 text-right">Rate</th>
-                    <th className="py-2.5 px-3 text-center">Tax %</th>
-                    <th className="py-2.5 px-3 text-right">Amount</th>
+                    <th className="py-2.5 px-3 text-center whitespace-nowrap">Qty</th>
+                    <th className="py-2.5 px-3 text-right whitespace-nowrap">Rate</th>
+                    <th className="py-2.5 px-3 text-center whitespace-nowrap">Tax %</th>
+                    <th className="py-2.5 px-3 text-right whitespace-nowrap">Amount</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-neutral-200">
+                <tbody className="divide-y divide-neutral-100">
                   {template.items.map((item, idx) => {
                     const calc = calculateItemCalculations(item);
                     return (
-                      <tr key={idx} className="hover:bg-neutral-100/50">
-                        <td className="py-2.5 px-3 font-medium text-neutral-800">
+                      <tr key={idx} className="hover:bg-neutral-50/70 transition-colors">
+                        <td className="py-2.5 px-3 font-medium text-neutral-900 break-words max-w-[200px]">
                           {item.description || 'Item'}
                         </td>
-                        <td className="py-2.5 px-3 text-center text-neutral-600">
+                        <td className="py-2.5 px-3 text-center font-semibold text-neutral-700 whitespace-nowrap">
                           {item.quantity}
                         </td>
-                        <td className="py-2.5 px-3 text-right text-neutral-600">
+                        <td className="py-2.5 px-3 text-right font-medium text-neutral-700 whitespace-nowrap">
                           {formatCurrencyINR(item.rate)}
                         </td>
-                        <td className="py-2.5 px-3 text-center text-neutral-600">
+                        <td className="py-2.5 px-3 text-center text-neutral-600 whitespace-nowrap">
                           {item.taxPercent ? `${item.taxPercent}%` : '0%'}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-semibold text-neutral-900">
+                        <td className="py-2.5 px-3 text-right font-bold text-neutral-900 whitespace-nowrap">
                           {formatCurrencyINR(calc.lineAmount)}
                         </td>
                       </tr>

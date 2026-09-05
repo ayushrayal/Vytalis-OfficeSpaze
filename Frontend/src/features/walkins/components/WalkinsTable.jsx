@@ -13,14 +13,14 @@ const WalkinsTable = ({ walkins = [], onEdit, onDelete, onSelectRecord }) => {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-neutral-50/80 border-b border-neutral-200/80 text-xs font-bold text-neutral-500 uppercase tracking-wider">
-                <th className="py-4 px-4 sm:px-6">Name</th>
-                <th className="py-4 px-4">Phone</th>
-                <th className="py-4 px-4">Email</th>
-                <th className="py-4 px-4">Walk-in Date</th>
-                <th className="py-4 px-4">Source</th>
-                <th className="py-4 px-4">Notes</th>
-                <th className="py-4 px-4">Created</th>
-                <th className="py-4 px-4 sm:px-6 text-right">Actions</th>
+                <th className="py-4 px-4 sm:px-6 whitespace-nowrap">Name</th>
+                <th className="py-4 px-4 whitespace-nowrap">Phone</th>
+                <th className="py-4 px-4 whitespace-nowrap">Email</th>
+                <th className="py-4 px-4 whitespace-nowrap">Walk-in Date</th>
+                <th className="py-4 px-4 whitespace-nowrap">Source</th>
+                <th className="py-4 px-4 whitespace-nowrap">Notes</th>
+                <th className="py-4 px-4 whitespace-nowrap">Created</th>
+                <th className="py-4 px-4 sm:px-6 text-right whitespace-nowrap">Actions</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-neutral-100 text-sm text-neutral-700">
@@ -67,18 +67,18 @@ const WalkinsTable = ({ walkins = [], onEdit, onDelete, onSelectRecord }) => {
                     </td>
 
                     {/* Walk-in Date */}
-                    <td className="py-4 px-4 font-medium text-neutral-900">
-                      <div className="flex items-center gap-1.5">
-                        <Calendar className="w-3.5 h-3.5 text-[#ED1F23]" />
-                        <span>{formattedDate}</span>
+                    <td className="py-4 px-4 font-medium text-neutral-900 whitespace-nowrap">
+                      <div className="flex items-center gap-1.5 whitespace-nowrap">
+                        <Calendar className="w-3.5 h-3.5 text-[#ED1F23] shrink-0" />
+                        <span className="whitespace-nowrap">{formattedDate}</span>
                       </div>
                     </td>
 
                     {/* Source */}
-                    <td className="py-4 px-4">
-                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-neutral-100 text-neutral-800 border border-neutral-200">
-                        <Tag className="w-3 h-3 text-neutral-500" />
-                        {item.source}
+                    <td className="py-4 px-4 whitespace-nowrap">
+                      <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-neutral-100 text-neutral-800 border border-neutral-200 whitespace-nowrap">
+                        <Tag className="w-3 h-3 text-neutral-500 shrink-0" />
+                        <span className="whitespace-nowrap">{item.source}</span>
                       </span>
                     </td>
 
@@ -107,7 +107,7 @@ const WalkinsTable = ({ walkins = [], onEdit, onDelete, onSelectRecord }) => {
                     </td>
 
                     {/* Created */}
-                    <td className="py-4 px-4 text-xs text-neutral-500">
+                    <td className="py-4 px-4 text-xs text-neutral-500 whitespace-nowrap">
                       {createdDate}
                     </td>
 

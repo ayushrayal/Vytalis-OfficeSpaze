@@ -19,17 +19,17 @@ const VirtualOfficesTable = ({
         <table className="w-full text-left border-collapse min-w-[1200px]">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/70 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
-              <th className="py-3.5 px-4">Client Name</th>
-              <th className="py-3.5 px-4">Company</th>
-              <th className="py-3.5 px-4">Phone</th>
-              <th className="py-3.5 px-4">Email</th>
-              <th className="py-3.5 px-4 max-w-[200px]">Virtual Address</th>
-              <th className="py-3.5 px-4">Start Date</th>
-              <th className="py-3.5 px-4">End Date</th>
-              <th className="py-3.5 px-4">Commercials</th>
-              <th className="py-3.5 px-4">Payment Date</th>
-              <th className="py-3.5 px-4">Status & Agreement</th>
-              <th className="py-3.5 px-4 text-right">Actions</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Client Name</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Company</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Phone</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Email</th>
+              <th className="py-3.5 px-4 max-w-[200px] whitespace-nowrap">Virtual Address</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Start Date</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">End Date</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Commercials</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Payment Date</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Status & Agreement</th>
+              <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 text-xs">

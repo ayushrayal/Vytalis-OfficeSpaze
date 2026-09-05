@@ -33,7 +33,7 @@ const LoginPage = () => {
       <header className="w-full max-w-6xl mx-auto flex items-center justify-between">
         <div className="flex items-center gap-2">
           <div className="w-9 h-9 bg-brand-red text-white flex items-center justify-center font-extrabold text-xl rounded-lg shadow-xs">
-            V
+            O
           </div>
           <div>
             <span className="font-extrabold text-lg text-black tracking-tight block leading-none">

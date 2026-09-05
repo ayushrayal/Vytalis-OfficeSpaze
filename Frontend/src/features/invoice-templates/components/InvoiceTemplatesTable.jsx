@@ -21,18 +21,18 @@ const InvoiceTemplatesTable = ({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-[#F5F0EB]/60 border-b border-[#E5E5E5] text-xs font-semibold text-[#505050] uppercase tracking-wider">
-              <th className="py-3.5 px-4">Invoice #</th>
-              <th className="py-3.5 px-4">Client</th>
-              <th className="py-3.5 px-4">Business</th>
-              <th className="py-3.5 px-4">Invoice Date</th>
-              <th className="py-3.5 px-4">Due Date</th>
-              <th className="py-3.5 px-4">Items</th>
-              <th className="py-3.5 px-4">Subtotal</th>
-              <th className="py-3.5 px-4">Tax</th>
-              <th className="py-3.5 px-4">Total</th>
-              <th className="py-3.5 px-4">Balance Due</th>
-              <th className="py-3.5 px-4">Payment</th>
-              <th className="py-3.5 px-4 text-right">Actions</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Invoice #</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Client</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Business</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Invoice Date</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Due Date</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Items</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Subtotal</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Tax</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Total</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Balance Due</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Payment</th>
+              <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#E5E5E5] text-sm text-[#000000]">
@@ -105,18 +105,16 @@ const InvoiceTemplatesTable = ({
                   {/* Payment Options */}
                   <td className="py-3.5 px-4 whitespace-nowrap">
                     {enabledPaymentOpts.length > 0 ? (
-                      <div className="flex flex-wrap gap-1 max-w-[140px]">
-                        {enabledPaymentOpts.map((opt) => (
-                          <span
-                            key={opt.name}
-                            className="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-black/5 text-[#000000] border border-[#E5E5E5]"
-                          >
-                            {opt.name}
-                          </span>
-                        ))}
-                      </div>
+                      <span
+                        className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-semibold bg-neutral-100 text-neutral-800 border border-neutral-200 whitespace-nowrap"
+                        title={enabledPaymentOpts.map((opt) => opt.name).join(', ')}
+                      >
+                        {enabledPaymentOpts.length === 1
+                          ? enabledPaymentOpts[0].name
+                          : `${enabledPaymentOpts.length} Methods`}
+                      </span>
                     ) : (
-                      <span className="text-xs text-[#505050]/60 italic">None</span>
+                      <span className="text-xs text-neutral-400 italic">None</span>
                     )}
                   </td>
 

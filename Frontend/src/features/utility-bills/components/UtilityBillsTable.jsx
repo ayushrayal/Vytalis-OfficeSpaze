@@ -26,14 +26,14 @@ const UtilityBillsTable = ({
         <table className="w-full text-left border-collapse min-w-[1050px]">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/70 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
-              <th className="py-3.5 px-4">Bill Name</th>
-              <th className="py-3.5 px-4">Amount</th>
-              <th className="py-3.5 px-4">Status</th>
-              <th className="py-3.5 px-4">Reminder Date</th>
-              <th className="py-3.5 px-4">Uploaded By</th>
-              <th className="py-3.5 px-4">Receipt</th>
-              <th className="py-3.5 px-4">Recurring / Series</th>
-              <th className="py-3.5 px-4 text-right">Actions</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Bill Name</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Amount</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Status</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Reminder Date</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Uploaded By</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Receipt</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Recurring / Series</th>
+              <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 text-xs">

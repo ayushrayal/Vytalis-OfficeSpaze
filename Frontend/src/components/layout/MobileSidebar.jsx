@@ -64,14 +64,14 @@ const MobileSidebar = ({ isOpen, onClose }) => {
         <div className="h-16 px-4 flex items-center justify-between border-b border-neutral-800 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 bg-brand-red text-white flex items-center justify-center font-extrabold text-xl rounded-lg shadow-xs">
-              V
+              O
             </div>
             <div>
-              <span className="font-extrabold text-base text-white tracking-tight block leading-none">
-                VYTALIS
+              <span className="font-extrabold text-sm text-white tracking-tight block leading-tight">
+                Vytalis Office Spaze
               </span>
-              <span className="text-[9px] font-bold text-brand-red tracking-widest uppercase block mt-0.5">
-                Office Spaze
+              <span className="text-[10px] font-medium text-neutral-400 block mt-0.5">
+                by Vytalis Media
               </span>
             </div>
           </div>

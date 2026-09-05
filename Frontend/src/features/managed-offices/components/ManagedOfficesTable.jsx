@@ -19,19 +19,19 @@ const ManagedOfficesTable = ({
         <table className="w-full text-left border-collapse min-w-[1300px]">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/70 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
-              <th className="py-3.5 px-4">Office No.</th>
-              <th className="py-3.5 px-4">Client Name</th>
-              <th className="py-3.5 px-4">Company</th>
-              <th className="py-3.5 px-4">Phone</th>
-              <th className="py-3.5 px-4">Email</th>
-              <th className="py-3.5 px-4">Total Seats</th>
-              <th className="py-3.5 px-4">Per Seat Cost</th>
-              <th className="py-3.5 px-4">Start Date</th>
-              <th className="py-3.5 px-4">End Date</th>
-              <th className="py-3.5 px-4">Agreed Commercials</th>
-              <th className="py-3.5 px-4">Status</th>
-              <th className="py-3.5 px-4">Agreement</th>
-              <th className="py-3.5 px-4 text-right">Actions</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Office No.</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Client Name</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Company</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Phone</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Email</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Total Seats</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Per Seat Cost</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Start Date</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">End Date</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Agreed Commercials</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Status</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Agreement</th>
+              <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 text-xs">

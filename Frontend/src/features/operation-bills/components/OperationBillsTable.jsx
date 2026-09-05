@@ -15,13 +15,13 @@ const OperationBillsTable = ({
         <table className="w-full text-left border-collapse font-urbanist">
           <thead>
             <tr className="bg-[#F5F0EB]/60 border-b border-[#E5E5E5] text-xs font-semibold text-[#505050] uppercase tracking-wider">
-              <th className="py-3.5 px-4">Date</th>
-              <th className="py-3.5 px-4">Expense Type</th>
-              <th className="py-3.5 px-4">Uploaded By</th>
-              <th className="py-3.5 px-4">Status</th>
-              <th className="py-3.5 px-4">Receipt</th>
-              <th className="py-3.5 px-4">Created</th>
-              <th className="py-3.5 px-4 text-right">Actions</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Date</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Expense Type</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Uploaded By</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Status</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Receipt</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Created</th>
+              <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#E5E5E5] text-sm text-[#000000]">

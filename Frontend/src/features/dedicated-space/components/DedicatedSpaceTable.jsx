@@ -19,18 +19,18 @@ const DedicatedSpaceTable = ({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-[#F5F0EB]/60 border-b border-[#E5E5E5] text-xs font-semibold text-[#505050] uppercase tracking-wider">
-              <th className="py-3.5 px-4">Client</th>
-              <th className="py-3.5 px-4">Business Type</th>
-              <th className="py-3.5 px-4">Phone</th>
-              <th className="py-3.5 px-4">Email</th>
-              <th className="py-3.5 px-4">Added Date</th>
-              <th className="py-3.5 px-4">Seats</th>
-              <th className="py-3.5 px-4">Seat Cost</th>
-              <th className="py-3.5 px-4">Start Date</th>
-              <th className="py-3.5 px-4">End Date</th>
-              <th className="py-3.5 px-4">Status</th>
-              <th className="py-3.5 px-4">Agreement</th>
-              <th className="py-3.5 px-4 text-right">Actions</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Client</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Business Type</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Phone</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Email</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Added Date</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Seats</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Seat Cost</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Start Date</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">End Date</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Status</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Agreement</th>
+              <th className="py-3.5 px-4 text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-[#E5E5E5] text-sm text-[#000000]">
