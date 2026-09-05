@@ -8,6 +8,7 @@ import CoworkSpaceTable from '../components/CoworkSpaceTable';
 import CoworkSpaceModal from '../components/CoworkSpaceModal';
 import DeleteCoworkSpaceModal from '../components/DeleteCoworkSpaceModal';
 import AgreementPreview from '../components/AgreementPreview';
+import CoworkSpaceDetailsDrawer from '../components/CoworkSpaceDetailsDrawer';
 import CoworkSpaceEmptyState from '../components/CoworkSpaceEmptyState';
 import CoworkSpaceSkeleton from '../components/CoworkSpaceSkeleton';
 import {
@@ -27,11 +28,12 @@ const CoworkSpacePage = () => {
   const [businessTypeFilter, setBusinessTypeFilter] = useState('All');
   const [dateFilter, setDateFilter] = useState('All');
 
-  // Modals State
+  // Modals & Drawer State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingSpace, setEditingSpace] = useState(null);
   const [deletingSpace, setDeletingSpace] = useState(null);
   const [previewAgreement, setPreviewAgreement] = useState(null);
+  const [selectedSpace, setSelectedSpace] = useState(null);
 
   // Query & Mutations
   const { data: spaces = [], isLoading, isError, error, refetch, isFetching } = useCoworkSpaces();
@@ -160,6 +162,7 @@ const CoworkSpacePage = () => {
               onEdit={(space) => setEditingSpace(space)}
               onDelete={(space) => setDeletingSpace(space)}
               onViewAgreement={(agreement) => setPreviewAgreement(agreement)}
+              onSelectRecord={setSelectedSpace}
             />
           ) : (
             <CoworkSpaceEmptyState
@@ -170,6 +173,16 @@ const CoworkSpacePage = () => {
           )}
         </>
       )}
+
+      {/* Details Drawer */}
+      <CoworkSpaceDetailsDrawer
+        isOpen={Boolean(selectedSpace)}
+        onClose={() => setSelectedSpace(null)}
+        space={selectedSpace}
+        onEdit={(space) => setEditingSpace(space)}
+        onDelete={(space) => setDeletingSpace(space)}
+        onViewAgreement={(agreement) => setPreviewAgreement(agreement)}
+      />
 
       {/* Add Modal */}
       <CoworkSpaceModal

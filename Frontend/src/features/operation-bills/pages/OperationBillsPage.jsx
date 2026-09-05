@@ -8,6 +8,7 @@ import OperationBillsTable from '../components/OperationBillsTable';
 import OperationBillModal from '../components/OperationBillModal';
 import DeleteOperationBillModal from '../components/DeleteOperationBillModal';
 import ReceiptPreview from '../components/ReceiptPreview';
+import OperationBillDetailsDrawer from '../components/OperationBillDetailsDrawer';
 import OperationBillsEmptyState from '../components/OperationBillsEmptyState';
 import OperationBillsSkeleton from '../components/OperationBillsSkeleton';
 import {
@@ -30,11 +31,12 @@ const OperationBillsPage = () => {
   const [expenseTypeFilter, setExpenseTypeFilter] = useState('All');
   const [dateFilter, setDateFilter] = useState('All');
 
-  // Modals State
+  // Modals & Drawer State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingBill, setEditingBill] = useState(null);
   const [deletingBill, setDeletingBill] = useState(null);
   const [previewReceipt, setPreviewReceipt] = useState(null);
+  const [selectedBill, setSelectedBill] = useState(null);
 
   // TanStack Query & Mutations
   const { data: bills = [], isLoading, isError, error, refetch, isFetching } = useOperationBills();
@@ -169,6 +171,7 @@ const OperationBillsPage = () => {
               onEdit={(bill) => setEditingBill(bill)}
               onDelete={(bill) => setDeletingBill(bill)}
               onViewReceipt={(receipt) => setPreviewReceipt(receipt)}
+              onSelectRecord={setSelectedBill}
             />
           ) : (
             <OperationBillsEmptyState
@@ -178,6 +181,16 @@ const OperationBillsPage = () => {
           )}
         </>
       )}
+
+      {/* Details Drawer */}
+      <OperationBillDetailsDrawer
+        isOpen={Boolean(selectedBill)}
+        onClose={() => setSelectedBill(null)}
+        bill={selectedBill}
+        onEdit={(bill) => setEditingBill(bill)}
+        onDelete={(bill) => setDeletingBill(bill)}
+        onViewReceipt={(receipt) => setPreviewReceipt(receipt)}
+      />
 
       {/* Add Modal */}
       <OperationBillModal

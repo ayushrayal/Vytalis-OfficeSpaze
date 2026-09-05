@@ -8,6 +8,7 @@ import DedicatedSpaceTable from '../components/DedicatedSpaceTable';
 import DedicatedSpaceModal from '../components/DedicatedSpaceModal';
 import DeleteDedicatedSpaceModal from '../components/DeleteDedicatedSpaceModal';
 import AgreementPreview from '../components/AgreementPreview';
+import DedicatedSpaceDetailsDrawer from '../components/DedicatedSpaceDetailsDrawer';
 import DedicatedSpaceEmptyState from '../components/DedicatedSpaceEmptyState';
 import DedicatedSpaceSkeleton from '../components/DedicatedSpaceSkeleton';
 import {
@@ -27,11 +28,12 @@ const DedicatedSpacePage = () => {
   const [businessTypeFilter, setBusinessTypeFilter] = useState('All');
   const [dateFilter, setDateFilter] = useState('All');
 
-  // Modals State
+  // Modals & Drawer State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingSpace, setEditingSpace] = useState(null);
   const [deletingSpace, setDeletingSpace] = useState(null);
   const [previewAgreement, setPreviewAgreement] = useState(null);
+  const [selectedSpace, setSelectedSpace] = useState(null);
 
   // Query & Mutations
   const { data: spaces = [], isLoading, isError, error, refetch, isFetching } = useDedicatedSpaces();
@@ -157,6 +159,7 @@ const DedicatedSpacePage = () => {
           {filteredSpaces.length > 0 ? (
             <DedicatedSpaceTable
               spaces={filteredSpaces}
+              onSelectRecord={(space) => setSelectedSpace(space)}
               onEdit={(space) => setEditingSpace(space)}
               onDelete={(space) => setDeletingSpace(space)}
               onViewAgreement={(agreement) => setPreviewAgreement(agreement)}
@@ -203,6 +206,16 @@ const DedicatedSpacePage = () => {
         isOpen={!!previewAgreement}
         onClose={() => setPreviewAgreement(null)}
         agreement={previewAgreement}
+      />
+
+      {/* Details Drawer */}
+      <DedicatedSpaceDetailsDrawer
+        isOpen={!!selectedSpace}
+        onClose={() => setSelectedSpace(null)}
+        space={selectedSpace}
+        onEdit={(space) => setEditingSpace(space)}
+        onDelete={(space) => setDeletingSpace(space)}
+        onViewAgreement={(agreement) => setPreviewAgreement(agreement)}
       />
     </div>
   );

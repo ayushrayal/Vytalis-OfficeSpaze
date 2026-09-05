@@ -10,7 +10,8 @@ const ManagedOfficesTable = ({
   managedOffices = [],
   onEdit,
   onDelete,
-  onPreviewAgreement
+  onPreviewAgreement,
+  onSelectRecord
 }) => {
   return (
     <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-xs overflow-hidden">
@@ -42,7 +43,8 @@ const ManagedOfficesTable = ({
               return (
                 <tr
                   key={id}
-                  className="hover:bg-neutral-50/80 transition-colors group"
+                  onClick={() => onSelectRecord && onSelectRecord(office)}
+                  className="hover:bg-neutral-50/80 transition-colors cursor-pointer"
                 >
                   {/* 1. Office No. */}
                   <td className="py-3.5 px-4 whitespace-nowrap">
@@ -144,7 +146,10 @@ const ManagedOfficesTable = ({
                     {office.agreement?.url ? (
                       <button
                         type="button"
-                        onClick={() => onPreviewAgreement(office.agreement)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onPreviewAgreement(office.agreement);
+                        }}
                         className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-red hover:underline cursor-pointer"
                       >
                         <FileText className="w-3.5 h-3.5" />
@@ -162,7 +167,10 @@ const ManagedOfficesTable = ({
                     <div className="flex items-center justify-end gap-1">
                       <button
                         type="button"
-                        onClick={() => onEdit(office)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(office);
+                        }}
                         className="p-1.5 rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:text-black hover:bg-neutral-100 transition-all cursor-pointer"
                         title="Edit managed office"
                         aria-label="Edit managed office"
@@ -171,7 +179,10 @@ const ManagedOfficesTable = ({
                       </button>
                       <button
                         type="button"
-                        onClick={() => onDelete(office)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(office);
+                        }}
                         className="p-1.5 rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:text-brand-red hover:bg-red-50 hover:border-red-200 transition-all cursor-pointer"
                         title="Delete managed office"
                         aria-label="Delete managed office"

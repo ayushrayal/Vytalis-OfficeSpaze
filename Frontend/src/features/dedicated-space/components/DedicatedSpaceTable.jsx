@@ -10,7 +10,8 @@ const DedicatedSpaceTable = ({
   spaces = [],
   onEdit,
   onDelete,
-  onViewAgreement
+  onViewAgreement,
+  onSelectRecord
 }) => {
   return (
     <div className="table-container bg-white border border-[#E5E5E5] rounded-xl shadow-sm overflow-hidden mb-6 font-urbanist">
@@ -42,7 +43,8 @@ const DedicatedSpaceTable = ({
               return (
                 <tr
                   key={id}
-                  className="hover:bg-[#F5F0EB]/30 transition-colors group"
+                  onClick={() => onSelectRecord && onSelectRecord(space)}
+                  className="hover:bg-[#F5F0EB]/50 transition-colors cursor-pointer group"
                 >
                   {/* Client Name */}
                   <td className="py-3.5 px-4 font-semibold text-[#000000] whitespace-nowrap">
@@ -117,7 +119,10 @@ const DedicatedSpaceTable = ({
                     {hasAgreement ? (
                       <button
                         type="button"
-                        onClick={() => onViewAgreement(space.agreement)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onViewAgreement(space.agreement);
+                        }}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/5 hover:bg-[#000000] hover:text-white text-xs font-medium text-[#000000] transition-all max-w-[150px]"
                         title="View Agreement Document"
                       >
@@ -137,7 +142,10 @@ const DedicatedSpaceTable = ({
                     <div className="flex items-center justify-end gap-1">
                       <button
                         type="button"
-                        onClick={() => onEdit(space)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(space);
+                        }}
                         className="p-1.5 text-[#505050] hover:text-[#000000] hover:bg-[#F5F0EB] rounded-lg transition-colors"
                         title="Edit Dedicated Space"
                       >
@@ -145,7 +153,10 @@ const DedicatedSpaceTable = ({
                       </button>
                       <button
                         type="button"
-                        onClick={() => onDelete(space)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(space);
+                        }}
                         className="p-1.5 text-[#505050] hover:text-[#ED1F23] hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete Dedicated Space"
                       >

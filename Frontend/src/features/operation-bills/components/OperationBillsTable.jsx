@@ -6,7 +6,8 @@ const OperationBillsTable = ({
   bills = [],
   onEdit,
   onDelete,
-  onViewReceipt
+  onViewReceipt,
+  onSelectRecord
 }) => {
   return (
     <div className="table-container bg-white border border-[#E5E5E5] rounded-xl shadow-sm overflow-hidden mb-6">
@@ -31,7 +32,8 @@ const OperationBillsTable = ({
               return (
                 <tr
                   key={id}
-                  className="hover:bg-[#F5F0EB]/30 transition-colors group"
+                  onClick={() => onSelectRecord && onSelectRecord(bill)}
+                  className="hover:bg-[#F5F0EB]/30 transition-colors group cursor-pointer"
                 >
                   {/* Date */}
                   <td className="py-3.5 px-4 font-semibold text-[#000000] whitespace-nowrap">
@@ -68,7 +70,10 @@ const OperationBillsTable = ({
                     {hasReceipt ? (
                       <button
                         type="button"
-                        onClick={() => onViewReceipt(bill.receipt)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onViewReceipt(bill.receipt);
+                        }}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/5 hover:bg-[#000000] hover:text-white text-xs font-medium text-[#000000] transition-all max-w-[160px]"
                         title="View Attached Receipt"
                       >
@@ -93,7 +98,10 @@ const OperationBillsTable = ({
                     <div className="flex items-center justify-end gap-1">
                       <button
                         type="button"
-                        onClick={() => onEdit(bill)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(bill);
+                        }}
                         className="p-1.5 text-[#505050] hover:text-[#000000] hover:bg-[#F5F0EB] rounded-lg transition-colors"
                         title="Edit Operation Bill"
                       >
@@ -101,7 +109,10 @@ const OperationBillsTable = ({
                       </button>
                       <button
                         type="button"
-                        onClick={() => onDelete(bill)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(bill);
+                        }}
                         className="p-1.5 text-[#505050] hover:text-[#ED1F23] hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete Operation Bill"
                       >

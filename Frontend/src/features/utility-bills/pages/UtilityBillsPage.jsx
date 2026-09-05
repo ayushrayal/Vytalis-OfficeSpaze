@@ -19,6 +19,7 @@ import UtilityBillModal from '../components/UtilityBillModal';
 import DeleteUtilityBillModal from '../components/DeleteUtilityBillModal';
 import PauseUtilityBillModal from '../components/PauseUtilityBillModal';
 import ReceiptPreview from '../components/ReceiptPreview';
+import UtilityBillDetailsDrawer from '../components/UtilityBillDetailsDrawer';
 
 const UtilityBillsPage = () => {
   const { data: utilityBills = [], isLoading, isError, refetch, isFetching } = useUtilityBills();
@@ -37,7 +38,7 @@ const UtilityBillsPage = () => {
   const [dateFilter, setDateFilter] = useState('All');
   const [isDueOnlyView, setIsDueOnlyView] = useState(false);
 
-  // Modal States
+  // Modal & Drawer States
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingBill, setEditingBill] = useState(null);
 
@@ -50,6 +51,8 @@ const UtilityBillsPage = () => {
 
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [previewReceipt, setPreviewReceipt] = useState(null);
+
+  const [selectedBill, setSelectedBill] = useState(null);
 
   // Calculate due count from dedicated endpoint or query list
   const dueBillsCount = dueData?.count ?? utilityBills.filter((b) => b.status === 'Due').length;
@@ -272,11 +275,23 @@ const UtilityBillsPage = () => {
                 onDelete={handleOpenDeleteModal}
                 onTogglePause={handleOpenPauseModal}
                 onPreviewReceipt={handleOpenReceiptPreview}
+                onSelectRecord={setSelectedBill}
               />
             )}
           </div>
         </>
       )}
+
+      {/* Details Drawer */}
+      <UtilityBillDetailsDrawer
+        isOpen={Boolean(selectedBill)}
+        onClose={() => setSelectedBill(null)}
+        bill={selectedBill}
+        onEdit={handleOpenEditModal}
+        onDelete={handleOpenDeleteModal}
+        onTogglePause={handleOpenPauseModal}
+        onViewReceipt={handleOpenReceiptPreview}
+      />
 
       {/* Add / Edit Modal */}
       <UtilityBillModal

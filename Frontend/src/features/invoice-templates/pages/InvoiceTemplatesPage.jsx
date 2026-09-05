@@ -8,6 +8,7 @@ import InvoiceTemplatesTable from '../components/InvoiceTemplatesTable';
 import InvoiceTemplateModal from '../components/InvoiceTemplateModal';
 import InvoiceTemplatePreview from '../components/InvoiceTemplatePreview';
 import DeleteInvoiceTemplateModal from '../components/DeleteInvoiceTemplateModal';
+import InvoiceTemplateDetailsDrawer from '../components/InvoiceTemplateDetailsDrawer';
 import InvoiceTemplatesEmptyState from '../components/InvoiceTemplatesEmptyState';
 import InvoiceTemplatesSkeleton from '../components/InvoiceTemplatesSkeleton';
 import {
@@ -28,11 +29,12 @@ const InvoiceTemplatesPage = () => {
   const [paymentFilter, setPaymentFilter] = useState('All');
   const [gstFilter, setGstFilter] = useState('All');
 
-  // Modals State
+  // Modals & Drawer State
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState(null);
   const [deletingTemplate, setDeletingTemplate] = useState(null);
   const [previewTemplate, setPreviewTemplate] = useState(null);
+  const [selectedTemplate, setSelectedTemplate] = useState(null);
   const [pdfLoadingId, setPdfLoadingId] = useState(null);
 
   // Query & Mutations
@@ -167,6 +169,7 @@ const InvoiceTemplatesPage = () => {
           {filteredTemplates.length > 0 ? (
             <InvoiceTemplatesTable
               templates={filteredTemplates}
+              onSelectRecord={(tpl) => setSelectedTemplate(tpl)}
               onPreview={(tpl) => setPreviewTemplate(tpl)}
               onPdf={handleGeneratePdf}
               onEdit={(tpl) => setEditingTemplate(tpl)}
@@ -216,6 +219,18 @@ const InvoiceTemplatesPage = () => {
         template={previewTemplate}
         onGeneratePdf={handleGeneratePdf}
         isPdfLoading={pdfLoadingId === (previewTemplate?.id || previewTemplate?._id)}
+      />
+
+      {/* Details Drawer */}
+      <InvoiceTemplateDetailsDrawer
+        isOpen={!!selectedTemplate}
+        onClose={() => setSelectedTemplate(null)}
+        template={selectedTemplate}
+        onEdit={(tpl) => setEditingTemplate(tpl)}
+        onDelete={(tpl) => setDeletingTemplate(tpl)}
+        onPdf={handleGeneratePdf}
+        onPreview={(tpl) => setPreviewTemplate(tpl)}
+        isPdfLoading={pdfLoadingId === (selectedTemplate?.id || selectedTemplate?._id)}
       />
     </div>
   );

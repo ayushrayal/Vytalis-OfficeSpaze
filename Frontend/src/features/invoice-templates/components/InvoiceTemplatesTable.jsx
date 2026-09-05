@@ -12,6 +12,7 @@ const InvoiceTemplatesTable = ({
   onPdf,
   onEdit,
   onDelete,
+  onSelectRecord,
   pdfLoadingId = null
 }) => {
   return (
@@ -44,7 +45,8 @@ const InvoiceTemplatesTable = ({
               return (
                 <tr
                   key={id}
-                  className="hover:bg-[#F5F0EB]/30 transition-colors group"
+                  onClick={() => onSelectRecord && onSelectRecord(tpl)}
+                  className="hover:bg-[#F5F0EB]/50 transition-colors cursor-pointer group"
                 >
                   {/* Invoice # */}
                   <td className="py-3.5 px-4 font-bold text-[#000000] whitespace-nowrap">
@@ -123,7 +125,10 @@ const InvoiceTemplatesTable = ({
                     <div className="flex items-center justify-end gap-1">
                       <button
                         type="button"
-                        onClick={() => onPreview(tpl)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onPreview(tpl);
+                        }}
                         className="p-1.5 text-[#505050] hover:text-[#000000] hover:bg-[#F5F0EB] rounded-lg transition-colors"
                         title="Preview Document"
                       >
@@ -132,7 +137,10 @@ const InvoiceTemplatesTable = ({
 
                       <button
                         type="button"
-                        onClick={() => onPdf(id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onPdf(id);
+                        }}
                         disabled={isPdfLoading}
                         className="p-1.5 text-[#505050] hover:text-[#ED1F23] hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                         title="Generate PDF"
@@ -146,7 +154,10 @@ const InvoiceTemplatesTable = ({
 
                       <button
                         type="button"
-                        onClick={() => onEdit(tpl)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(tpl);
+                        }}
                         className="p-1.5 text-[#505050] hover:text-[#000000] hover:bg-[#F5F0EB] rounded-lg transition-colors"
                         title="Edit Invoice Template"
                       >
@@ -155,7 +166,10 @@ const InvoiceTemplatesTable = ({
 
                       <button
                         type="button"
-                        onClick={() => onDelete(tpl)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(tpl);
+                        }}
                         className="p-1.5 text-[#505050] hover:text-[#ED1F23] hover:bg-red-50 rounded-lg transition-colors"
                         title="Delete Invoice Template"
                       >

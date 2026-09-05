@@ -5,7 +5,8 @@ import { formatCurrencyINR } from '../utils/salaries.utils';
 const SalariesTable = ({
   salaries = [],
   onEdit,
-  onDelete
+  onDelete,
+  onSelectRecord
 }) => {
   return (
     <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-xs overflow-hidden">
@@ -30,7 +31,8 @@ const SalariesTable = ({
               return (
                 <tr
                   key={id}
-                  className="hover:bg-neutral-50/80 transition-colors group"
+                  onClick={() => onSelectRecord && onSelectRecord(item)}
+                  className="hover:bg-neutral-50/80 transition-colors cursor-pointer"
                 >
                   {/* 1. Employee */}
                   <td className="py-3.5 px-4 font-bold text-black whitespace-nowrap">
@@ -48,7 +50,7 @@ const SalariesTable = ({
                   <td className="py-3.5 px-4 font-semibold text-neutral-800 whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
                       <Briefcase className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                      <span>{item.role}</span>
+                      <span>{item.role || item.employeeRole}</span>
                     </div>
                   </td>
 
@@ -56,8 +58,8 @@ const SalariesTable = ({
                   <td className="py-3.5 px-4 font-medium text-neutral-700">
                     <div className="flex items-center gap-1.5 max-w-[200px]">
                       <Mail className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                      <span className="truncate" title={item.email}>
-                        {item.email}
+                      <span className="truncate" title={item.email || item.employeeEmail}>
+                        {item.email || item.employeeEmail}
                       </span>
                     </div>
                   </td>
@@ -66,7 +68,7 @@ const SalariesTable = ({
                   <td className="py-3.5 px-4 font-medium text-neutral-700 whitespace-nowrap">
                     <div className="flex items-center gap-1.5">
                       <Phone className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
-                      <span>{item.phone}</span>
+                      <span>{item.phone || item.employeePhone}</span>
                     </div>
                   </td>
 
@@ -100,7 +102,10 @@ const SalariesTable = ({
                     <div className="flex items-center justify-end gap-1">
                       <button
                         type="button"
-                        onClick={() => onEdit(item)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(item);
+                        }}
                         className="p-1.5 rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:text-black hover:bg-neutral-100 transition-all cursor-pointer"
                         title="Edit salary record"
                         aria-label="Edit salary record"
@@ -110,7 +115,10 @@ const SalariesTable = ({
 
                       <button
                         type="button"
-                        onClick={() => onDelete(item)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(item);
+                        }}
                         className="p-1.5 rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:text-brand-red hover:bg-red-50 hover:border-red-200 transition-all cursor-pointer"
                         title="Delete salary record"
                         aria-label="Delete salary record"

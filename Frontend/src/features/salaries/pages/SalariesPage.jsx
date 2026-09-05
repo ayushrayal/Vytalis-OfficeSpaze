@@ -16,6 +16,7 @@ import SalariesSkeleton from '../components/SalariesSkeleton';
 import SalariesEmptyState from '../components/SalariesEmptyState';
 import SalaryModal from '../components/SalaryModal';
 import DeleteSalaryModal from '../components/DeleteSalaryModal';
+import SalaryDetailsDrawer from '../components/SalaryDetailsDrawer';
 
 const SalariesPage = () => {
   const { data: salaries = [], isLoading, isError, refetch, isFetching } = useSalaries();
@@ -31,12 +32,14 @@ const SalariesPage = () => {
   const [statusFilter, setStatusFilter] = useState('All');
   const [roleFilter, setRoleFilter] = useState('All');
 
-  // Modal States
+  // Modal & Drawer States
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingSalary, setEditingSalary] = useState(null);
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [deletingSalary, setDeletingSalary] = useState(null);
+
+  const [selectedSalary, setSelectedSalary] = useState(null);
 
   // Available unique roles for filter dropdown
   const availableRoles = useMemo(() => extractUniqueRoles(salaries), [salaries]);
@@ -197,11 +200,21 @@ const SalariesPage = () => {
                 salaries={filteredSalaries}
                 onEdit={handleOpenEditModal}
                 onDelete={handleOpenDeleteModal}
+                onSelectRecord={setSelectedSalary}
               />
             )}
           </div>
         </>
       )}
+
+      {/* Details Drawer */}
+      <SalaryDetailsDrawer
+        isOpen={Boolean(selectedSalary)}
+        onClose={() => setSelectedSalary(null)}
+        salary={selectedSalary}
+        onEdit={handleOpenEditModal}
+        onDelete={handleOpenDeleteModal}
+      />
 
       {/* Add / Edit Modal */}
       <SalaryModal

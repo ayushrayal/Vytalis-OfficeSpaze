@@ -16,6 +16,7 @@ import VirtualOfficesEmptyState from '../components/VirtualOfficesEmptyState';
 import VirtualOfficeModal from '../components/VirtualOfficeModal';
 import DeleteVirtualOfficeModal from '../components/DeleteVirtualOfficeModal';
 import AgreementPreview from '../components/AgreementPreview';
+import VirtualOfficeDetailsDrawer from '../components/VirtualOfficeDetailsDrawer';
 
 const VirtualOfficesPage = () => {
   const { data: virtualOffices = [], isLoading, isError, refetch, isFetching } = useVirtualOffices();
@@ -29,7 +30,7 @@ const VirtualOfficesPage = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
-  // Modal States
+  // Modal & Drawer States
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingOffice, setEditingOffice] = useState(null);
 
@@ -38,6 +39,8 @@ const VirtualOfficesPage = () => {
 
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [previewAgreement, setPreviewAgreement] = useState(null);
+
+  const [selectedOffice, setSelectedOffice] = useState(null);
 
   // Filtered data calculation
   const filteredOffices = useMemo(() => {
@@ -197,11 +200,22 @@ const VirtualOfficesPage = () => {
                 onEdit={handleOpenEditModal}
                 onDelete={handleOpenDeleteModal}
                 onPreviewAgreement={handleOpenAgreementPreview}
+                onSelectRecord={setSelectedOffice}
               />
             )}
           </div>
         </>
       )}
+
+      {/* Details Drawer */}
+      <VirtualOfficeDetailsDrawer
+        isOpen={Boolean(selectedOffice)}
+        onClose={() => setSelectedOffice(null)}
+        office={selectedOffice}
+        onEdit={handleOpenEditModal}
+        onDelete={handleOpenDeleteModal}
+        onViewAgreement={handleOpenAgreementPreview}
+      />
 
       {/* Add / Edit Modal */}
       <VirtualOfficeModal

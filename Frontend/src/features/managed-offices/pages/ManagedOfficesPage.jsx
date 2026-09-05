@@ -16,6 +16,7 @@ import ManagedOfficesEmptyState from '../components/ManagedOfficesEmptyState';
 import ManagedOfficeModal from '../components/ManagedOfficeModal';
 import DeleteManagedOfficeModal from '../components/DeleteManagedOfficeModal';
 import AgreementPreview from '../components/AgreementPreview';
+import ManagedOfficeDetailsDrawer from '../components/ManagedOfficeDetailsDrawer';
 
 const ManagedOfficesPage = () => {
   const { data: managedOffices = [], isLoading, isError, refetch, isFetching } = useManagedOffices();
@@ -29,7 +30,7 @@ const ManagedOfficesPage = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
 
-  // Modal States
+  // Modal & Drawer States
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingOffice, setEditingOffice] = useState(null);
 
@@ -38,6 +39,8 @@ const ManagedOfficesPage = () => {
 
   const [isPreviewModalOpen, setIsPreviewModalOpen] = useState(false);
   const [previewAgreement, setPreviewAgreement] = useState(null);
+
+  const [selectedOffice, setSelectedOffice] = useState(null);
 
   // Filtered data calculation
   const filteredOffices = useMemo(() => {
@@ -197,11 +200,22 @@ const ManagedOfficesPage = () => {
                 onEdit={handleOpenEditModal}
                 onDelete={handleOpenDeleteModal}
                 onPreviewAgreement={handleOpenAgreementPreview}
+                onSelectRecord={setSelectedOffice}
               />
             )}
           </div>
         </>
       )}
+
+      {/* Details Drawer */}
+      <ManagedOfficeDetailsDrawer
+        isOpen={Boolean(selectedOffice)}
+        onClose={() => setSelectedOffice(null)}
+        office={selectedOffice}
+        onEdit={handleOpenEditModal}
+        onDelete={handleOpenDeleteModal}
+        onViewAgreement={handleOpenAgreementPreview}
+      />
 
       {/* Add / Edit Modal */}
       <ManagedOfficeModal

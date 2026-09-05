@@ -18,6 +18,7 @@ import WalkinsFilters from '../components/WalkinsFilters';
 import WalkinsTable from '../components/WalkinsTable';
 import WalkinModal from '../components/WalkinModal';
 import DeleteWalkinModal from '../components/DeleteWalkinModal';
+import WalkinDetailsDrawer from '../components/WalkinDetailsDrawer';
 import WalkinsEmptyState from '../components/WalkinsEmptyState';
 import WalkinsSkeleton from '../components/WalkinsSkeleton';
 
@@ -29,10 +30,11 @@ const WalkinsPage = () => {
   const [dateFilter, setDateFilter] = useState('all');
   const [sourceFilter, setSourceFilter] = useState('all');
 
-  // Modal States
+  // Modal & Drawer States
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [editingWalkin, setEditingWalkin] = useState(null);
   const [deletingWalkin, setDeletingWalkin] = useState(null);
+  const [selectedWalkin, setSelectedWalkin] = useState(null);
 
   // Queries & Mutations
   const { data: walkins = [], isLoading, isError, error, refetch } = useWalkins();
@@ -50,11 +52,14 @@ const WalkinsPage = () => {
   // Entrance Animation
   useEffect(() => {
     if (!isLoading && !isError && containerRef.current) {
-      gsap.fromTo(
-        containerRef.current,
-        { opacity: 0, y: 15 },
-        { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }
-      );
+      const ctx = gsap.context(() => {
+        gsap.fromTo(
+          '.walkin-section',
+          { opacity: 0, y: 15 },
+          { opacity: 1, y: 0, duration: 0.4, stagger: 0.08, ease: 'power2.out' }
+        );
+      }, containerRef);
+      return () => ctx.revert();
     }
   }, [isLoading, isError]);
 
@@ -138,37 +143,55 @@ const WalkinsPage = () => {
   return (
     <div ref={containerRef} className="space-y-6 font-urbanist">
       {/* Header */}
-      <WalkinsHeader onAddClick={handleOpenAddModal} />
+      <div className="walkin-section">
+        <WalkinsHeader onAddClick={handleOpenAddModal} />
+      </div>
 
       {/* Summary KPI Strip */}
-      <WalkinsSummaryStrip metrics={metrics} />
+      <div className="walkin-section">
+        <WalkinsSummaryStrip metrics={metrics} />
+      </div>
 
       {/* Filters Bar */}
-      <WalkinsFilters
-        search={search}
-        onSearchChange={setSearch}
-        dateFilter={dateFilter}
-        onDateFilterChange={setDateFilter}
-        sourceFilter={sourceFilter}
-        onSourceFilterChange={setSourceFilter}
-        sources={sources}
-        onClearFilters={handleClearFilters}
-      />
-
-      {/* Main Table or Empty State */}
-      {filteredWalkins.length > 0 ? (
-        <WalkinsTable
-          walkins={filteredWalkins}
-          onEdit={handleOpenEditModal}
-          onDelete={setDeletingWalkin}
-        />
-      ) : (
-        <WalkinsEmptyState
-          isFiltered={isFiltered}
-          onAddClick={handleOpenAddModal}
+      <div className="walkin-section">
+        <WalkinsFilters
+          search={search}
+          onSearchChange={setSearch}
+          dateFilter={dateFilter}
+          onDateFilterChange={setDateFilter}
+          sourceFilter={sourceFilter}
+          onSourceFilterChange={setSourceFilter}
+          sources={sources}
           onClearFilters={handleClearFilters}
         />
-      )}
+      </div>
+
+      {/* Main Table or Empty State */}
+      <div className="walkin-section">
+        {filteredWalkins.length > 0 ? (
+          <WalkinsTable
+            walkins={filteredWalkins}
+            onEdit={handleOpenEditModal}
+            onDelete={setDeletingWalkin}
+            onSelectRecord={setSelectedWalkin}
+          />
+        ) : (
+          <WalkinsEmptyState
+            isFiltered={isFiltered}
+            onAddClick={handleOpenAddModal}
+            onClearFilters={handleClearFilters}
+          />
+        )}
+      </div>
+
+      {/* Details Drawer */}
+      <WalkinDetailsDrawer
+        isOpen={Boolean(selectedWalkin)}
+        onClose={() => setSelectedWalkin(null)}
+        walkin={selectedWalkin}
+        onEdit={handleOpenEditModal}
+        onDelete={setDeletingWalkin}
+      />
 
       {/* Add / Edit Form Modal */}
       <WalkinModal

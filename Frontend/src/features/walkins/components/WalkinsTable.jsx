@@ -3,7 +3,7 @@ import { Edit2, Trash2, Mail, Phone, Calendar, User, Tag, FileText, Info } from 
 import { formatDateDisplay } from '../utils/walkin.utils';
 import { format } from 'date-fns';
 
-const WalkinsTable = ({ walkins = [], onEdit, onDelete }) => {
+const WalkinsTable = ({ walkins = [], onEdit, onDelete, onSelectRecord }) => {
   const [selectedNotes, setSelectedNotes] = useState(null);
 
   return (
@@ -31,7 +31,11 @@ const WalkinsTable = ({ walkins = [], onEdit, onDelete }) => {
                   : '—';
 
                 return (
-                  <tr key={item._id} className="hover:bg-neutral-50/60 transition-colors">
+                  <tr
+                    key={item._id}
+                    onClick={() => onSelectRecord && onSelectRecord(item)}
+                    className="hover:bg-neutral-50/80 transition-colors cursor-pointer"
+                  >
                     {/* Name */}
                     <td className="py-4 px-4 sm:px-6 font-semibold text-neutral-900">
                       <div className="flex items-center gap-2.5">
@@ -86,7 +90,10 @@ const WalkinsTable = ({ walkins = [], onEdit, onDelete }) => {
                           {item.notes.length > 30 && (
                             <button
                               type="button"
-                              onClick={() => setSelectedNotes({ name: item.name, notes: item.notes })}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedNotes({ name: item.name, notes: item.notes });
+                              }}
                               className="text-neutral-400 hover:text-[#ED1F23] transition-colors p-0.5"
                               title="View full notes"
                             >
@@ -109,7 +116,10 @@ const WalkinsTable = ({ walkins = [], onEdit, onDelete }) => {
                       <div className="flex items-center justify-end gap-1.5">
                         <button
                           type="button"
-                          onClick={() => onEdit(item)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEdit(item);
+                          }}
                           className="p-1.5 rounded-lg text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 transition-all"
                           title="Edit Walk-in"
                         >
@@ -117,7 +127,10 @@ const WalkinsTable = ({ walkins = [], onEdit, onDelete }) => {
                         </button>
                         <button
                           type="button"
-                          onClick={() => onDelete(item)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onDelete(item);
+                          }}
                           className="p-1.5 rounded-lg text-neutral-400 hover:text-[#ED1F23] hover:bg-[#ED1F23]/10 transition-all"
                           title="Delete Walk-in"
                         >

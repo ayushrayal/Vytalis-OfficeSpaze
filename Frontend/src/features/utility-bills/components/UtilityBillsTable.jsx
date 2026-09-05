@@ -17,7 +17,8 @@ const UtilityBillsTable = ({
   onEdit,
   onDelete,
   onTogglePause,
-  onPreviewReceipt
+  onPreviewReceipt,
+  onSelectRecord
 }) => {
   return (
     <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-xs overflow-hidden">
@@ -45,7 +46,8 @@ const UtilityBillsTable = ({
               return (
                 <tr
                   key={id}
-                  className="hover:bg-neutral-50/80 transition-colors group"
+                  onClick={() => onSelectRecord && onSelectRecord(bill)}
+                  className="hover:bg-neutral-50/80 transition-colors cursor-pointer"
                 >
                   {/* 1. Bill Name */}
                   <td className="py-3.5 px-4 font-bold text-black max-w-[220px]">
@@ -57,7 +59,7 @@ const UtilityBillsTable = ({
                   {/* 2. Amount */}
                   <td className="py-3.5 px-4 font-bold text-black whitespace-nowrap">
                     <span className="px-2.5 py-1 rounded-lg bg-neutral-100 font-bold text-black border border-neutral-200">
-                      {formatCurrencyINR(bill.billAmount)}
+                      {formatCurrencyINR(bill.billAmount || bill.amount)}
                     </span>
                   </td>
 
@@ -106,7 +108,10 @@ const UtilityBillsTable = ({
                     {bill.receipt?.url ? (
                       <button
                         type="button"
-                        onClick={() => onPreviewReceipt(bill.receipt)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onPreviewReceipt(bill.receipt);
+                        }}
                         className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-red hover:underline cursor-pointer"
                       >
                         <FileText className="w-3.5 h-3.5" />
@@ -138,7 +143,10 @@ const UtilityBillsTable = ({
                     <div className="flex items-center justify-end gap-1">
                       <button
                         type="button"
-                        onClick={() => onTogglePause(bill, !isPaused)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onTogglePause(bill, !isPaused);
+                        }}
                         className={`p-1.5 rounded-lg border transition-all cursor-pointer ${
                           isPaused
                             ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
@@ -156,7 +164,10 @@ const UtilityBillsTable = ({
 
                       <button
                         type="button"
-                        onClick={() => onEdit(bill)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onEdit(bill);
+                        }}
                         className="p-1.5 rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:text-black hover:bg-neutral-100 transition-all cursor-pointer"
                         title="Edit utility bill"
                         aria-label="Edit utility bill"
@@ -166,7 +177,10 @@ const UtilityBillsTable = ({
 
                       <button
                         type="button"
-                        onClick={() => onDelete(bill)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDelete(bill);
+                        }}
                         className="p-1.5 rounded-lg border border-neutral-200 bg-white text-neutral-600 hover:text-brand-red hover:bg-red-50 hover:border-red-200 transition-all cursor-pointer"
                         title="Delete utility bill"
                         aria-label="Delete utility bill"
