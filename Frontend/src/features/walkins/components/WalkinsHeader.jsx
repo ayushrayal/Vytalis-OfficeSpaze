@@ -31,12 +31,12 @@ const WalkinsHeader = ({ onAddClick }) => {
         </p>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
         <button
           type="button"
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-medium text-neutral-700 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 transition-all disabled:opacity-50 font-urbanist shadow-xs"
+          className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-medium text-neutral-700 hover:bg-neutral-50 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 transition-all disabled:opacity-50 font-urbanist shadow-xs"
           title="Refresh Walk-ins"
         >
           <RefreshCw className={`w-4 h-4 text-neutral-500 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -46,7 +46,7 @@ const WalkinsHeader = ({ onAddClick }) => {
         <button
           type="button"
           onClick={onAddClick}
-          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[#ED1F23] text-white text-sm font-semibold hover:bg-[#d0191d] focus:outline-none focus:ring-2 focus:ring-[#ED1F23]/20 transition-all shadow-sm font-urbanist"
+          className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-3.5 sm:px-4 py-2.5 rounded-xl bg-[#ED1F23] text-white text-sm font-semibold hover:bg-[#d0191d] focus:outline-none focus:ring-2 focus:ring-[#ED1F23]/20 transition-all shadow-sm font-urbanist"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>Add Walk-in</span>

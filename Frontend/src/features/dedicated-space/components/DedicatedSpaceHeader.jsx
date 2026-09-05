@@ -13,12 +13,12 @@ const DedicatedSpaceHeader = ({ onAddClick, onRefresh, isFetching = false }) => 
         </p>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2.5 sm:gap-3 w-full md:w-auto">
         <button
           type="button"
           onClick={onRefresh}
           disabled={isFetching}
-          className="inline-flex items-center gap-2 px-3.5 py-2 text-sm font-medium text-[#505050] bg-white border border-[#E5E5E5] rounded-lg hover:text-[#000000] hover:bg-[#F5F0EB]/50 transition-colors disabled:opacity-50"
+          className="flex-1 md:flex-initial inline-flex items-center justify-center gap-2 px-3.5 py-2 text-sm font-medium text-[#505050] bg-white border border-[#E5E5E5] rounded-lg hover:text-[#000000] hover:bg-[#F5F0EB]/50 transition-colors disabled:opacity-50"
           title="Refresh Data"
         >
           <RotateCw className={`w-4 h-4 ${isFetching ? 'animate-spin text-[#ED1F23]' : ''}`} />
@@ -28,7 +28,7 @@ const DedicatedSpaceHeader = ({ onAddClick, onRefresh, isFetching = false }) => 
         <button
           type="button"
           onClick={onAddClick}
-          className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#000000] rounded-lg hover:bg-[#ED1F23] transition-colors shadow-sm"
+          className="flex-1 md:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white bg-[#000000] rounded-lg hover:bg-[#ED1F23] transition-colors shadow-sm"
         >
           <Plus className="w-4 h-4" />
           <span>Add Dedicated Space</span>

@@ -25,7 +25,7 @@ const OperationBillDetailsDrawer = ({
     : 'Not provided';
 
   const footerActions = (
-    <div className="flex items-center justify-between w-full gap-3">
+    <div className="flex flex-wrap sm:flex-nowrap items-center justify-between w-full gap-2.5 sm:gap-3">
       {bill.receipt?.url ? (
         <button
           type="button"
@@ -33,23 +33,21 @@ const OperationBillDetailsDrawer = ({
             onClose();
             onViewReceipt && onViewReceipt(bill.receipt);
           }}
-          className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-neutral-100 text-neutral-800 text-sm font-semibold hover:bg-neutral-200 transition-all border border-neutral-200"
+          className="inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-neutral-100 text-neutral-800 text-sm font-semibold hover:bg-neutral-200 transition-all border border-neutral-200 w-full sm:w-auto cursor-pointer"
         >
           <FileText className="w-4 h-4 text-[#ED1F23]" />
           <span>View Receipt</span>
         </button>
-      ) : (
-        <div />
-      )}
+      ) : null}
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
         <button
           type="button"
           onClick={() => {
             onClose();
             onDelete(bill);
           }}
-          className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-700 hover:text-[#ED1F23] hover:bg-[#ED1F23]/10 hover:border-[#ED1F23]/20 transition-all"
+          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-700 hover:text-[#ED1F23] hover:bg-[#ED1F23]/10 hover:border-[#ED1F23]/20 transition-all cursor-pointer"
         >
           <Trash2 className="w-4 h-4" />
           <span>Delete</span>
@@ -61,7 +59,7 @@ const OperationBillDetailsDrawer = ({
             onClose();
             onEdit(bill);
           }}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-all shadow-xs"
+          className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-all shadow-xs cursor-pointer"
         >
           <Edit2 className="w-4 h-4" />
           <span>Edit Bill</span>

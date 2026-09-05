@@ -30,13 +30,13 @@ const UtilityBillsHeader = ({
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-2.5 self-start sm:self-auto shrink-0">
+      <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto shrink-0">
         {onRefresh && (
           <button
             type="button"
             onClick={onRefresh}
             disabled={isFetching}
-            className="p-2.5 rounded-xl border border-neutral-200 bg-white text-neutral-600 hover:text-black hover:bg-neutral-50 hover:border-neutral-300 transition-all cursor-pointer disabled:opacity-50"
+            className="p-2.5 rounded-xl border border-neutral-200 bg-white text-neutral-600 hover:text-black hover:bg-neutral-50 hover:border-neutral-300 transition-all cursor-pointer disabled:opacity-50 shrink-0"
             title="Refresh data"
             aria-label="Refresh data"
           >
@@ -47,7 +47,7 @@ const UtilityBillsHeader = ({
         <button
           type="button"
           onClick={onToggleDueOnlyView}
-          className={`inline-flex items-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+          className={`flex-1 sm:flex-initial inline-flex items-center justify-center gap-1.5 px-3.5 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
             isDueOnlyView
               ? 'bg-amber-500 text-white border-amber-600 shadow-xs'
               : 'bg-neutral-100 text-neutral-800 border-neutral-200 hover:bg-neutral-200/70'
@@ -67,7 +67,7 @@ const UtilityBillsHeader = ({
         <button
           type="button"
           onClick={onAddClick}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-red text-white text-sm font-bold shadow-xs hover:bg-brand-red/90 focus:outline-hidden transition-all cursor-pointer active:scale-[0.98]"
+          className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-red text-white text-sm font-bold shadow-xs hover:bg-brand-red/90 focus:outline-hidden transition-all cursor-pointer active:scale-[0.98]"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>Add Utility Bill</span>

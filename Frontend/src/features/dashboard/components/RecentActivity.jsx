@@ -28,12 +28,12 @@ const RecentActivity = ({ data }) => {
           {activities.map((act) => (
             <div key={`${act.type}-${act.id}`} className="relative flex items-start justify-between gap-4 text-xs">
               <div className="absolute -left-6 top-1.5 w-2.5 h-2.5 rounded-full bg-brand-red ring-4 ring-white" />
-              <div className="space-y-0.5">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-text block">
+              <div className="space-y-0.5 min-w-0 flex-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider text-muted-text block truncate">
                   {act.module}
                 </span>
-                <p className="font-bold text-black">{act.title}</p>
-                <p className="text-[11px] text-muted-text">{act.subtitle}</p>
+                <p className="font-bold text-black truncate">{act.title}</p>
+                <p className="text-[11px] text-muted-text truncate">{act.subtitle}</p>
               </div>
               <span className="text-[11px] font-semibold text-muted-text whitespace-nowrap shrink-0">
                 {formatDashboardDate(act.date)}

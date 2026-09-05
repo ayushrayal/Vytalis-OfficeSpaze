@@ -53,8 +53,8 @@ const InvoiceTemplateDetailsDrawer = ({
     : 'Not provided';
 
   const footerActions = (
-    <div className="flex flex-wrap items-center justify-between w-full gap-3 font-urbanist">
-      <div className="flex items-center gap-2">
+    <div className="flex flex-wrap items-center justify-between w-full gap-2.5 sm:gap-3 font-urbanist">
+      <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
         {onPreview && (
           <button
             type="button"
@@ -62,7 +62,7 @@ const InvoiceTemplateDetailsDrawer = ({
               onClose();
               onPreview(template);
             }}
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-neutral-100 text-neutral-800 text-sm font-semibold hover:bg-neutral-200 transition-all border border-neutral-200"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-neutral-100 text-neutral-800 text-sm font-semibold hover:bg-neutral-200 transition-all border border-neutral-200 cursor-pointer"
           >
             <Eye className="w-4 h-4 text-neutral-700" />
             <span>Preview</span>
@@ -74,7 +74,7 @@ const InvoiceTemplateDetailsDrawer = ({
             type="button"
             onClick={() => onPdf(id)}
             disabled={isPdfLoading}
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#ED1F23]/10 text-[#ED1F23] text-sm font-semibold hover:bg-[#ED1F23]/20 transition-all border border-[#ED1F23]/20 disabled:opacity-50"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl bg-[#ED1F23]/10 text-[#ED1F23] text-sm font-semibold hover:bg-[#ED1F23]/20 transition-all border border-[#ED1F23]/20 disabled:opacity-50 cursor-pointer"
           >
             {isPdfLoading ? (
               <span className="w-4 h-4 border-2 border-[#ED1F23] border-t-transparent rounded-full animate-spin" />
@@ -86,7 +86,7 @@ const InvoiceTemplateDetailsDrawer = ({
         )}
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
         {onDelete && (
           <button
             type="button"
@@ -94,7 +94,7 @@ const InvoiceTemplateDetailsDrawer = ({
               onClose();
               onDelete(template);
             }}
-            className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-700 hover:text-[#ED1F23] hover:bg-[#ED1F23]/10 hover:border-[#ED1F23]/20 transition-all"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-700 hover:text-[#ED1F23] hover:bg-[#ED1F23]/10 hover:border-[#ED1F23]/20 transition-all cursor-pointer"
           >
             <Trash2 className="w-4 h-4" />
             <span>Delete</span>
@@ -108,7 +108,7 @@ const InvoiceTemplateDetailsDrawer = ({
               onClose();
               onEdit(template);
             }}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-all shadow-xs"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-all shadow-xs cursor-pointer"
           >
             <Edit2 className="w-4 h-4" />
             <span>Edit Template</span>

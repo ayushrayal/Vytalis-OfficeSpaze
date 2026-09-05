@@ -24,7 +24,7 @@ const WalkinsFilters = ({
     <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4 mb-6 font-urbanist">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Search input */}
-        <div className="relative flex-1 min-w-[240px]">
+        <div className="relative flex-1 min-w-0 w-full">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
           <input
             type="text"
@@ -44,14 +44,14 @@ const WalkinsFilters = ({
           )}
         </div>
 
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
           {/* Source Dropdown */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 w-full sm:w-auto">
             <Filter className="w-4 h-4 text-neutral-400 hidden sm:inline-block" />
             <select
               value={sourceFilter}
               onChange={(e) => onSourceFilterChange(e.target.value)}
-              className="py-2.5 pl-3 pr-8 bg-neutral-50/60 border border-neutral-200 rounded-xl text-sm font-medium text-neutral-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ED1F23]/20 focus:border-[#ED1F23] transition-all"
+              className="w-full sm:w-auto py-2.5 pl-3 pr-8 bg-neutral-50/60 border border-neutral-200 rounded-xl text-sm font-medium text-neutral-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ED1F23]/20 focus:border-[#ED1F23] transition-all"
             >
               <option value="all">All Sources ({sources.length})</option>
               {sources.map((src) => (

@@ -15,14 +15,14 @@ const SalaryDetailsDrawer = ({ isOpen, onClose, salary, onEdit, onDelete }) => {
     : 'Not provided';
 
   const footerActions = (
-    <div className="flex items-center justify-end gap-3 w-full">
+    <div className="flex flex-wrap items-center justify-end w-full gap-2 sm:gap-3">
       <button
         type="button"
         onClick={() => {
           onClose();
           onDelete(salary);
         }}
-        className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-700 hover:text-[#ED1F23] hover:bg-[#ED1F23]/10 hover:border-[#ED1F23]/20 transition-all"
+        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-700 hover:text-[#ED1F23] hover:bg-[#ED1F23]/10 hover:border-[#ED1F23]/20 transition-all cursor-pointer"
       >
         <Trash2 className="w-4 h-4" />
         <span>Delete</span>
@@ -34,7 +34,7 @@ const SalaryDetailsDrawer = ({ isOpen, onClose, salary, onEdit, onDelete }) => {
           onClose();
           onEdit(salary);
         }}
-        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-all shadow-xs"
+        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-all shadow-xs cursor-pointer"
       >
         <Edit2 className="w-4 h-4" />
         <span>Edit Salary</span>

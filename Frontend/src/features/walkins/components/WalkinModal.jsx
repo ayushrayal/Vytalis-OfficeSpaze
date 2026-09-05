@@ -16,22 +16,22 @@ const WalkinModal = ({ isOpen, onClose, initialValues, onSubmit, isSubmitting })
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-neutral-900/40 backdrop-blur-xs font-urbanist animate-fade-in">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-neutral-900/40 backdrop-blur-xs font-urbanist animate-fade-in">
       <div
         className="fixed inset-0"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl border border-neutral-200/80 overflow-hidden z-10">
+      <div className="relative w-full max-w-lg bg-white rounded-2xl shadow-xl border border-neutral-200/80 overflow-hidden z-10 max-h-[90vh] flex flex-col">
         {/* Modal Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-neutral-100 bg-neutral-50/50">
+        <div className="flex items-center justify-between px-4 sm:px-6 py-3.5 sm:py-4 border-b border-neutral-100 bg-neutral-50/50 shrink-0">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-xl bg-[#ED1F23]/10 text-[#ED1F23]">
               <UserCheck className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-neutral-900 font-urbanist">
+              <h2 className="text-base sm:text-lg font-bold text-neutral-900 font-urbanist">
                 {initialValues ? 'Edit Walk-in Record' : 'Add New Walk-in'}
               </h2>
               <p className="text-xs text-neutral-500 font-urbanist">
@@ -50,7 +50,7 @@ const WalkinModal = ({ isOpen, onClose, initialValues, onSubmit, isSubmitting })
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 max-h-[80vh] overflow-y-auto">
+        <div className="p-4 sm:p-6 overflow-y-auto flex-1">
           <WalkinForm
             initialValues={initialValues}
             onSubmit={onSubmit}

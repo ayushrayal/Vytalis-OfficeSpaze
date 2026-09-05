@@ -196,19 +196,19 @@ const WalkinForm = ({ initialValues, onSubmit, isSubmitting, onCancel }) => {
       </div>
 
       {/* Actions */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-100">
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center sm:justify-end gap-2.5 sm:gap-3 pt-4 border-t border-neutral-100">
         <button
           type="button"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="px-4 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-all font-urbanist"
+          className="px-4 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-all font-urbanist text-center"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isSubmitting}
-          className="px-5 py-2.5 rounded-xl bg-[#ED1F23] text-white text-sm font-semibold hover:bg-[#d0191d] focus:outline-none focus:ring-2 focus:ring-[#ED1F23]/20 transition-all shadow-xs font-urbanist disabled:opacity-50"
+          className="px-5 py-2.5 rounded-xl bg-[#ED1F23] text-white text-sm font-semibold hover:bg-[#d0191d] focus:outline-none focus:ring-2 focus:ring-[#ED1F23]/20 transition-all shadow-xs font-urbanist disabled:opacity-50 text-center"
         >
           {isSubmitting ? 'Saving...' : initialValues ? 'Update Walk-in' : 'Save Walk-in'}
         </button>

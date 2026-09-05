@@ -58,7 +58,7 @@ const MobileSidebar = ({ isOpen, onClose }) => {
       <aside
         ref={drawerRef}
         style={{ transform: 'translateX(-100%)' }}
-        className="fixed top-0 bottom-0 left-0 w-72 bg-black border-r border-neutral-800 text-white z-50 flex flex-col shadow-2xl"
+        className="fixed top-0 bottom-0 left-0 w-72 max-w-[85vw] bg-black border-r border-neutral-800 text-white z-50 flex flex-col shadow-2xl"
       >
         {/* Header */}
         <div className="h-16 px-4 flex items-center justify-between border-b border-neutral-800 shrink-0">

@@ -22,10 +22,10 @@ const Header = ({ onMobileMenuOpen }) => {
         </button>
 
         {/* Breadcrumb / Page Title */}
-        <div className="flex items-center gap-1.5 text-xs">
-          <span className="font-semibold text-muted-text hidden sm:inline">Application</span>
-          <ChevronRight className="w-3.5 h-3.5 text-light-gray hidden sm:inline" />
-          <h1 className="font-extrabold text-base sm:text-lg text-black tracking-tight">
+        <div className="flex items-center gap-1.5 text-xs min-w-0">
+          <span className="font-semibold text-muted-text hidden sm:inline shrink-0">Application</span>
+          <ChevronRight className="w-3.5 h-3.5 text-light-gray hidden sm:inline shrink-0" />
+          <h1 className="font-extrabold text-base sm:text-lg text-black tracking-tight truncate">
             {pageTitle}
           </h1>
         </div>

@@ -564,19 +564,19 @@ const InvoiceTemplateForm = ({
       </div>
 
       {/* Form Submit Actions */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-[#E5E5E5]">
+      <div className="flex flex-col-reverse sm:flex-row items-stretch sm:items-center sm:justify-end gap-2.5 sm:gap-3 pt-4 border-t border-[#E5E5E5]">
         <button
           type="button"
           onClick={onCancel}
           disabled={isLoading}
-          className="px-4 py-2 text-sm font-medium text-[#505050] bg-white border border-[#E5E5E5] rounded-xl hover:bg-[#F5F0EB] transition-colors"
+          className="px-4 py-2 text-sm font-medium text-[#505050] bg-white border border-[#E5E5E5] rounded-xl hover:bg-[#F5F0EB] transition-colors text-center"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={isLoading}
-          className="px-5 py-2 text-sm font-medium text-white bg-[#000000] hover:bg-[#ED1F23] rounded-xl transition-colors shadow-sm disabled:opacity-50 flex items-center gap-2"
+          className="px-5 py-2 text-sm font-medium text-white bg-[#000000] hover:bg-[#ED1F23] rounded-xl transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2 text-center"
         >
           {isLoading && <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />}
           <span>{isEditMode ? 'Save Changes' : 'Create Invoice Template'}</span>

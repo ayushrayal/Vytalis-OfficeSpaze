@@ -23,13 +23,13 @@ const SalariesHeader = ({ onAddClick, onRefresh, isFetching }) => {
         </div>
       </div>
 
-      <div className="flex items-center gap-2.5 self-start sm:self-auto shrink-0">
+      <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0">
         {onRefresh && (
           <button
             type="button"
             onClick={onRefresh}
             disabled={isFetching}
-            className="p-2.5 rounded-xl border border-neutral-200 bg-white text-neutral-600 hover:text-black hover:bg-neutral-50 hover:border-neutral-300 transition-all cursor-pointer disabled:opacity-50"
+            className="p-2.5 rounded-xl border border-neutral-200 bg-white text-neutral-600 hover:text-black hover:bg-neutral-50 hover:border-neutral-300 transition-all cursor-pointer disabled:opacity-50 shrink-0"
             title="Refresh data"
             aria-label="Refresh data"
           >
@@ -40,7 +40,7 @@ const SalariesHeader = ({ onAddClick, onRefresh, isFetching }) => {
         <button
           type="button"
           onClick={onAddClick}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-brand-red text-white text-sm font-bold shadow-xs hover:bg-brand-red/90 focus:outline-hidden transition-all cursor-pointer active:scale-[0.98]"
+          className="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-brand-red text-white text-sm font-bold shadow-xs hover:bg-brand-red/90 focus:outline-hidden transition-all cursor-pointer active:scale-[0.98]"
         >
           <Plus className="w-4 h-4 stroke-[2.5]" />
           <span>Add Salary</span>

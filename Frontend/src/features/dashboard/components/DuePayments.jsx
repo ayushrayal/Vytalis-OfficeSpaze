@@ -62,17 +62,17 @@ const DuePayments = ({ data }) => {
       ) : (
         <div className="divide-y divide-border border border-border rounded-xl overflow-hidden">
           {combinedDueList.slice(0, 6).map((item) => (
-            <div key={`${item.category}-${item.id}`} className="p-3.5 sm:p-4 bg-white hover:bg-warm-bg/30 flex items-center justify-between gap-4 transition-all">
-              <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-black text-white uppercase">
+            <div key={`${item.category}-${item.id}`} className="p-3 sm:p-4 bg-white hover:bg-warm-bg/30 flex items-center justify-between gap-3 sm:gap-4 transition-all min-w-0">
+              <div className="space-y-1 min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-black text-white uppercase shrink-0">
                     {item.category}
                   </span>
-                  <span className="text-xs font-bold text-black">{item.name}</span>
+                  <span className="text-xs font-bold text-black truncate">{item.name}</span>
                 </div>
-                <div className="text-[11px] text-muted-text flex items-center gap-2">
+                <div className="text-[11px] text-muted-text flex flex-wrap items-center gap-1 sm:gap-2 truncate">
                   <span>{item.dateInfo}</span>
-                  {item.uploader && <span>• {item.uploader}</span>}
+                  {item.uploader && <span className="truncate">• {item.uploader}</span>}
                 </div>
               </div>
 

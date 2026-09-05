@@ -24,34 +24,30 @@ const WalkinDetailsDrawer = ({ isOpen, onClose, walkin, onEdit, onDelete }) => {
   const updatedDate = formatTimestamp(walkin.updatedAt);
 
   const footerActions = (
-    <div className="flex items-center justify-between w-full gap-3">
-      <div />
+    <div className="flex flex-wrap items-center justify-end w-full gap-2 sm:gap-3">
+      <button
+        type="button"
+        onClick={() => {
+          onClose();
+          onDelete(walkin);
+        }}
+        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3.5 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-700 hover:text-[#ED1F23] hover:bg-[#ED1F23]/10 hover:border-[#ED1F23]/20 transition-all cursor-pointer"
+      >
+        <Trash2 className="w-4 h-4" />
+        <span>Delete</span>
+      </button>
 
-      <div className="flex items-center gap-2">
-        <button
-          type="button"
-          onClick={() => {
-            onClose();
-            onDelete(walkin);
-          }}
-          className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-700 hover:text-[#ED1F23] hover:bg-[#ED1F23]/10 hover:border-[#ED1F23]/20 transition-all cursor-pointer"
-        >
-          <Trash2 className="w-4 h-4" />
-          <span>Delete</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => {
-            onClose();
-            onEdit(walkin);
-          }}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-all shadow-xs cursor-pointer"
-        >
-          <Edit2 className="w-4 h-4" />
-          <span>Edit Walk-in</span>
-        </button>
-      </div>
+      <button
+        type="button"
+        onClick={() => {
+          onClose();
+          onEdit(walkin);
+        }}
+        className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-neutral-900 text-white text-sm font-semibold hover:bg-neutral-800 transition-all shadow-xs cursor-pointer"
+      >
+        <Edit2 className="w-4 h-4" />
+        <span>Edit Walk-in</span>
+      </button>
     </div>
   );
 
