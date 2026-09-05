@@ -18,7 +18,6 @@ const buildManagedOfficeFormData = (data) => {
     'officeNo',
     'totalSeats',
     'perSeatCost',
-    'allottedVirtualAddress',
     'allottedBy',
     'startDate',
     'endDate',

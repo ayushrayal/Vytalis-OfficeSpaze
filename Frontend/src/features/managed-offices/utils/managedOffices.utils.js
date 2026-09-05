@@ -110,7 +110,6 @@ export const filterManagedOffices = (offices = [], { search = '', status = 'All'
       const email = (item.email || '').toLowerCase();
       const officeNo = (item.officeNo || '').toLowerCase();
       const regAddress = (item.companyRegisteredAddress || '').toLowerCase();
-      const address = (item.allottedVirtualAddress || '').toLowerCase();
       const allottedBy = (item.allottedBy || '').toLowerCase();
 
       const matchesSearch =
@@ -122,7 +121,6 @@ export const filterManagedOffices = (offices = [], { search = '', status = 'All'
         email.includes(query) ||
         officeNo.includes(query) ||
         regAddress.includes(query) ||
-        address.includes(query) ||
         allottedBy.includes(query);
 
       if (!matchesSearch) return false;

@@ -51,16 +51,6 @@ const managedOfficeSchema = new mongoose.Schema(
       required: [true, 'Company registered address is required'],
       trim: true
     },
-    allottedVirtualAddress: {
-      type: String,
-      required: [true, 'Allotted virtual address is required'],
-      trim: true
-    },
-    allottedBy: {
-      type: String,
-      required: [true, 'Allotted by is required'],
-      trim: true
-    },
     startDate: {
       type: Date,
       required: [true, 'Start date is required']
@@ -92,6 +82,11 @@ const managedOfficeSchema = new mongoose.Schema(
       type: Number,
       required: [true, 'Per seat cost is required'],
       min: [0.01, 'Per seat cost must be greater than 0']
+    },
+    allottedBy: {
+      type: String,
+      required: [true, 'Allotted by is required'],
+      trim: true
     },
     agreement: {
       type: agreementSchema,

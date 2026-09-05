@@ -28,10 +28,6 @@ const managedOfficeSchema = z
     perSeatCost: z.coerce
       .number({ invalid_type_error: 'Per seat cost must be a positive number' })
       .gt(0, 'Per seat cost must be greater than 0'),
-    allottedVirtualAddress: z
-      .string()
-      .trim()
-      .min(1, 'Allotted virtual address is required'),
     allottedBy: z.string().trim().min(1, 'Allotted by is required'),
     startDate: z.string().min(1, 'Start date is required'),
     endDate: z.string().min(1, 'End date is required'),
@@ -82,7 +78,6 @@ const ManagedOfficeForm = ({
       officeNo: '',
       totalSeats: '',
       perSeatCost: '',
-      allottedVirtualAddress: '',
       allottedBy: '',
       startDate: '',
       endDate: '',
@@ -103,7 +98,6 @@ const ManagedOfficeForm = ({
         officeNo: initialData.officeNo || '',
         totalSeats: initialData.totalSeats ?? '',
         perSeatCost: initialData.perSeatCost ?? '',
-        allottedVirtualAddress: initialData.allottedVirtualAddress || '',
         allottedBy: initialData.allottedBy || '',
         startDate: formatDateInput(initialData.startDate),
         endDate: formatDateInput(initialData.endDate),
@@ -123,7 +117,6 @@ const ManagedOfficeForm = ({
         officeNo: '',
         totalSeats: '',
         perSeatCost: '',
-        allottedVirtualAddress: '',
         allottedBy: '',
         startDate: '',
         endDate: '',
@@ -326,7 +319,7 @@ const ManagedOfficeForm = ({
         <h4 className="text-xs font-bold uppercase tracking-wider text-brand-red border-b border-neutral-100 pb-1.5 my-0">
           Office Details
         </h4>
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="block text-xs font-semibold text-black mb-1">
               Office No. <span className="text-brand-red">*</span>
@@ -394,38 +387,8 @@ const ManagedOfficeForm = ({
               </p>
             )}
           </div>
-        </div>
-      </div>
 
-      {/* 4. Allocation Details */}
-      <div className="space-y-3">
-        <h4 className="text-xs font-bold uppercase tracking-wider text-brand-red border-b border-neutral-100 pb-1.5 my-0">
-          Allocation Details
-        </h4>
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="sm:col-span-2">
-            <label className="block text-xs font-semibold text-black mb-1">
-              Allotted Virtual Address <span className="text-brand-red">*</span>
-            </label>
-            <textarea
-              rows={2}
-              {...register('allottedVirtualAddress')}
-              placeholder="Virtual / Mailing address allocated for office..."
-              className={`w-full px-3.5 py-2.5 bg-neutral-50 border rounded-xl text-xs font-medium text-black placeholder:text-neutral-400 focus:outline-hidden transition-all resize-none ${
-                errors.allottedVirtualAddress
-                  ? 'border-red-500 bg-red-50/20'
-                  : 'border-neutral-200 focus:border-brand-red focus:bg-white'
-              }`}
-            />
-            {errors.allottedVirtualAddress && (
-              <p className="text-[11px] font-semibold text-red-500 mt-1 flex items-center gap-1">
-                <AlertCircle className="w-3 h-3 shrink-0" />
-                {errors.allottedVirtualAddress.message}
-              </p>
-            )}
-          </div>
-
-          <div className="sm:col-span-2">
+          <div>
             <label className="block text-xs font-semibold text-black mb-1">
               Allotted By <span className="text-brand-red">*</span>
             </label>
@@ -448,6 +411,8 @@ const ManagedOfficeForm = ({
           </div>
         </div>
       </div>
+
+
 
       {/* 5. Dates & Commercials */}
       <div className="space-y-3">

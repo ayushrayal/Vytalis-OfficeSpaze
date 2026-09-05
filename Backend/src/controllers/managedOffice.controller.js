@@ -11,15 +11,14 @@ const createManagedOffice = async (req, res, next) => {
       email,
       companyName,
       companyRegisteredAddress,
-      allottedVirtualAddress,
-      allottedBy,
       startDate,
       endDate,
       agreedCommercials,
       paymentMadeOn,
       officeNo,
       totalSeats,
-      perSeatCost
+      perSeatCost,
+      allottedBy
     } = req.body;
 
     // String field validations
@@ -47,16 +46,12 @@ const createManagedOffice = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Company registered address is required' });
     }
 
-    if (!allottedVirtualAddress || typeof allottedVirtualAddress !== 'string' || !allottedVirtualAddress.trim()) {
-      return res.status(400).json({ success: false, message: 'Allotted virtual address is required' });
+    if (!officeNo || typeof officeNo !== 'string' || !officeNo.trim()) {
+      return res.status(400).json({ success: false, message: 'Office number is required' });
     }
 
     if (!allottedBy || typeof allottedBy !== 'string' || !allottedBy.trim()) {
       return res.status(400).json({ success: false, message: 'Allotted by is required' });
-    }
-
-    if (!officeNo || typeof officeNo !== 'string' || !officeNo.trim()) {
-      return res.status(400).json({ success: false, message: 'Office number is required' });
     }
 
     // Date validations
@@ -129,15 +124,14 @@ const createManagedOffice = async (req, res, next) => {
       email: email.trim().toLowerCase(),
       companyName: companyName.trim(),
       companyRegisteredAddress: companyRegisteredAddress.trim(),
-      allottedVirtualAddress: allottedVirtualAddress.trim(),
-      allottedBy: allottedBy.trim(),
       startDate: parsedStartDate,
       endDate: parsedEndDate,
       agreedCommercials: amount,
       paymentMadeOn: parsedPaymentDate,
       officeNo: officeNo.trim(),
       totalSeats: seats,
-      perSeatCost: seatCost
+      perSeatCost: seatCost,
+      allottedBy: allottedBy.trim()
     };
 
     const managedOffice = await managedOfficeService.createManagedOffice(managedOfficeData, req.file);
@@ -196,15 +190,14 @@ const updateManagedOffice = async (req, res, next) => {
       email,
       companyName,
       companyRegisteredAddress,
-      allottedVirtualAddress,
-      allottedBy,
       startDate,
       endDate,
       agreedCommercials,
       paymentMadeOn,
       officeNo,
       totalSeats,
-      perSeatCost
+      perSeatCost,
+      allottedBy
     } = req.body;
 
     if (firstName !== undefined) {
@@ -249,11 +242,11 @@ const updateManagedOffice = async (req, res, next) => {
       updateData.companyRegisteredAddress = companyRegisteredAddress.trim();
     }
 
-    if (allottedVirtualAddress !== undefined) {
-      if (typeof allottedVirtualAddress !== 'string' || !allottedVirtualAddress.trim()) {
-        return res.status(400).json({ success: false, message: 'Allotted virtual address cannot be empty' });
+    if (officeNo !== undefined) {
+      if (typeof officeNo !== 'string' || !officeNo.trim()) {
+        return res.status(400).json({ success: false, message: 'Office number cannot be empty' });
       }
-      updateData.allottedVirtualAddress = allottedVirtualAddress.trim();
+      updateData.officeNo = officeNo.trim();
     }
 
     if (allottedBy !== undefined) {
@@ -261,13 +254,6 @@ const updateManagedOffice = async (req, res, next) => {
         return res.status(400).json({ success: false, message: 'Allotted by cannot be empty' });
       }
       updateData.allottedBy = allottedBy.trim();
-    }
-
-    if (officeNo !== undefined) {
-      if (typeof officeNo !== 'string' || !officeNo.trim()) {
-        return res.status(400).json({ success: false, message: 'Office number cannot be empty' });
-      }
-      updateData.officeNo = officeNo.trim();
     }
 
     // Blend dates for partial update validation

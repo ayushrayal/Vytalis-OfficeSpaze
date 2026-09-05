@@ -89,13 +89,8 @@ const ManagedOfficeDetailsDrawer = ({ isOpen, onClose, office, onEdit, onDelete,
         <DetailRow label="Office Number" value={office.officeNo} />
         <DetailRow label="Total Seats" value={office.totalSeats} />
         <DetailRow label="Per-Seat Cost" value={office.perSeatCost} isCurrency />
+        <DetailRow label="Allotted By" value={office.allottedBy} />
         <DetailRow label="Registered Address" value={office.companyRegisteredAddress} isMultiline fullWidth />
-      </DetailSection>
-
-      {/* Virtual Address Details */}
-      <DetailSection title="Allotted Virtual Address" icon={MapPin}>
-        <DetailRow label="Virtual Address" value={office.allottedVirtualAddress} isMultiline fullWidth />
-        <DetailRow label="Allotted By" value={office.allottedBy} fullWidth />
       </DetailSection>
 
       {/* Contract & Financial Details */}
