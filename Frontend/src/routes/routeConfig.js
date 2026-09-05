@@ -7,5 +7,6 @@ export const ROUTES = {
   SALARIES: '/salaries',
   OPERATION_BILLS: '/operation-bills',
   COWORK_SPACE: '/cowork-space',
-  DEDICATED_SPACE: '/dedicated-space'
+  DEDICATED_SPACE: '/dedicated-space',
+  INVOICE_TEMPLATES: '/invoice-templates'
 };
