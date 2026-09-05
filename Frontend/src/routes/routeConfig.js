@@ -1,5 +1,6 @@
 export const ROUTES = {
   LOGIN: '/login',
+  SIGNUP: '/signup',
   DASHBOARD: '/dashboard',
   VIRTUAL_OFFICES: '/virtual-offices',
   MANAGED_OFFICES: '/managed-offices',

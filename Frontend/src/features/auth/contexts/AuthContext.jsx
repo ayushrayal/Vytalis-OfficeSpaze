@@ -66,6 +66,29 @@ export const AuthProvider = ({ children }) => {
     };
   }, []);
 
+  const signup = async ({ name, email, password, accessCode }) => {
+    const signupRes = await authService.signup({ name, email, password, accessCode });
+    if (!signupRes.success) {
+      return signupRes;
+    }
+
+    try {
+      const loginRes = await authService.login({ email, password });
+      if (loginRes.success && loginRes.data?.user) {
+        setUser(loginRes.data.user);
+      } else {
+        await checkAuth();
+      }
+      return { success: true, autoLoginSuccess: true, data: loginRes.data };
+    } catch (loginErr) {
+      return {
+        success: true,
+        autoLoginSuccess: false,
+        message: 'Account created successfully. Automatic sign-in failed, please sign in manually.'
+      };
+    }
+  };
+
   const login = async (credentials) => {
     const res = await authService.login(credentials);
     if (res.success && res.data?.user) {
@@ -89,6 +112,7 @@ export const AuthProvider = ({ children }) => {
     user,
     isAuthenticated: Boolean(user),
     isLoading,
+    signup,
     login,
     logout,
     checkAuth

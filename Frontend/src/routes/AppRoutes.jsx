@@ -4,6 +4,7 @@ import ProtectedRoute from './ProtectedRoute';
 import AppShell from '../components/layout/AppShell';
 import { ROUTES } from './routeConfig';
 import LoginPage from '../features/auth/pages/LoginPage';
+import SignupPage from '../features/auth/pages/SignupPage';
 import DashboardPage from '../features/dashboard/pages/DashboardPage';
 import VirtualOfficesPage from '../features/virtual-offices/pages/VirtualOfficesPage';
 import ManagedOfficesPage from '../features/managed-offices/pages/ManagedOfficesPage';
@@ -19,6 +20,7 @@ const AppRoutes = () => {
   return (
     <Routes>
       <Route path={ROUTES.LOGIN} element={<LoginPage />} />
+      <Route path={ROUTES.SIGNUP} element={<SignupPage />} />
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>

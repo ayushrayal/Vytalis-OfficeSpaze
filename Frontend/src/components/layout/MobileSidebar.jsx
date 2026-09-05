@@ -68,7 +68,7 @@ const MobileSidebar = ({ isOpen, onClose }) => {
             </div>
             <div>
               <span className="font-extrabold text-sm text-white tracking-tight block leading-tight">
-                Vytalis Office Spaze
+                Office Spaze
               </span>
               <span className="text-[10px] font-medium text-neutral-400 block mt-0.5">
                 by Vytalis Media

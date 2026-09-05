@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { Eye, EyeOff, Lock } from 'lucide-react';
 
-const PasswordInput = React.forwardRef(({ error, ...props }, ref) => {
+const PasswordInput = React.forwardRef(({ label = 'Password', placeholder = 'Enter password', error, ...props }, ref) => {
   const [showPassword, setShowPassword] = useState(false);
 
   return (
-    <div className="space-y-1">
+    <div className="space-y-1 font-urbanist">
       <label className="block text-xs font-semibold uppercase tracking-wider text-black">
-        Password
+        {label}
       </label>
       <div className="relative rounded-md shadow-xs">
         <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-light-gray">
@@ -17,7 +17,7 @@ const PasswordInput = React.forwardRef(({ error, ...props }, ref) => {
           {...props}
           ref={ref}
           type={showPassword ? 'text' : 'password'}
-          placeholder="Enter password"
+          placeholder={placeholder}
           className={`block w-full rounded-lg border py-2.5 pl-10 pr-10 text-sm text-black placeholder:text-light-gray focus:outline-hidden focus:ring-2 transition-all ${
             error
               ? 'border-brand-red focus:border-brand-red focus:ring-brand-red/20'
