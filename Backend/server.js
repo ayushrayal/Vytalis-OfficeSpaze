@@ -1,8 +1,13 @@
-const dns = require('dns');
-if (process.env.USE_CUSTOM_DNS === 'true') {
-  dns.setServers(['8.8.8.8', '8.8.4.4']);
-}
 require('dotenv').config();
+const dns = require('dns');
+
+if (process.env.USE_CUSTOM_DNS === 'true' || (process.env.NODE_ENV !== 'production' && process.env.USE_CUSTOM_DNS !== 'false')) {
+  try {
+    dns.setServers(['8.8.8.8', '8.8.4.4']);
+  } catch (e) {
+    // Ignore DNS set errors if unsupported
+  }
+}
 const app = require('./src/app');
 const connectDB = require('./src/config/db');
 const { initUtilityBillScheduler } = require('./src/services/utilityBill.scheduler');
