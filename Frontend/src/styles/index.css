@@ -1,9 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 @import "./variables.css";
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Urbanist', sans-serif;
+  --font-sans: 'Manrope', sans-serif;
+  --font-manrope: 'Manrope', sans-serif;
+  --font-urbanist: 'Manrope', sans-serif;
+
+  /* Scaled Typography Scale (+1px for text/labels/buttons/small text, +2px for headings) */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.375rem;
+
+  --text-base: 1.0625rem;
+  --text-base--line-height: 1.5rem;
+
+  --text-lg: 1.1875rem;
+  --text-lg--line-height: 1.625rem;
+
+  --text-xl: 1.3125rem;
+  --text-xl--line-height: 1.75rem;
+
+  --text-2xl: 1.625rem;
+  --text-2xl--line-height: 2rem;
+
+  --text-3xl: 2rem;
+  --text-3xl--line-height: 2.375rem;
+
+  --text-4xl: 2.375rem;
+  --text-4xl--line-height: 2.75rem;
+
   --color-brand-red: #ED1F23;
   --color-black: #000000;
   --color-warm-bg: #F5F0EB;
@@ -15,8 +43,17 @@
   --color-yellow-accent: #F7C81B;
 }
 
+/* Micro-metadata size scaling (+1px for arbitrary small text) */
+.text-\[10px\] {
+  font-size: 11px !important;
+}
+
+.text-\[11px\] {
+  font-size: 12px !important;
+}
+
 body {
-  font-family: var(--font-urbanist);
+  font-family: var(--font-manrope);
   background-color: var(--warm-bg);
   color: var(--black);
   margin: 0;

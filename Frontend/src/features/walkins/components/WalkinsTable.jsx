@@ -32,7 +32,7 @@ const WalkinsTable = ({ walkins = [], onEdit, onDelete, onSelectRecord }) => {
 
                 return (
                   <tr
-                    key={item._id}
+                    key={item.id || item._id}
                     onClick={() => onSelectRecord && onSelectRecord(item)}
                     className="hover:bg-neutral-50/80 transition-colors cursor-pointer"
                   >

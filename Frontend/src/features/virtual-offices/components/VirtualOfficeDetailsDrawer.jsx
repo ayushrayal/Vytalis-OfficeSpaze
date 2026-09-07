@@ -9,7 +9,7 @@ const VirtualOfficeDetailsDrawer = ({ isOpen, onClose, office, onEdit, onDelete,
   if (!office) return null;
 
   const fullName = `${office.firstName || ''} ${office.lastName || ''}`.trim() || 'Client Record';
-  const status = calculateStatus(office.startDate, office.endDate);
+  const status = calculateStatus(office.endDate);
 
   const startDateFormatted = formatDateDisplay(office.startDate);
   const endDateFormatted = formatDateDisplay(office.endDate);

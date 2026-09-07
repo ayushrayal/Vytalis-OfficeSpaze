@@ -7,10 +7,13 @@ import { format, parseISO, isSameDay, isSameWeek, isSameMonth, isValid } from 'd
  */
 export const parseSafeDate = (dateInput) => {
   if (!dateInput) return null;
-  if (dateInput instanceof Date) return isValid(dateInput) ? dateInput : null;
+  
+  if (dateInput instanceof Date) {
+    if (!isValid(dateInput)) return null;
+    return new Date(dateInput.getFullYear(), dateInput.getMonth(), dateInput.getDate());
+  }
   
   if (typeof dateInput === 'string') {
-    // If YYYY-MM-DD
     const simpleDateMatch = dateInput.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (simpleDateMatch) {
       const year = parseInt(simpleDateMatch[1], 10);
@@ -20,7 +23,9 @@ export const parseSafeDate = (dateInput) => {
       return isValid(parsed) ? parsed : null;
     }
     const parsed = parseISO(dateInput);
-    return isValid(parsed) ? parsed : null;
+    if (isValid(parsed)) {
+      return new Date(parsed.getFullYear(), parsed.getMonth(), parsed.getDate());
+    }
   }
   
   return null;
@@ -84,6 +89,7 @@ export const calculateSummaryMetrics = (walkins = []) => {
   }
 
   const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   let todayCount = 0;
   let weekCount = 0;
@@ -95,13 +101,13 @@ export const calculateSummaryMetrics = (walkins = []) => {
     const itemDate = parseSafeDate(item.date);
     
     if (itemDate) {
-      if (isSameDay(itemDate, now)) {
+      if (isSameDay(itemDate, today)) {
         todayCount++;
       }
-      if (isSameWeek(itemDate, now, { weekStartsOn: 1 })) {
+      if (isSameWeek(itemDate, today, { weekStartsOn: 1 })) {
         weekCount++;
       }
-      if (isSameMonth(itemDate, now)) {
+      if (isSameMonth(itemDate, today)) {
         monthCount++;
       }
     }
@@ -136,6 +142,7 @@ export const filterWalkins = (walkins = [], { search = '', dateFilter = 'all', s
 
   const trimmedSearch = search.trim().toLowerCase();
   const now = new Date();
+  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
   return walkins.filter((item) => {
     // Search match across name, phone, email, source, notes
@@ -163,13 +170,13 @@ export const filterWalkins = (walkins = [], { search = '', dateFilter = 'all', s
       const itemDate = parseSafeDate(item.date);
       if (!itemDate) return false;
 
-      if (dateFilter === 'today' && !isSameDay(itemDate, now)) {
+      if (dateFilter === 'today' && !isSameDay(itemDate, today)) {
         return false;
       }
-      if (dateFilter === 'this_week' && !isSameWeek(itemDate, now, { weekStartsOn: 1 })) {
+      if (dateFilter === 'this_week' && !isSameWeek(itemDate, today, { weekStartsOn: 1 })) {
         return false;
       }
-      if (dateFilter === 'this_month' && !isSameMonth(itemDate, now)) {
+      if (dateFilter === 'this_month' && !isSameMonth(itemDate, today)) {
         return false;
       }
     }

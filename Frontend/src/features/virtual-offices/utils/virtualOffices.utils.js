@@ -37,22 +37,38 @@ export const formatDateInput = (dateValue) => {
   }
 };
 
-export const calculateStatus = (startDate, endDate) => {
-  if (!startDate || !endDate) return 'Expired';
+export const parseLocalDate = (dateValue) => {
+  if (!dateValue) return null;
   try {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const start = new Date(startDate);
-    start.setHours(0, 0, 0, 0);
-
-    const end = new Date(endDate);
-    end.setHours(0, 0, 0, 0);
-
-    if (today >= start && today <= end) {
-      return 'Active';
+    if (typeof dateValue === 'string') {
+      const match = dateValue.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (match) {
+        const year = parseInt(match[1], 10);
+        const month = parseInt(match[2], 10) - 1;
+        const day = parseInt(match[3], 10);
+        return new Date(year, month, day);
+      }
     }
-    return 'Expired';
+    const d = new Date(dateValue);
+    if (isNaN(d.getTime())) return null;
+    return new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  } catch (error) {
+    return null;
+  }
+};
+
+export const calculateStatus = (startDate, endDate) => {
+  const targetEndDate = endDate !== undefined ? endDate : startDate;
+  if (!targetEndDate) return 'Expired';
+
+  try {
+    const end = parseLocalDate(targetEndDate);
+    if (!end) return 'Expired';
+
+    const now = new Date();
+    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+    return today.getTime() <= end.getTime() ? 'Active' : 'Expired';
   } catch (error) {
     return 'Expired';
   }
@@ -94,10 +110,10 @@ export const filterVirtualOffices = (offices = [], { search = '', status = 'All'
   const query = search.trim().toLowerCase();
 
   return offices.filter((item) => {
-    // Status filter
+    // Status filter (derived strictly from endDate)
     if (status !== 'All') {
-      const itemStatus = calculateStatus(item.startDate, item.endDate);
-      if (itemStatus !== status) return false;
+      const itemStatus = calculateStatus(item.endDate);
+      if (itemStatus.toLowerCase() !== status.toLowerCase()) return false;
     }
 
     // Search query filter

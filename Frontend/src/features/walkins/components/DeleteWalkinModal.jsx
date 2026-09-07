@@ -66,7 +66,7 @@ const DeleteWalkinModal = ({ isOpen, onClose, onConfirm, walkin, isDeleting }) =
           </button>
           <button
             type="button"
-            onClick={() => onConfirm(walkin._id)}
+            onClick={() => onConfirm(walkin.id || walkin._id)}
             disabled={isDeleting}
             className="px-4 py-2.5 rounded-xl bg-[#ED1F23] text-white text-sm font-semibold hover:bg-[#d0191d] transition-all disabled:opacity-50 text-center"
           >

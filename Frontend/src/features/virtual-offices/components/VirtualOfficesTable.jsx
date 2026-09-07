@@ -35,7 +35,7 @@ const VirtualOfficesTable = ({
           <tbody className="divide-y divide-neutral-100 text-xs">
             {virtualOffices.map((office) => {
               const id = office.id || office._id;
-              const status = calculateStatus(office.startDate, office.endDate);
+              const status = calculateStatus(office.endDate);
               const isActive = status === 'Active';
 
               return (

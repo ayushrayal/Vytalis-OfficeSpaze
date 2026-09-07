@@ -81,8 +81,9 @@ const WalkinsPage = () => {
 
   const handleFormSubmit = (formData) => {
     if (editingWalkin) {
+      const id = editingWalkin.id || editingWalkin._id;
       updateMutation.mutate(
-        { id: editingWalkin._id, data: formData },
+        { id, data: formData },
         {
           onSuccess: () => {
             handleCloseFormModal();
