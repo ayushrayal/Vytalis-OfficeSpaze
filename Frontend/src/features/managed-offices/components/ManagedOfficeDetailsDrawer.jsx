@@ -65,6 +65,17 @@ const ManagedOfficeDetailsDrawer = ({ isOpen, onClose, office, onEdit, onDelete,
     </div>
   );
 
+  const seatsNum = Number(office.totalSeats);
+  const costNum = Number(office.perSeatCost);
+  const hasValidSeatMath =
+    office.totalSeats !== undefined &&
+    office.totalSeats !== null &&
+    office.perSeatCost !== undefined &&
+    office.perSeatCost !== null &&
+    !isNaN(seatsNum) &&
+    !isNaN(costNum);
+  const totalValue = hasValidSeatMath ? seatsNum * costNum : null;
+
   return (
     <DetailsDrawer
       isOpen={isOpen}
@@ -89,8 +100,9 @@ const ManagedOfficeDetailsDrawer = ({ isOpen, onClose, office, onEdit, onDelete,
         <DetailRow label="Business Type" value={office.businessType || 'Managed Office'} badgeVariant="managed" />
         <DetailRow label="Added Date" value={formatDateDisplay(office.createdAt || office.addedDate || office.startDate)} />
         <DetailRow label="Office Number" value={office.officeNo} />
-        <DetailRow label="Total Seats" value={`${office.totalSeats || 0} Seats`} />
+        <DetailRow label="Total Seats" value={`${office.totalSeats ?? 0} Seats`} />
         <DetailRow label="Seat Per Cost" value={office.perSeatCost} isCurrency />
+        <DetailRow label="Total Value" value={totalValue} isCurrency />
         <DetailRow label="Allocated By" value={office.allottedBy || office.allocatedBy} />
         <DetailRow label="Registered Address" value={office.companyRegisteredAddress} isMultiline fullWidth />
       </DetailSection>

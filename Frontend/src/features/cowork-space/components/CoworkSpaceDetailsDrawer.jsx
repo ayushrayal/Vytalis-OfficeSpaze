@@ -65,6 +65,17 @@ const CoworkSpaceDetailsDrawer = ({ isOpen, onClose, space, onEdit, onDelete, on
     </div>
   );
 
+  const seatsNum = Number(space.totalSeats);
+  const costNum = Number(space.seatPerCost);
+  const hasValidSeatMath =
+    space.totalSeats !== undefined &&
+    space.totalSeats !== null &&
+    space.seatPerCost !== undefined &&
+    space.seatPerCost !== null &&
+    !isNaN(seatsNum) &&
+    !isNaN(costNum);
+  const totalValue = hasValidSeatMath ? seatsNum * costNum : null;
+
   return (
     <DetailsDrawer
       isOpen={isOpen}
@@ -87,8 +98,9 @@ const CoworkSpaceDetailsDrawer = ({ isOpen, onClose, space, onEdit, onDelete, on
       <DetailSection title="Space & Business Details" icon={Briefcase}>
         <DetailRow label="Business Type" value={space.businessType} badgeVariant={space.businessType?.toLowerCase()} />
         <DetailRow label="Added Date" value={addedDateFormatted} />
-        <DetailRow label="Total Seats" value={`${space.totalSeats || 0} Seats`} />
+        <DetailRow label="Total Seats" value={`${space.totalSeats ?? 0} Seats`} />
         <DetailRow label="Seat Per Cost" value={space.seatPerCost} isCurrency />
+        <DetailRow label="Total Value" value={totalValue} isCurrency />
         <DetailRow label="Allocated By" value={space.allottedBy || space.allocatedBy} />
       </DetailSection>
 
