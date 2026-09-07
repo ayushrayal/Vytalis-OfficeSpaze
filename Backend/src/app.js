@@ -14,6 +14,7 @@ const operationBillRoutes = require('./routes/operationBill.routes');
 const coworkSpaceRoutes = require('./routes/coworkSpace.routes');
 const dedicatedSpaceRoutes = require('./routes/dedicatedSpace.routes');
 const invoiceTemplateRoutes = require('./routes/invoiceTemplate.routes');
+const dashboardRoutes = require('./routes/dashboard.routes');
 const errorMiddleware = require('./middleware/error.middleware');
 
 const app = express();
@@ -58,6 +59,7 @@ app.get('/api/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/walkins', walkInRoutes);
 app.use('/api/virtual-offices', virtualOfficeRoutes);
 app.use('/api/managed-offices', managedOfficeRoutes);

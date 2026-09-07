@@ -1,4 +1,5 @@
 const coworkSpaceService = require('../services/coworkSpace.service');
+const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -98,6 +99,13 @@ const createCoworkSpace = async (req, res, next) => {
       coworkSpaceData,
       req.file
     );
+
+    broadcastDashboardUpdate({
+      type: 'COWORK_SPACE_CREATED',
+      entity: 'coworkSpace',
+      entityId: coworkSpace._id,
+      action: 'created'
+    });
 
     res.status(201).json({
       success: true,
@@ -257,6 +265,13 @@ const updateCoworkSpace = async (req, res, next) => {
       req.file
     );
 
+    broadcastDashboardUpdate({
+      type: 'COWORK_SPACE_UPDATED',
+      entity: 'coworkSpace',
+      entityId: coworkSpace._id,
+      action: 'updated'
+    });
+
     res.status(200).json({
       success: true,
       message: 'Cowork space updated successfully',
@@ -272,6 +287,13 @@ const updateCoworkSpace = async (req, res, next) => {
 const deleteCoworkSpace = async (req, res, next) => {
   try {
     await coworkSpaceService.deleteCoworkSpace(req.params.id);
+
+    broadcastDashboardUpdate({
+      type: 'COWORK_SPACE_DELETED',
+      entity: 'coworkSpace',
+      entityId: req.params.id,
+      action: 'deleted'
+    });
 
     res.status(200).json({
       success: true,

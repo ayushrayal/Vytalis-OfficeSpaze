@@ -1,4 +1,5 @@
 const managedOfficeService = require('../services/managedOffice.service');
+const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -135,6 +136,13 @@ const createManagedOffice = async (req, res, next) => {
     };
 
     const managedOffice = await managedOfficeService.createManagedOffice(managedOfficeData, req.file);
+
+    broadcastDashboardUpdate({
+      type: 'MANAGED_OFFICE_CREATED',
+      entity: 'managedOffice',
+      entityId: managedOffice._id,
+      action: 'created'
+    });
 
     res.status(201).json({
       success: true,
@@ -329,6 +337,13 @@ const updateManagedOffice = async (req, res, next) => {
       req.file
     );
 
+    broadcastDashboardUpdate({
+      type: 'MANAGED_OFFICE_UPDATED',
+      entity: 'managedOffice',
+      entityId: managedOffice._id,
+      action: 'updated'
+    });
+
     res.status(200).json({
       success: true,
       message: 'Managed office updated successfully',
@@ -344,6 +359,13 @@ const updateManagedOffice = async (req, res, next) => {
 const deleteManagedOffice = async (req, res, next) => {
   try {
     await managedOfficeService.deleteManagedOffice(req.params.id);
+
+    broadcastDashboardUpdate({
+      type: 'MANAGED_OFFICE_DELETED',
+      entity: 'managedOffice',
+      entityId: req.params.id,
+      action: 'deleted'
+    });
 
     res.status(200).json({
       success: true,

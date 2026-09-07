@@ -1,4 +1,5 @@
 const salaryService = require('../services/salary.service');
+const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -51,6 +52,13 @@ const createSalary = async (req, res, next) => {
     };
 
     const salary = await salaryService.createSalary(salaryData);
+
+    broadcastDashboardUpdate({
+      type: 'SALARY_CREATED',
+      entity: 'salary',
+      entityId: salary._id,
+      action: 'created'
+    });
 
     res.status(201).json({
       success: true,
@@ -148,6 +156,13 @@ const updateSalary = async (req, res, next) => {
 
     const salary = await salaryService.updateSalary(req.params.id, updateData);
 
+    broadcastDashboardUpdate({
+      type: 'SALARY_UPDATED',
+      entity: 'salary',
+      entityId: salary._id,
+      action: 'updated'
+    });
+
     res.status(200).json({
       success: true,
       message: 'Salary updated successfully',
@@ -163,6 +178,13 @@ const updateSalary = async (req, res, next) => {
 const deleteSalary = async (req, res, next) => {
   try {
     await salaryService.deleteSalary(req.params.id);
+
+    broadcastDashboardUpdate({
+      type: 'SALARY_DELETED',
+      entity: 'salary',
+      entityId: req.params.id,
+      action: 'deleted'
+    });
 
     res.status(200).json({
       success: true,

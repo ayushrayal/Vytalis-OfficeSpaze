@@ -1,4 +1,5 @@
 const virtualOfficeService = require('../services/virtualOffice.service');
+const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -105,6 +106,13 @@ const createVirtualOffice = async (req, res, next) => {
     };
 
     const virtualOffice = await virtualOfficeService.createVirtualOffice(virtualOfficeData, req.file);
+
+    broadcastDashboardUpdate({
+      type: 'VIRTUAL_OFFICE_CREATED',
+      entity: 'virtualOffice',
+      entityId: virtualOffice._id,
+      action: 'created'
+    });
 
     res.status(201).json({
       success: true,
@@ -275,6 +283,13 @@ const updateVirtualOffice = async (req, res, next) => {
       req.file
     );
 
+    broadcastDashboardUpdate({
+      type: 'VIRTUAL_OFFICE_UPDATED',
+      entity: 'virtualOffice',
+      entityId: virtualOffice._id,
+      action: 'updated'
+    });
+
     res.status(200).json({
       success: true,
       message: 'Virtual office updated successfully',
@@ -290,6 +305,13 @@ const updateVirtualOffice = async (req, res, next) => {
 const deleteVirtualOffice = async (req, res, next) => {
   try {
     await virtualOfficeService.deleteVirtualOffice(req.params.id);
+
+    broadcastDashboardUpdate({
+      type: 'VIRTUAL_OFFICE_DELETED',
+      entity: 'virtualOffice',
+      entityId: req.params.id,
+      action: 'deleted'
+    });
 
     res.status(200).json({
       success: true,

@@ -1,4 +1,5 @@
 const walkInService = require('../services/walkin.service');
+const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -33,6 +34,13 @@ const createWalkIn = async (req, res, next) => {
       date,
       source,
       notes
+    });
+
+    broadcastDashboardUpdate({
+      type: 'WALK_IN_CREATED',
+      entity: 'walkin',
+      entityId: walkIn._id,
+      action: 'created'
     });
 
     res.status(201).json({
@@ -110,6 +118,13 @@ const updateWalkIn = async (req, res, next) => {
       notes
     });
 
+    broadcastDashboardUpdate({
+      type: 'WALK_IN_UPDATED',
+      entity: 'walkin',
+      entityId: walkIn._id,
+      action: 'updated'
+    });
+
     res.status(200).json({
       success: true,
       message: 'Walk-in updated successfully',
@@ -125,6 +140,13 @@ const updateWalkIn = async (req, res, next) => {
 const deleteWalkIn = async (req, res, next) => {
   try {
     await walkInService.deleteWalkIn(req.params.id);
+
+    broadcastDashboardUpdate({
+      type: 'WALK_IN_DELETED',
+      entity: 'walkin',
+      entityId: req.params.id,
+      action: 'deleted'
+    });
 
     res.status(200).json({
       success: true,

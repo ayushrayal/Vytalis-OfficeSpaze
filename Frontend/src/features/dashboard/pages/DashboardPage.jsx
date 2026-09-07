@@ -2,6 +2,7 @@ import React, { useRef } from 'react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import useDashboardData from '../hooks/useDashboardData';
+import useDashboardSse from '../hooks/useDashboardSse';
 import DashboardHeader from '../components/DashboardHeader';
 import KpiGrid from '../components/KpiGrid';
 import FinancialOverview from '../components/FinancialOverview';
@@ -15,6 +16,7 @@ import DashboardError from '../components/DashboardError';
 
 const DashboardPage = () => {
   const { data, isLoading, isError, refetch, isFetching } = useDashboardData();
+  useDashboardSse();
   const pageRef = useRef(null);
 
   useGSAP(

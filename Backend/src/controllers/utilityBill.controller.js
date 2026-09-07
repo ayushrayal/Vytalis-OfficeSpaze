@@ -1,4 +1,5 @@
 const utilityBillService = require('../services/utilityBill.service');
+const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const createUtilityBill = async (req, res, next) => {
   try {
@@ -53,6 +54,13 @@ const createUtilityBill = async (req, res, next) => {
     };
 
     const utilityBill = await utilityBillService.createUtilityBill(utilityBillData, req.file);
+
+    broadcastDashboardUpdate({
+      type: 'UTILITY_BILL_CREATED',
+      entity: 'utilityBill',
+      entityId: utilityBill._id,
+      action: 'created'
+    });
 
     res.status(201).json({
       success: true,
@@ -167,6 +175,13 @@ const updateUtilityBill = async (req, res, next) => {
       req.file
     );
 
+    broadcastDashboardUpdate({
+      type: 'UTILITY_BILL_UPDATED',
+      entity: 'utilityBill',
+      entityId: utilityBill._id,
+      action: 'updated'
+    });
+
     res.status(200).json({
       success: true,
       message: 'Utility bill updated successfully',
@@ -182,6 +197,13 @@ const updateUtilityBill = async (req, res, next) => {
 const deleteUtilityBill = async (req, res, next) => {
   try {
     await utilityBillService.deleteUtilityBill(req.params.id);
+
+    broadcastDashboardUpdate({
+      type: 'UTILITY_BILL_DELETED',
+      entity: 'utilityBill',
+      entityId: req.params.id,
+      action: 'deleted'
+    });
 
     res.status(200).json({
       success: true,

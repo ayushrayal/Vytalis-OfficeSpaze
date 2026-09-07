@@ -1,4 +1,5 @@
 const dedicatedSpaceService = require('../services/dedicatedSpace.service');
+const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -98,6 +99,13 @@ const createDedicatedSpace = async (req, res, next) => {
       dedicatedSpaceData,
       req.file
     );
+
+    broadcastDashboardUpdate({
+      type: 'DEDICATED_SPACE_CREATED',
+      entity: 'dedicatedSpace',
+      entityId: dedicatedSpace._id,
+      action: 'created'
+    });
 
     res.status(201).json({
       success: true,
@@ -257,6 +265,13 @@ const updateDedicatedSpace = async (req, res, next) => {
       req.file
     );
 
+    broadcastDashboardUpdate({
+      type: 'DEDICATED_SPACE_UPDATED',
+      entity: 'dedicatedSpace',
+      entityId: dedicatedSpace._id,
+      action: 'updated'
+    });
+
     res.status(200).json({
       success: true,
       message: 'Dedicated space updated successfully',
@@ -272,6 +287,13 @@ const updateDedicatedSpace = async (req, res, next) => {
 const deleteDedicatedSpace = async (req, res, next) => {
   try {
     await dedicatedSpaceService.deleteDedicatedSpace(req.params.id);
+
+    broadcastDashboardUpdate({
+      type: 'DEDICATED_SPACE_DELETED',
+      entity: 'dedicatedSpace',
+      entityId: req.params.id,
+      action: 'deleted'
+    });
 
     res.status(200).json({
       success: true,

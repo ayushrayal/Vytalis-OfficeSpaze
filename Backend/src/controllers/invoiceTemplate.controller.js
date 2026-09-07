@@ -1,4 +1,5 @@
 const invoiceTemplateService = require('../services/invoiceTemplate.service');
+const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const allowedPaymentOptionNames = ['Bank Transfer', 'UPI', 'Wallet', 'Other'];
@@ -192,6 +193,13 @@ const createInvoiceTemplate = async (req, res, next) => {
     };
 
     const invoiceTemplate = await invoiceTemplateService.createInvoiceTemplate(invoiceData);
+
+    broadcastDashboardUpdate({
+      type: 'INVOICE_TEMPLATE_CREATED',
+      entity: 'invoiceTemplate',
+      entityId: invoiceTemplate._id,
+      action: 'created'
+    });
 
     res.status(201).json({
       success: true,
@@ -400,6 +408,13 @@ const updateInvoiceTemplate = async (req, res, next) => {
       updateData
     );
 
+    broadcastDashboardUpdate({
+      type: 'INVOICE_TEMPLATE_UPDATED',
+      entity: 'invoiceTemplate',
+      entityId: invoiceTemplate._id,
+      action: 'updated'
+    });
+
     res.status(200).json({
       success: true,
       message: 'Invoice template updated successfully',
@@ -415,6 +430,13 @@ const updateInvoiceTemplate = async (req, res, next) => {
 const deleteInvoiceTemplate = async (req, res, next) => {
   try {
     await invoiceTemplateService.deleteInvoiceTemplate(req.params.id);
+
+    broadcastDashboardUpdate({
+      type: 'INVOICE_TEMPLATE_DELETED',
+      entity: 'invoiceTemplate',
+      entityId: req.params.id,
+      action: 'deleted'
+    });
 
     res.status(200).json({
       success: true,

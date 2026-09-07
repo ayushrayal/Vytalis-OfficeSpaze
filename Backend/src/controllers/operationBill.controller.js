@@ -1,4 +1,5 @@
 const operationBillService = require('../services/operationBill.service');
+const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const createOperationBill = async (req, res, next) => {
   try {
@@ -34,6 +35,13 @@ const createOperationBill = async (req, res, next) => {
       operationBillData,
       req.file
     );
+
+    broadcastDashboardUpdate({
+      type: 'OPERATION_BILL_CREATED',
+      entity: 'operationBill',
+      entityId: operationBill._id,
+      action: 'created'
+    });
 
     res.status(201).json({
       success: true,
@@ -119,6 +127,13 @@ const updateOperationBill = async (req, res, next) => {
       req.file
     );
 
+    broadcastDashboardUpdate({
+      type: 'OPERATION_BILL_UPDATED',
+      entity: 'operationBill',
+      entityId: operationBill._id,
+      action: 'updated'
+    });
+
     res.status(200).json({
       success: true,
       message: 'Operation bill updated successfully',
@@ -134,6 +149,13 @@ const updateOperationBill = async (req, res, next) => {
 const deleteOperationBill = async (req, res, next) => {
   try {
     await operationBillService.deleteOperationBill(req.params.id);
+
+    broadcastDashboardUpdate({
+      type: 'OPERATION_BILL_DELETED',
+      entity: 'operationBill',
+      entityId: req.params.id,
+      action: 'deleted'
+    });
 
     res.status(200).json({
       success: true,
