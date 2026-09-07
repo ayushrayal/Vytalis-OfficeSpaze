@@ -89,6 +89,7 @@ const DedicatedSpaceDetailsDrawer = ({ isOpen, onClose, space, onEdit, onDelete,
         <DetailRow label="Added Date" value={addedDateFormatted} />
         <DetailRow label="Total Seats" value={`${space.totalSeats || 0} Seats`} />
         <DetailRow label="Seat Per Cost" value={space.seatPerCost} isCurrency />
+        <DetailRow label="Allocated By" value={space.allottedBy || space.allocatedBy} />
       </DetailSection>
 
       {/* Contract & Agreement Details */}

@@ -53,6 +53,11 @@ const coworkSpaceSchema = new mongoose.Schema(
       type: Date,
       required: [true, 'End date is required']
     },
+    allottedBy: {
+      type: String,
+      trim: true,
+      default: ''
+    },
     agreement: {
       type: {
         url: { type: String, required: true },

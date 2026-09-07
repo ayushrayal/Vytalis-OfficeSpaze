@@ -45,6 +45,7 @@ const coworkSpaceSchema = z
         const num = Number(val.trim());
         return !isNaN(num) && num > 0;
       }, 'Seat per cost must be a positive number greater than 0'),
+    allottedBy: z.string().trim().optional(),
     startDate: z.string().min(1, 'Start date is required'),
     endDate: z.string().min(1, 'End date is required')
   })
@@ -90,6 +91,7 @@ const CoworkSpaceForm = ({
       addedDate: formatDateInput(initialData?.addedDate || new Date()),
       totalSeats: initialData?.totalSeats ? String(initialData.totalSeats) : '1',
       seatPerCost: initialData?.seatPerCost ? String(initialData.seatPerCost) : '',
+      allottedBy: initialData?.allottedBy || initialData?.allocatedBy || '',
       startDate: formatDateInput(initialData?.startDate || new Date()),
       endDate: formatDateInput(initialData?.endDate || '')
     }
@@ -102,9 +104,10 @@ const CoworkSpaceForm = ({
       setValue('phone', initialData.phone || '');
       setValue('email', initialData.email || '');
       setValue('businessType', initialData.businessType || 'Registor');
-      setValue('addedDate', formatDateInput(initialData.addedDate));
-      setValue('totalSeats', String(initialData.totalSeats || '1'));
-      setValue('seatPerCost', String(initialData.seatPerCost || ''));
+      setValue('addedDate', formatDateInput(initialData.addedDate || new Date()));
+      setValue('totalSeats', initialData.totalSeats ? String(initialData.totalSeats) : '1');
+      setValue('seatPerCost', initialData.seatPerCost ? String(initialData.seatPerCost) : '');
+      setValue('allottedBy', initialData.allottedBy || initialData.allocatedBy || '');
       setValue('startDate', formatDateInput(initialData.startDate));
       setValue('endDate', formatDateInput(initialData.endDate));
     }
@@ -289,6 +292,22 @@ const CoworkSpaceForm = ({
             <p className="text-xs text-[#ED1F23] mt-1 font-medium">{errors.seatPerCost.message}</p>
           )}
         </div>
+      </div>
+
+      {/* Allocated By */}
+      <div>
+        <label className="block text-xs font-semibold text-[#000000] mb-1">
+          Allocated By
+        </label>
+        <input
+          type="text"
+          placeholder="e.g. Aniket / Admin"
+          {...register('allottedBy')}
+          className="w-full px-3.5 py-2 bg-[#F5F0EB]/40 border border-[#E5E5E5] rounded-xl text-sm text-[#000000] placeholder:text-[#505050]/50 focus:outline-none focus:border-[#000000] focus:bg-white transition-colors"
+        />
+        {errors.allottedBy && (
+          <p className="text-xs text-[#ED1F23] mt-1 font-medium">{errors.allottedBy.message}</p>
+        )}
       </div>
 
       {/* Start Date & End Date */}

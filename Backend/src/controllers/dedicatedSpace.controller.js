@@ -15,8 +15,12 @@ const createDedicatedSpace = async (req, res, next) => {
       totalSeats,
       seatPerCost,
       startDate,
-      endDate
+      endDate,
+      allottedBy,
+      allocatedBy
     } = req.body;
+
+    const allocatedPerson = (allottedBy || allocatedBy || '').trim();
 
     if (!firstName || typeof firstName !== 'string' || !firstName.trim()) {
       return res.status(400).json({ success: false, message: 'First name is required' });
@@ -92,7 +96,8 @@ const createDedicatedSpace = async (req, res, next) => {
       totalSeats: seats,
       seatPerCost: cost,
       startDate: new Date(startDate),
-      endDate: new Date(endDate)
+      endDate: new Date(endDate),
+      allottedBy: allocatedPerson
     };
 
     const dedicatedSpace = await dedicatedSpaceService.createDedicatedSpace(
@@ -163,10 +168,17 @@ const updateDedicatedSpace = async (req, res, next) => {
       totalSeats,
       seatPerCost,
       startDate,
-      endDate
+      endDate,
+      allottedBy,
+      allocatedBy
     } = req.body;
 
     const updateData = {};
+
+    if (allottedBy !== undefined || allocatedBy !== undefined) {
+      const person = (allottedBy !== undefined ? allottedBy : allocatedBy) || '';
+      updateData.allottedBy = String(person).trim();
+    }
 
     if (firstName !== undefined) {
       if (typeof firstName !== 'string' || !firstName.trim()) {

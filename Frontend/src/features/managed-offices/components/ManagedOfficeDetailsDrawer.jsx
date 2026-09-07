@@ -84,12 +84,14 @@ const ManagedOfficeDetailsDrawer = ({ isOpen, onClose, office, onEdit, onDelete,
       </DetailSection>
 
       {/* Company & Office Space Details */}
-      <DetailSection title="Office & Company Details" icon={Building}>
+      <DetailSection title="Space & Business Details" icon={Building}>
         <DetailRow label="Company Name" value={office.companyName} fullWidth />
+        <DetailRow label="Business Type" value={office.businessType || 'Managed Office'} badgeVariant="managed" />
+        <DetailRow label="Added Date" value={formatDateDisplay(office.createdAt || office.addedDate || office.startDate)} />
         <DetailRow label="Office Number" value={office.officeNo} />
-        <DetailRow label="Total Seats" value={office.totalSeats} />
-        <DetailRow label="Per-Seat Cost" value={office.perSeatCost} isCurrency />
-        <DetailRow label="Allotted By" value={office.allottedBy} />
+        <DetailRow label="Total Seats" value={`${office.totalSeats || 0} Seats`} />
+        <DetailRow label="Seat Per Cost" value={office.perSeatCost} isCurrency />
+        <DetailRow label="Allocated By" value={office.allottedBy || office.allocatedBy} />
         <DetailRow label="Registered Address" value={office.companyRegisteredAddress} isMultiline fullWidth />
       </DetailSection>
 
