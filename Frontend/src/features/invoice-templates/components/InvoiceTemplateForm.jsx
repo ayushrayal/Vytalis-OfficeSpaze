@@ -81,6 +81,19 @@ const invoiceTemplateSchema = z.object({
     bankName: z.string().optional().default(''),
     branch: z.string().optional().default('')
   }).optional().default({}),
+  paymentLink: z
+    .string()
+    .optional()
+    .or(z.literal(''))
+    .refine((val) => {
+      if (!val || val.trim() === '') return true;
+      try {
+        const parsed = new URL(val.trim());
+        return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+      } catch {
+        return false;
+      }
+    }, 'Payment link must be a valid HTTP or HTTPS URL (e.g. https://example.com/pay)'),
   footerMessage: z.string().optional().default('')
 });
 
@@ -145,6 +158,7 @@ const InvoiceTemplateForm = ({
         bankName: initialData?.bankDetails?.bankName || '',
         branch: initialData?.bankDetails?.branch || ''
       },
+      paymentLink: initialData?.paymentLink || '',
       footerMessage: initialData?.footerMessage || ''
     }
   });
@@ -195,6 +209,7 @@ const InvoiceTemplateForm = ({
           bankName: initialData.bankDetails?.bankName || '',
           branch: initialData.bankDetails?.branch || ''
         },
+        paymentLink: initialData.paymentLink || '',
         footerMessage: initialData.footerMessage || ''
       });
     }
@@ -239,6 +254,7 @@ const InvoiceTemplateForm = ({
         bankName: data.bankDetails?.bankName ? data.bankDetails.bankName.trim() : '',
         branch: data.bankDetails?.branch ? data.bankDetails.branch.trim() : ''
       },
+      paymentLink: data.paymentLink && data.paymentLink.trim() ? data.paymentLink.trim() : null,
       footerMessage: data.footerMessage ? data.footerMessage.trim() : ''
     };
 
@@ -529,6 +545,27 @@ const InvoiceTemplateForm = ({
       {/* 6. Payment Options */}
       <div className="p-4 bg-[#F5F0EB]/30 border border-[#E5E5E5] rounded-xl">
         <PaymentOptions watch={watch} setValue={setValue} />
+      </div>
+
+      {/* Payment Link (Optional) */}
+      <div className="space-y-3 p-4 bg-[#F5F0EB]/30 border border-[#E5E5E5] rounded-xl">
+        <h4 className="text-xs font-bold text-[#000000] uppercase tracking-wider">
+          Payment Link
+        </h4>
+        <div>
+          <label className="block text-[11px] font-semibold text-[#505050] mb-1">
+            Payment Link (Optional)
+          </label>
+          <input
+            type="url"
+            placeholder="https://example.com/pay"
+            {...register('paymentLink')}
+            className="w-full px-3 py-2 bg-white border border-[#E5E5E5] rounded-xl text-sm text-[#000000] focus:outline-none focus:border-[#000000]"
+          />
+          {errors.paymentLink && (
+            <p className="text-[11px] text-[#ED1F23] mt-1 font-medium">{errors.paymentLink.message}</p>
+          )}
+        </div>
       </div>
 
       {/* 7. Bank Details */}

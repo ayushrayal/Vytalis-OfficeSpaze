@@ -10,7 +10,8 @@ import {
   Receipt,
   DollarSign,
   CreditCard,
-  Clock
+  Clock,
+  ExternalLink
 } from 'lucide-react';
 import DetailsDrawer from '../../../components/common/DetailsDrawer';
 import {
@@ -253,6 +254,23 @@ const InvoiceTemplateDetailsDrawer = ({
         <DetailRow label="Account Number" value={template.bankDetails?.accountNumber} />
         <DetailRow label="IFSC Code" value={template.bankDetails?.ifscCode} />
         <DetailRow label="Account Name" value={template.bankDetails?.accountName} />
+        {template.paymentLink && (
+          <DetailRow
+            label="Payment Link"
+            value={
+              <a
+                href={template.paymentLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[#0284c7] hover:underline font-semibold inline-flex items-center gap-1 break-all"
+              >
+                <span>Pay Now</span>
+                <ExternalLink className="w-3 h-3" />
+              </a>
+            }
+            fullWidth
+          />
+        )}
       </DetailSection>
 
       {/* Notes & Terms */}

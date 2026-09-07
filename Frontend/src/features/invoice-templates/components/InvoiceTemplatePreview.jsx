@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, FileDown, Printer, Building2, CreditCard } from 'lucide-react';
+import { X, FileDown, Printer, Building2, CreditCard, ExternalLink } from 'lucide-react';
 import {
   formatDateDisplay,
   formatCurrencyINR,
@@ -275,6 +275,29 @@ const InvoiceTemplatePreview = ({
                     <p><span className="font-semibold text-[#000000]">Branch:</span> {template.bankDetails.branch}</p>
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* Payment Link */}
+            {template.paymentLink && (
+              <div className="p-4 bg-[#F5F0EB]/60 border border-[#E5E5E5] rounded-xl text-xs flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                <div>
+                  <h5 className="font-bold text-[#000000] uppercase tracking-wider text-[11px]">
+                    Payment Link
+                  </h5>
+                  <p className="text-xs text-[#505050] mt-0.5">
+                    Pay online for this invoice via the secure link below.
+                  </p>
+                </div>
+                <a
+                  href={template.paymentLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-1.5 px-4 py-2 bg-[#000000] hover:bg-[#ED1F23] text-white text-xs font-bold rounded-xl transition-colors cursor-pointer w-full sm:w-auto text-center shrink-0"
+                >
+                  <span>Pay Now</span>
+                  <ExternalLink className="w-3.5 h-3.5" />
+                </a>
               </div>
             )}
 

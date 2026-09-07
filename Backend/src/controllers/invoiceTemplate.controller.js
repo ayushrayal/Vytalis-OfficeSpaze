@@ -31,6 +31,32 @@ const validatePaymentOptions = (options) => {
   });
 };
 
+const validatePaymentLink = (url) => {
+  if (url === undefined || url === null) return null;
+  if (typeof url !== 'string') {
+    const error = new Error('Payment link must be a valid URL string');
+    error.statusCode = 400;
+    throw error;
+  }
+  const trimmed = url.trim();
+  if (trimmed === '') return null;
+
+  try {
+    const parsed = new URL(trimmed);
+    if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+      const error = new Error('Payment link must be a valid HTTP or HTTPS URL');
+      error.statusCode = 400;
+      throw error;
+    }
+    return trimmed;
+  } catch (err) {
+    if (err.statusCode) throw err;
+    const error = new Error('Payment link must be a valid HTTP or HTTPS URL');
+    error.statusCode = 400;
+    throw error;
+  }
+};
+
 const createInvoiceTemplate = async (req, res, next) => {
   try {
     const {
@@ -53,6 +79,7 @@ const createInvoiceTemplate = async (req, res, next) => {
       notes,
       paymentOptions,
       bankDetails,
+      paymentLink,
       footerMessage
     } = req.body;
 
@@ -138,6 +165,8 @@ const createInvoiceTemplate = async (req, res, next) => {
       if (bankDetails.branch) parsedBankDetails.branch = String(bankDetails.branch).trim();
     }
 
+    const validatedPaymentLink = validatePaymentLink(paymentLink);
+
     const invoiceData = {
       businessName: businessName.trim(),
       businessAddress: businessAddress.trim(),
@@ -158,6 +187,7 @@ const createInvoiceTemplate = async (req, res, next) => {
       notes: notes ? notes.trim() : '',
       paymentOptions: validatedPaymentOptions,
       bankDetails: parsedBankDetails,
+      paymentLink: validatedPaymentLink,
       footerMessage: footerMessage ? footerMessage.trim() : ''
     };
 
@@ -227,6 +257,7 @@ const updateInvoiceTemplate = async (req, res, next) => {
       notes,
       paymentOptions,
       bankDetails,
+      paymentLink,
       footerMessage
     } = req.body;
 
@@ -356,6 +387,10 @@ const updateInvoiceTemplate = async (req, res, next) => {
         if (bankDetails.branch !== undefined) parsedBankDetails.branch = String(bankDetails.branch).trim();
       }
       updateData.bankDetails = parsedBankDetails;
+    }
+
+    if (paymentLink !== undefined) {
+      updateData.paymentLink = validatePaymentLink(paymentLink);
     }
 
     if (footerMessage !== undefined) updateData.footerMessage = String(footerMessage).trim();

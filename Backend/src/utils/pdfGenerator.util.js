@@ -208,19 +208,29 @@ const generateInvoicePDF = (invoice, res) => {
   if (bd.accountType) { doc.text(`Account Type: ${bd.accountType}`, 40, bY); bY += 12; }
   if (bd.branch) { doc.text(`Branch: ${bd.branch}`, 40, bY); bY += 12; }
 
-  // Right: Payment Options
+  // Right: Payment Options & Payment Link
   const enabledOptions = Array.isArray(invoice.paymentOptions)
     ? invoice.paymentOptions.filter((opt) => opt.enabled).map((opt) => opt.name)
     : [];
 
+  let pY = bankY;
   if (enabledOptions.length > 0) {
-    doc.fontSize(10).font('Helvetica-Bold').fillColor(primaryColor).text('PAYMENT OPTIONS', 320, bankY);
-    let pY = bankY + 14;
-    doc.fontSize(8).font('Helvetica').fillColor(secondaryColor);
-    doc.text(`Accepted: ${enabledOptions.join(', ')}`, 320, pY, { width: 235 });
+    doc.fontSize(10).font('Helvetica-Bold').fillColor(primaryColor).text('PAYMENT OPTIONS', 320, pY);
+    doc.fontSize(8).font('Helvetica').fillColor(secondaryColor).text(`Accepted: ${enabledOptions.join(', ')}`, 320, pY + 14, { width: 235 });
+    pY = doc.y + 10;
   }
 
-  let notesY = Math.max(bY + 10, bankY + 45);
+  if (invoice.paymentLink) {
+    doc.fontSize(10).font('Helvetica-Bold').fillColor(primaryColor).text('PAYMENT LINK', 320, pY);
+    pY = doc.y + 3;
+    doc.fontSize(9).font('Helvetica-Bold').fillColor('#0284c7').text('Pay Now', 320, pY, {
+      link: invoice.paymentLink,
+      underline: true
+    });
+    pY = doc.y + 10;
+  }
+
+  let notesY = Math.max(bY + 10, pY + 10, bankY + 45);
 
   // --- 7. NOTES & FOOTER ---
   if (invoice.notes) {

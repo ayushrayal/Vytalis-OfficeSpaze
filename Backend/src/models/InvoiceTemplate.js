@@ -195,6 +195,11 @@ const invoiceTemplateSchema = new mongoose.Schema(
       type: bankDetailsSchema,
       default: () => ({})
     },
+    paymentLink: {
+      type: String,
+      trim: true,
+      default: null
+    },
     footerMessage: {
       type: String,
       trim: true,
