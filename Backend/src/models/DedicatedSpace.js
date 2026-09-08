@@ -27,9 +27,10 @@ const dedicatedSpaceSchema = new mongoose.Schema(
       type: String,
       required: [true, 'Business type is required'],
       enum: {
-        values: ['Registor', 'Non Registor'],
-        message: 'Business type must be either "Registor" or "Non Registor"'
-      }
+        values: ['Register', 'Unregistered'],
+        message: 'Business type must be either "Register" or "Unregistered"'
+      },
+      default: 'Register'
     },
     addedDate: {
       type: Date,

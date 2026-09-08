@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FileText, Upload, X, ExternalLink, AlertCircle, Loader2 } from 'lucide-react';
 import { formatDateInput, validateAgreementFile } from '../utils/virtualOffices.utils';
+import { useAggregators } from '../../aggregators/hooks/useAggregators';
 
 const virtualOfficeSchema = z
   .object({
@@ -25,6 +26,7 @@ const virtualOfficeSchema = z
       .trim()
       .min(1, 'Allotted virtual address is required'),
     allottedBy: z.string().trim().min(1, 'Allotted by is required'),
+    aggregatorId: z.string().optional().nullable(),
     startDate: z.string().min(1, 'Start date is required'),
     endDate: z.string().min(1, 'End date is required'),
     paymentMadeOn: z.string().min(1, 'Payment date is required'),
@@ -52,10 +54,19 @@ const VirtualOfficeForm = ({
   isLoading = false,
   onPreviewAgreement
 }) => {
+  const { data: aggregators = [] } = useAggregators();
   const [selectedFile, setSelectedFile] = useState(null);
   const [fileError, setFileError] = useState('');
 
   const isEditMode = Boolean(initialData && (initialData.id || initialData._id));
+
+  const extractAggregatorId = (data) => {
+    if (!data || !data.aggregatorId) return '';
+    if (typeof data.aggregatorId === 'object') {
+      return data.aggregatorId.id || data.aggregatorId._id || '';
+    }
+    return String(data.aggregatorId);
+  };
 
   const {
     register,
@@ -73,6 +84,7 @@ const VirtualOfficeForm = ({
       companyRegisteredAddress: '',
       allottedVirtualAddress: '',
       allottedBy: '',
+      aggregatorId: '',
       startDate: '',
       endDate: '',
       paymentMadeOn: '',
@@ -91,6 +103,7 @@ const VirtualOfficeForm = ({
         companyRegisteredAddress: initialData.companyRegisteredAddress || '',
         allottedVirtualAddress: initialData.allottedVirtualAddress || '',
         allottedBy: initialData.allottedBy || '',
+        aggregatorId: extractAggregatorId(initialData),
         startDate: formatDateInput(initialData.startDate),
         endDate: formatDateInput(initialData.endDate),
         paymentMadeOn: formatDateInput(initialData.paymentMadeOn),
@@ -108,6 +121,7 @@ const VirtualOfficeForm = ({
         companyRegisteredAddress: '',
         allottedVirtualAddress: '',
         allottedBy: '',
+        aggregatorId: '',
         startDate: '',
         endDate: '',
         paymentMadeOn: '',
@@ -324,7 +338,7 @@ const VirtualOfficeForm = ({
             )}
           </div>
 
-          <div className="sm:col-span-2">
+          <div className="sm:col-span-1">
             <label className="block text-xs font-semibold text-black mb-1">
               Allotted By <span className="text-brand-red">*</span>
             </label>
@@ -344,6 +358,26 @@ const VirtualOfficeForm = ({
                 {errors.allottedBy.message}
               </p>
             )}
+          </div>
+
+          <div className="sm:col-span-1">
+            <label className="block text-xs font-semibold text-black mb-1">
+              Aggregator (Optional)
+            </label>
+            <select
+              {...register('aggregatorId')}
+              className="w-full px-3.5 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-xs font-medium text-black focus:outline-hidden focus:border-brand-red focus:bg-white transition-all cursor-pointer"
+            >
+              <option value="">Direct / No Aggregator</option>
+              {aggregators.map((agg) => {
+                const aggId = agg.id || agg._id;
+                return (
+                  <option key={aggId} value={aggId}>
+                    {agg.name}
+                  </option>
+                );
+              })}
+            </select>
           </div>
         </div>
       </div>

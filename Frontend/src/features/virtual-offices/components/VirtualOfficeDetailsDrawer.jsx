@@ -1,5 +1,5 @@
 import React from 'react';
-import { Building2, Edit2, Trash2, User, Building, MapPin, Calendar, DollarSign, FileText, Clock } from 'lucide-react';
+import { Building2, Edit2, Trash2, User, Building, MapPin, Calendar, DollarSign, FileText, Clock, Handshake } from 'lucide-react';
 import DetailsDrawer from '../../../components/common/DetailsDrawer';
 import { DetailSection, DetailRow, DetailBadge } from '../../../components/common/DetailDrawerPrimitives';
 import { formatDateDisplay, calculateStatus } from '../utils/virtualOffices.utils';
@@ -10,6 +10,7 @@ const VirtualOfficeDetailsDrawer = ({ isOpen, onClose, office, onEdit, onDelete,
 
   const fullName = `${office.firstName || ''} ${office.lastName || ''}`.trim() || 'Client Record';
   const status = calculateStatus(office.endDate);
+  const aggregatorName = office.aggregator?.name || (typeof office.aggregatorId === 'object' ? office.aggregatorId?.name : null) || 'Direct';
 
   const startDateFormatted = formatDateDisplay(office.startDate);
   const endDateFormatted = formatDateDisplay(office.endDate);
@@ -93,6 +94,11 @@ const VirtualOfficeDetailsDrawer = ({ isOpen, onClose, office, onEdit, onDelete,
       <DetailSection title="Allotted Virtual Address" icon={MapPin}>
         <DetailRow label="Virtual Address" value={office.allottedVirtualAddress} isMultiline fullWidth />
         <DetailRow label="Allotted By" value={office.allottedBy} fullWidth />
+      </DetailSection>
+
+      {/* Acquisition & Partner */}
+      <DetailSection title="Acquisition & Partner" icon={Handshake}>
+        <DetailRow label="Aggregator" value={aggregatorName} fullWidth />
       </DetailSection>
 
       {/* Contract & Financial Details */}

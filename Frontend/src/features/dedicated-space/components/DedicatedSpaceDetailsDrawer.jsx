@@ -2,7 +2,7 @@ import React from 'react';
 import { Briefcase, Edit2, Trash2, User, Calendar, DollarSign, FileText, Clock } from 'lucide-react';
 import DetailsDrawer from '../../../components/common/DetailsDrawer';
 import { DetailSection, DetailRow, DetailBadge } from '../../../components/common/DetailDrawerPrimitives';
-import { formatDateDisplay, calculateDerivedStatus } from '../utils/dedicatedSpace.utils';
+import { formatDateDisplay, calculateDerivedStatus, formatBusinessType } from '../utils/dedicatedSpace.utils';
 import { format } from 'date-fns';
 
 const DedicatedSpaceDetailsDrawer = ({ isOpen, onClose, space, onEdit, onDelete, onViewAgreement }) => {
@@ -96,7 +96,7 @@ const DedicatedSpaceDetailsDrawer = ({ isOpen, onClose, space, onEdit, onDelete,
 
       {/* Seat & Business Details */}
       <DetailSection title="Space & Business Details" icon={Briefcase}>
-        <DetailRow label="Business Type" value={space.businessType} badgeVariant={space.businessType?.toLowerCase()} />
+        <DetailRow label="Business Type" value={formatBusinessType(space.businessType)} badgeVariant={formatBusinessType(space.businessType)?.toLowerCase()} />
         <DetailRow label="Added Date" value={addedDateFormatted} />
         <DetailRow label="Total Seats" value={`${space.totalSeats ?? 0} Seats`} />
         <DetailRow label="Seat Per Cost" value={space.seatPerCost} isCurrency />

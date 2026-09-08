@@ -3,7 +3,8 @@ import { FileText, Edit, Trash2, ExternalLink } from 'lucide-react';
 import {
   formatDateDisplay,
   formatCurrencyINR,
-  calculateDerivedStatus
+  calculateDerivedStatus,
+  formatBusinessType
 } from '../utils/coworkSpace.utils';
 
 const CoworkSpaceTable = ({
@@ -55,12 +56,12 @@ const CoworkSpaceTable = ({
                   <td className="py-3.5 px-4 whitespace-nowrap">
                     <span
                       className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${
-                        space.businessType === 'Registor'
+                        formatBusinessType(space.businessType) === 'Register'
                           ? 'bg-blue-50 text-blue-700 border border-blue-200'
                           : 'bg-amber-50 text-amber-800 border border-amber-200'
                       }`}
                     >
-                      {space.businessType}
+                      {formatBusinessType(space.businessType)}
                     </span>
                   </td>
 

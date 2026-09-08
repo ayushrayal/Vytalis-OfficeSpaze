@@ -81,6 +81,11 @@ const virtualOfficeSchema = new mongoose.Schema(
     agreement: {
       type: agreementSchema,
       default: null
+    },
+    aggregatorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Aggregator',
+      default: null
     }
   },
   {
@@ -90,6 +95,18 @@ const virtualOfficeSchema = new mongoose.Schema(
         ret.id = ret._id;
         delete ret._id;
         delete ret.__v;
+        if (ret.aggregatorId && typeof ret.aggregatorId === 'object') {
+          const aggId = ret.aggregatorId.id || ret.aggregatorId._id?.toString();
+          ret.aggregator = {
+            id: aggId,
+            name: ret.aggregatorId.name,
+            phone: ret.aggregatorId.phone,
+            email: ret.aggregatorId.email
+          };
+          ret.aggregatorId = aggId;
+        } else {
+          ret.aggregator = null;
+        }
         return ret;
       }
     }

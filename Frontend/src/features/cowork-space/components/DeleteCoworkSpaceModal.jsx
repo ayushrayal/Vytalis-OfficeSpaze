@@ -1,5 +1,6 @@
 import React from 'react';
 import { AlertTriangle } from 'lucide-react';
+import { formatBusinessType } from '../utils/coworkSpace.utils';
 
 const DeleteCoworkSpaceModal = ({
   isOpen,
@@ -11,7 +12,7 @@ const DeleteCoworkSpaceModal = ({
   if (!isOpen || !spaceRecord) return null;
 
   const clientName = `${spaceRecord.firstName || ''} ${spaceRecord.lastName || ''}`.trim() || 'N/A';
-  const businessType = spaceRecord.businessType || 'N/A';
+  const businessType = formatBusinessType(spaceRecord.businessType);
   const totalSeats = spaceRecord.totalSeats || 0;
 
   return (

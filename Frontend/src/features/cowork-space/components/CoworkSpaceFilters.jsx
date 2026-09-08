@@ -60,8 +60,8 @@ const CoworkSpaceFilters = ({
               className="w-full px-3 py-2 bg-[#F5F0EB]/40 border border-[#E5E5E5] rounded-lg text-sm text-[#000000] font-medium focus:outline-none focus:border-[#000000] cursor-pointer"
             >
               <option value="All">All Business Types</option>
-              <option value="Registor">Registor</option>
-              <option value="Non Registor">Non Registor</option>
+              <option value="Register">Register</option>
+              <option value="Unregistered">Unregistered</option>
             </select>
           </div>
 

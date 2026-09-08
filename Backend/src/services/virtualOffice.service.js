@@ -1,11 +1,26 @@
 const mongoose = require('mongoose');
 const VirtualOffice = require('../models/VirtualOffice');
+const Aggregator = require('../models/Aggregator');
 const imagekitProvider = require('../providers/imagekit.provider');
 
 const VIRTUAL_OFFICE_FOLDER = '/VytalisOfficeSpaze/Virtual-Space/agreements';
 
 const createVirtualOffice = async (data, file) => {
   let uploadedAgreement = null;
+
+  if (data.aggregatorId) {
+    if (!mongoose.Types.ObjectId.isValid(data.aggregatorId)) {
+      const error = new Error('Selected aggregator does not exist');
+      error.statusCode = 400;
+      throw error;
+    }
+    const aggregatorExists = await Aggregator.findById(data.aggregatorId);
+    if (!aggregatorExists) {
+      const error = new Error('Selected aggregator does not exist');
+      error.statusCode = 400;
+      throw error;
+    }
+  }
 
   if (file) {
     uploadedAgreement = await imagekitProvider.uploadAgreement(
@@ -18,6 +33,7 @@ const createVirtualOffice = async (data, file) => {
 
   try {
     const virtualOffice = await VirtualOffice.create(data);
+    await virtualOffice.populate('aggregatorId', 'name phone email');
     return virtualOffice;
   } catch (error) {
     // Rollback ImageKit file if MongoDB creation failed
@@ -33,7 +49,9 @@ const createVirtualOffice = async (data, file) => {
 };
 
 const getVirtualOffices = async () => {
-  const virtualOffices = await VirtualOffice.find().sort({ createdAt: -1 });
+  const virtualOffices = await VirtualOffice.find()
+    .populate('aggregatorId', 'name phone email')
+    .sort({ createdAt: -1 });
   return virtualOffices;
 };
 
@@ -44,7 +62,7 @@ const getVirtualOfficeById = async (id) => {
     throw error;
   }
 
-  const virtualOffice = await VirtualOffice.findById(id);
+  const virtualOffice = await VirtualOffice.findById(id).populate('aggregatorId', 'name phone email');
   if (!virtualOffice) {
     const error = new Error('Virtual office not found');
     error.statusCode = 404;
@@ -68,6 +86,20 @@ const updateVirtualOffice = async (id, updateData, file) => {
     throw error;
   }
 
+  if (updateData.aggregatorId) {
+    if (!mongoose.Types.ObjectId.isValid(updateData.aggregatorId)) {
+      const error = new Error('Selected aggregator does not exist');
+      error.statusCode = 400;
+      throw error;
+    }
+    const aggregatorExists = await Aggregator.findById(updateData.aggregatorId);
+    if (!aggregatorExists) {
+      const error = new Error('Selected aggregator does not exist');
+      error.statusCode = 400;
+      throw error;
+    }
+  }
+
   let newAgreement = null;
   if (file) {
     newAgreement = await imagekitProvider.uploadAgreement(
@@ -82,7 +114,7 @@ const updateVirtualOffice = async (id, updateData, file) => {
     const updatedOffice = await VirtualOffice.findByIdAndUpdate(id, updateData, {
       new: true,
       runValidators: true
-    });
+    }).populate('aggregatorId', 'name phone email');
 
     // If update succeeded and a new agreement was uploaded, clean up the old file safely
     if (newAgreement && existingOffice.agreement && existingOffice.agreement.fileId) {

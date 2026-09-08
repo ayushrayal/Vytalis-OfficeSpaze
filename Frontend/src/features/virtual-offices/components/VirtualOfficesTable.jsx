@@ -1,5 +1,5 @@
 import React from 'react';
-import { Edit2, Trash2, FileText, CheckCircle2, XCircle, Phone, Mail, Building } from 'lucide-react';
+import { Edit2, Trash2, FileText, CheckCircle2, XCircle, Phone, Mail, Building, Handshake } from 'lucide-react';
 import {
   formatCurrencyINR,
   formatDateDisplay,
@@ -16,11 +16,12 @@ const VirtualOfficesTable = ({
   return (
     <div className="bg-white rounded-2xl border border-neutral-200/80 shadow-xs overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-left border-collapse min-w-[1200px]">
+        <table className="w-full text-left border-collapse min-w-[1250px]">
           <thead>
             <tr className="border-b border-neutral-200 bg-neutral-50/70 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
               <th className="py-3.5 px-4 whitespace-nowrap">Client Name</th>
               <th className="py-3.5 px-4 whitespace-nowrap">Company</th>
+              <th className="py-3.5 px-4 whitespace-nowrap">Aggregator</th>
               <th className="py-3.5 px-4 whitespace-nowrap">Phone</th>
               <th className="py-3.5 px-4 whitespace-nowrap">Email</th>
               <th className="py-3.5 px-4 max-w-[200px] whitespace-nowrap">Virtual Address</th>
@@ -37,6 +38,7 @@ const VirtualOfficesTable = ({
               const id = office.id || office._id;
               const status = calculateStatus(office.endDate);
               const isActive = status === 'Active';
+              const aggName = office.aggregator?.name || (typeof office.aggregatorId === 'object' ? office.aggregatorId?.name : null);
 
               return (
                 <tr
@@ -64,6 +66,20 @@ const VirtualOfficesTable = ({
                         {office.companyName}
                       </span>
                     </div>
+                  </td>
+
+                  {/* 3. Aggregator */}
+                  <td className="py-3.5 px-4 whitespace-nowrap">
+                    {aggName ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-neutral-100 font-bold text-black border border-neutral-200 text-xs">
+                        <Handshake className="w-3.5 h-3.5 text-brand-red shrink-0" />
+                        <span>{aggName}</span>
+                      </span>
+                    ) : (
+                      <span className="text-neutral-400 font-medium italic text-xs">
+                        Direct
+                      </span>
+                    )}
                   </td>
 
                   {/* 3. Phone */}

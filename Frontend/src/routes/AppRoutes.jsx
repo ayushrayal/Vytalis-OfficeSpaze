@@ -15,6 +15,7 @@ import CoworkSpacePage from '../features/cowork-space/pages/CoworkSpacePage';
 import DedicatedSpacePage from '../features/dedicated-space/pages/DedicatedSpacePage';
 import InvoiceTemplatesPage from '../features/invoice-templates/pages/InvoiceTemplatesPage';
 import WalkinsPage from '../features/walkins/pages/WalkinsPage';
+import AggregatorsPage from '../features/aggregators/pages/AggregatorsPage';
 
 const AppRoutes = () => {
   return (
@@ -34,6 +35,7 @@ const AppRoutes = () => {
           <Route path={ROUTES.DEDICATED_SPACE} element={<DedicatedSpacePage />} />
           <Route path={ROUTES.INVOICE_TEMPLATES} element={<InvoiceTemplatesPage />} />
           <Route path={ROUTES.WALKINS} element={<WalkinsPage />} />
+          <Route path={ROUTES.AGGREGATORS} element={<AggregatorsPage />} />
         </Route>
       </Route>
 

@@ -3,6 +3,7 @@ import {
   UserCheck,
   Building2,
   Building,
+  Handshake,
   Receipt,
   Banknote,
   FileText,
@@ -40,6 +41,11 @@ export const NAVIGATION_SECTIONS = [
         label: 'Managed Offices',
         path: '/managed-offices',
         icon: Building
+      },
+      {
+        label: 'Aggregators',
+        path: ROUTES.AGGREGATORS,
+        icon: Handshake
       }
     ]
   },

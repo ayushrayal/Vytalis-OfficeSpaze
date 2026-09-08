@@ -20,7 +20,8 @@ const buildVirtualOfficeFormData = (data) => {
     'startDate',
     'endDate',
     'agreedCommercials',
-    'paymentMadeOn'
+    'paymentMadeOn',
+    'aggregatorId'
   ];
 
   textFields.forEach((field) => {

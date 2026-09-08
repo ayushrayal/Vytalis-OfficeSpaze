@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { FileText, Upload, AlertCircle } from 'lucide-react';
-import { formatDateInput, validateAgreementFile } from '../utils/coworkSpace.utils';
+import { formatDateInput, validateAgreementFile, formatBusinessType } from '../utils/coworkSpace.utils';
 
 // Email Regex
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -27,8 +27,8 @@ const coworkSpaceSchema = z
       .string()
       .min(1, 'Email address is required')
       .refine((val) => emailRegex.test(val.trim()), 'Valid email address is required'),
-    businessType: z.enum(['Registor', 'Non Registor'], {
-      required_error: 'Business type must be either "Registor" or "Non Registor"'
+    businessType: z.enum(['Register', 'Unregistered', 'Registor', 'Non Registor'], {
+      required_error: 'Business type must be selected'
     }),
     addedDate: z.string().min(1, 'Added date is required'),
     totalSeats: z
@@ -87,7 +87,7 @@ const CoworkSpaceForm = ({
       lastName: initialData?.lastName || '',
       phone: initialData?.phone || '',
       email: initialData?.email || '',
-      businessType: initialData?.businessType || 'Registor',
+      businessType: formatBusinessType(initialData?.businessType || 'Register'),
       addedDate: formatDateInput(initialData?.addedDate || new Date()),
       totalSeats: initialData?.totalSeats ? String(initialData.totalSeats) : '1',
       seatPerCost: initialData?.seatPerCost ? String(initialData.seatPerCost) : '',
@@ -103,7 +103,7 @@ const CoworkSpaceForm = ({
       setValue('lastName', initialData.lastName || '');
       setValue('phone', initialData.phone || '');
       setValue('email', initialData.email || '');
-      setValue('businessType', initialData.businessType || 'Registor');
+      setValue('businessType', formatBusinessType(initialData.businessType || 'Register'));
       setValue('addedDate', formatDateInput(initialData.addedDate || new Date()));
       setValue('totalSeats', initialData.totalSeats ? String(initialData.totalSeats) : '1');
       setValue('seatPerCost', initialData.seatPerCost ? String(initialData.seatPerCost) : '');
@@ -234,8 +234,8 @@ const CoworkSpaceForm = ({
             {...register('businessType')}
             className="w-full px-3.5 py-2 bg-[#F5F0EB]/40 border border-[#E5E5E5] rounded-xl text-sm text-[#000000] font-medium focus:outline-none focus:border-[#000000] cursor-pointer"
           >
-            <option value="Registor">Registor</option>
-            <option value="Non Registor">Non Registor</option>
+            <option value="Register">Register</option>
+            <option value="Unregistered">Unregistered</option>
           </select>
           {errors.businessType && (
             <p className="text-xs text-[#ED1F23] mt-1 font-medium">{errors.businessType.message}</p>

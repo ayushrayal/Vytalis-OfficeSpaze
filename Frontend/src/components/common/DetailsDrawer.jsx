@@ -77,7 +77,7 @@ const DetailsDrawer = ({
         <div
           ref={drawerRef}
           onClick={(e) => e.stopPropagation()}
-          className="w-screen max-w-full sm:max-w-xl md:w-[540px] bg-white shadow-2xl flex flex-col justify-between border-l border-neutral-200/80 z-10"
+          className="w-screen max-w-full sm:max-w-2xl md:w-[600px] bg-white shadow-2xl flex flex-col justify-between border-l border-neutral-200/80 z-10"
         >
           {/* Sticky Header */}
           <div className="sticky top-0 bg-white z-10 px-4 sm:px-6 py-4 border-b border-neutral-200/80 flex items-center justify-between gap-3">

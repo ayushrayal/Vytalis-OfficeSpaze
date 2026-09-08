@@ -106,7 +106,10 @@ export const validateAgreementFile = (file) => {
   return { valid: true };
 };
 
-export const filterVirtualOffices = (offices = [], { search = '', status = 'All' }) => {
+export const filterVirtualOffices = (
+  offices = [],
+  { search = '', status = 'All', aggregator = 'All' }
+) => {
   const query = search.trim().toLowerCase();
 
   return offices.filter((item) => {
@@ -114,6 +117,18 @@ export const filterVirtualOffices = (offices = [], { search = '', status = 'All'
     if (status !== 'All') {
       const itemStatus = calculateStatus(item.endDate);
       if (itemStatus.toLowerCase() !== status.toLowerCase()) return false;
+    }
+
+    // Aggregator filter
+    if (aggregator !== 'All') {
+      const aggObj = item.aggregator || (typeof item.aggregatorId === 'object' ? item.aggregatorId : null);
+      const aggId = aggObj?.id || aggObj?._id?.toString() || (typeof item.aggregatorId === 'string' ? item.aggregatorId : null);
+
+      if (aggregator === 'direct') {
+        if (aggId) return false;
+      } else {
+        if (aggId !== aggregator) return false;
+      }
     }
 
     // Search query filter
@@ -126,6 +141,11 @@ export const filterVirtualOffices = (offices = [], { search = '', status = 'All'
       const email = (item.email || '').toLowerCase();
       const address = (item.allottedVirtualAddress || '').toLowerCase();
       const allottedBy = (item.allottedBy || '').toLowerCase();
+      const aggName = (
+        item.aggregator?.name ||
+        (typeof item.aggregatorId === 'object' ? item.aggregatorId?.name : '') ||
+        ''
+      ).toLowerCase();
 
       const matchesSearch =
         fullName.includes(query) ||
@@ -135,7 +155,8 @@ export const filterVirtualOffices = (offices = [], { search = '', status = 'All'
         phone.includes(query) ||
         email.includes(query) ||
         address.includes(query) ||
-        allottedBy.includes(query);
+        allottedBy.includes(query) ||
+        aggName.includes(query);
 
       if (!matchesSearch) return false;
     }

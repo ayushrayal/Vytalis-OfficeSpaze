@@ -38,10 +38,11 @@ const createDedicatedSpace = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Valid email address is required' });
     }
 
-    if (!businessType || (businessType !== 'Registor' && businessType !== 'Non Registor')) {
+    const allowedBusinessTypes = ['Register', 'Unregistered'];
+    if (!businessType || !allowedBusinessTypes.includes(businessType)) {
       return res.status(400).json({
         success: false,
-        message: 'Business type must be either "Registor" or "Non Registor"'
+        message: 'Business type must be either "Register" or "Unregistered"'
       });
     }
 
@@ -209,10 +210,11 @@ const updateDedicatedSpace = async (req, res, next) => {
     }
 
     if (businessType !== undefined) {
-      if (businessType !== 'Registor' && businessType !== 'Non Registor') {
+      const allowedBusinessTypes = ['Register', 'Unregistered', 'Registor', 'Non Registor'];
+      if (!allowedBusinessTypes.includes(businessType)) {
         return res.status(400).json({
           success: false,
-          message: 'Business type must be either "Registor" or "Non Registor"'
+          message: 'Business type must be either "Register" or "Unregistered"'
         });
       }
       updateData.businessType = businessType;

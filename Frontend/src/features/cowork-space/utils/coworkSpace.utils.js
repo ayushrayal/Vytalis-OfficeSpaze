@@ -165,6 +165,18 @@ export const calculateSummaryMetrics = (spaces = []) => {
 };
 
 /**
+ * Normalizes and formats Business Type for UI display
+ */
+export const formatBusinessType = (type) => {
+  if (!type) return 'Register';
+  const norm = String(type).trim().toLowerCase();
+  if (norm === 'non registor' || norm === 'non register' || norm === 'unregistered') {
+    return 'Unregistered';
+  }
+  return 'Register';
+};
+
+/**
  * Multi-criterion client-side filtering
  */
 export const filterCoworkSpaces = (
@@ -181,9 +193,13 @@ export const filterCoworkSpaces = (
       return false;
     }
 
-    // Business Type Filter ('Registor' | 'Non Registor')
-    if (businessType !== 'All' && item.businessType !== businessType) {
-      return false;
+    // Business Type Filter ('Register' | 'Unregistered')
+    if (businessType !== 'All') {
+      const itemBType = formatBusinessType(item.businessType);
+      const filterBType = formatBusinessType(businessType);
+      if (itemBType !== filterBType) {
+        return false;
+      }
     }
 
     // Date Filter based on addedDate
@@ -209,7 +225,7 @@ export const filterCoworkSpaces = (
       const fullName = `${fn} ${ln}`.trim();
       const phone = (item.phone || '').toLowerCase();
       const email = (item.email || '').toLowerCase();
-      const bType = (item.businessType || '').toLowerCase();
+      const bType = formatBusinessType(item.businessType).toLowerCase();
 
       const matchesSearch =
         fn.includes(query) ||

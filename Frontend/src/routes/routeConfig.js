@@ -10,5 +10,6 @@ export const ROUTES = {
   COWORK_SPACE: '/cowork-space',
   DEDICATED_SPACE: '/dedicated-space',
   INVOICE_TEMPLATES: '/invoice-templates',
-  WALKINS: '/walkins'
+  WALKINS: '/walkins',
+  AGGREGATORS: '/aggregators'
 };

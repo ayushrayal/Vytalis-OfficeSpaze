@@ -107,13 +107,26 @@ export const combineRecentActivities = ({
     });
   });
 
+const formatBT = (type) => {
+  if (!type) return '';
+  const norm = String(type).trim().toLowerCase();
+  if (norm === 'non registor' || norm === 'non register' || norm === 'unregistered') {
+    return 'Unregistered';
+  }
+  if (norm === 'registor' || norm === 'register') {
+    return 'Register';
+  }
+  return type;
+};
+
   coworkSpaces.forEach((item) => {
     const name = `${item.firstName || ''} ${item.lastName || ''}`.trim();
+    const bType = formatBT(item.businessType) || 'Booking';
     activities.push({
       id: item._id || item.id,
       module: 'Cowork Space',
       title: `Cowork Space booking: ${name}`,
-      subtitle: `${item.totalSeats || 0} seats • ${item.businessType || 'Booking'}`,
+      subtitle: `${item.totalSeats || 0} seats • ${bType}`,
       date: item.addedDate || item.createdAt,
       type: 'cowork-space'
     });
@@ -121,11 +134,12 @@ export const combineRecentActivities = ({
 
   dedicatedSpaces.forEach((item) => {
     const name = `${item.firstName || ''} ${item.lastName || ''}`.trim();
+    const bType = formatBT(item.businessType) || 'Booking';
     activities.push({
       id: item._id || item.id,
       module: 'Dedicated Space',
       title: `Dedicated Space booking: ${name}`,
-      subtitle: `${item.totalSeats || 0} seats • ${item.businessType || 'Booking'}`,
+      subtitle: `${item.totalSeats || 0} seats • ${bType}`,
       date: item.addedDate || item.createdAt,
       type: 'dedicated-space'
     });

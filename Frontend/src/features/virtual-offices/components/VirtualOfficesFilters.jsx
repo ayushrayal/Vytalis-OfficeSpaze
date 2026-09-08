@@ -1,16 +1,19 @@
 import React from 'react';
-import { Search, X, Filter } from 'lucide-react';
+import { Search, X, Filter, Handshake } from 'lucide-react';
 
 const VirtualOfficesFilters = ({
   search = '',
   onSearchChange,
   statusFilter = 'All',
   onStatusFilterChange,
+  aggregatorFilter = 'All',
+  onAggregatorFilterChange,
+  aggregators = [],
   onClearFilters,
   totalCount = 0,
   filteredCount = 0
 }) => {
-  const isFiltered = search.trim() !== '' || statusFilter !== 'All';
+  const isFiltered = search.trim() !== '' || statusFilter !== 'All' || aggregatorFilter !== 'All';
 
   const statusOptions = [
     { id: 'All', label: 'All Offices' },
@@ -20,7 +23,7 @@ const VirtualOfficesFilters = ({
 
   return (
     <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Search Bar */}
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
@@ -28,7 +31,7 @@ const VirtualOfficesFilters = ({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by client name, company, phone, email, address..."
+            placeholder="Search client, company, aggregator, address..."
             className="w-full pl-10 pr-9 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-medium text-black placeholder:text-neutral-400 focus:outline-hidden focus:border-brand-red focus:bg-white transition-all"
           />
           {search && (
@@ -43,8 +46,9 @@ const VirtualOfficesFilters = ({
           )}
         </div>
 
-        {/* Filter Tabs & Clear */}
+        {/* Filter Controls & Clear */}
         <div className="flex flex-wrap items-center gap-3">
+          {/* Status Tabs */}
           <div className="flex items-center gap-1 bg-neutral-100/80 p-1 rounded-xl border border-neutral-200">
             <span className="pl-2.5 pr-1 text-xs font-semibold text-neutral-500 hidden sm:flex items-center gap-1">
               <Filter className="w-3 h-3" />
@@ -64,6 +68,30 @@ const VirtualOfficesFilters = ({
                 {opt.label}
               </button>
             ))}
+          </div>
+
+          {/* Aggregator Dropdown Filter */}
+          <div className="flex items-center gap-1.5 bg-neutral-100/80 p-1 rounded-xl border border-neutral-200">
+            <span className="pl-2 pr-1 text-xs font-semibold text-neutral-500 hidden sm:flex items-center gap-1">
+              <Handshake className="w-3.5 h-3.5 text-brand-red" />
+              Aggregator:
+            </span>
+            <select
+              value={aggregatorFilter}
+              onChange={(e) => onAggregatorFilterChange(e.target.value)}
+              className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white text-black border border-neutral-200 focus:outline-hidden cursor-pointer"
+            >
+              <option value="All">All Aggregators</option>
+              <option value="direct">Direct Only</option>
+              {aggregators.map((agg) => {
+                const aggId = agg.id || agg._id;
+                return (
+                  <option key={aggId} value={aggId}>
+                    {agg.name}
+                  </option>
+                );
+              })}
+            </select>
           </div>
 
           {isFiltered && (

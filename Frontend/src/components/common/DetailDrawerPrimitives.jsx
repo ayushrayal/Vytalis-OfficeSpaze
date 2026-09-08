@@ -16,7 +16,7 @@ export const formatCurrencyINR = (amount) => {
 /**
  * DetailSection: Grouped section container with heading and optional icon.
  */
-export const DetailSection = ({ title, icon: Icon, children, className = '', rightContent = null }) => (
+export const DetailSection = ({ title, icon: Icon, children, className = '', rightContent = null, gridClassName = 'grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm' }) => (
   <div className={`space-y-3 font-urbanist ${className}`}>
     {title && (
       <div className="flex items-center justify-between border-b border-neutral-100 pb-2">
@@ -27,7 +27,7 @@ export const DetailSection = ({ title, icon: Icon, children, className = '', rig
         {rightContent}
       </div>
     )}
-    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">{children}</div>
+    <div className={gridClassName}>{children}</div>
   </div>
 );
 
@@ -42,13 +42,13 @@ export const DetailBadge = ({ status, variant }) => {
   let styles = 'bg-neutral-100 text-neutral-700 border-neutral-200';
   let Icon = null;
 
-  if (variant === 'active' || normalized === 'active' || normalized === 'paid' || normalized === 'registor') {
+  if (variant === 'active' || normalized === 'active' || normalized === 'paid' || normalized === 'registor' || normalized === 'register') {
     styles = 'bg-emerald-50 text-emerald-700 border-emerald-200';
     Icon = CheckCircle;
   } else if (variant === 'expired' || normalized === 'expired' || normalized === 'due') {
     styles = 'bg-[#ED1F23]/10 text-[#ED1F23] border-[#ED1F23]/20';
     Icon = AlertCircle;
-  } else if (normalized === 'paused' || normalized === 'non registor') {
+  } else if (normalized === 'paused' || normalized === 'non registor' || normalized === 'non register' || normalized === 'unregistered') {
     styles = 'bg-amber-50 text-amber-700 border-amber-200';
     Icon = Clock;
   }

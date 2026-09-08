@@ -17,9 +17,11 @@ import VirtualOfficeModal from '../components/VirtualOfficeModal';
 import DeleteVirtualOfficeModal from '../components/DeleteVirtualOfficeModal';
 import AgreementPreview from '../components/AgreementPreview';
 import VirtualOfficeDetailsDrawer from '../components/VirtualOfficeDetailsDrawer';
+import { useAggregators } from '../../aggregators/hooks/useAggregators';
 
 const VirtualOfficesPage = () => {
   const { data: virtualOffices = [], isLoading, isError, refetch, isFetching } = useVirtualOffices();
+  const { data: aggregators = [] } = useAggregators();
   const createMutation = useCreateVirtualOffice();
   const updateMutation = useUpdateVirtualOffice();
   const deleteMutation = useDeleteVirtualOffice();
@@ -29,6 +31,7 @@ const VirtualOfficesPage = () => {
   // Filter State
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('All');
+  const [aggregatorFilter, setAggregatorFilter] = useState('All');
 
   // Modal & Drawer States
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
@@ -44,8 +47,12 @@ const VirtualOfficesPage = () => {
 
   // Filtered data calculation
   const filteredOffices = useMemo(() => {
-    return filterVirtualOffices(virtualOffices, { search, status: statusFilter });
-  }, [virtualOffices, search, statusFilter]);
+    return filterVirtualOffices(virtualOffices, {
+      search,
+      status: statusFilter,
+      aggregator: aggregatorFilter
+    });
+  }, [virtualOffices, search, statusFilter, aggregatorFilter]);
 
   // Entrance animations
   useGSAP(
@@ -108,6 +115,7 @@ const VirtualOfficesPage = () => {
   const handleClearFilters = () => {
     setSearch('');
     setStatusFilter('All');
+    setAggregatorFilter('All');
   };
 
   const handleFormSubmit = async (formData) => {
@@ -174,6 +182,9 @@ const VirtualOfficesPage = () => {
               onSearchChange={setSearch}
               statusFilter={statusFilter}
               onStatusFilterChange={setStatusFilter}
+              aggregatorFilter={aggregatorFilter}
+              onAggregatorFilterChange={setAggregatorFilter}
+              aggregators={aggregators}
               onClearFilters={handleClearFilters}
               totalCount={virtualOffices.length}
               filteredCount={filteredOffices.length}

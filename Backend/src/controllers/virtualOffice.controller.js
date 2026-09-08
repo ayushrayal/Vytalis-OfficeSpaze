@@ -17,7 +17,8 @@ const createVirtualOffice = async (req, res, next) => {
       startDate,
       endDate,
       agreedCommercials,
-      paymentMadeOn
+      paymentMadeOn,
+      aggregatorId
     } = req.body;
 
     // String field validations
@@ -90,6 +91,16 @@ const createVirtualOffice = async (req, res, next) => {
       });
     }
 
+    const rawAggregatorId = aggregatorId && typeof aggregatorId === 'string' ? aggregatorId.trim() : null;
+    const finalAggregatorId =
+      rawAggregatorId &&
+      rawAggregatorId !== 'null' &&
+      rawAggregatorId !== 'undefined' &&
+      rawAggregatorId !== 'direct' &&
+      rawAggregatorId !== 'none'
+        ? rawAggregatorId
+        : null;
+
     const virtualOfficeData = {
       firstName: firstName.trim(),
       lastName: lastName.trim(),
@@ -102,7 +113,8 @@ const createVirtualOffice = async (req, res, next) => {
       startDate: parsedStartDate,
       endDate: parsedEndDate,
       agreedCommercials: amount,
-      paymentMadeOn: parsedPaymentDate
+      paymentMadeOn: parsedPaymentDate,
+      aggregatorId: finalAggregatorId
     };
 
     const virtualOffice = await virtualOfficeService.createVirtualOffice(virtualOfficeData, req.file);
@@ -173,7 +185,8 @@ const updateVirtualOffice = async (req, res, next) => {
       startDate,
       endDate,
       agreedCommercials,
-      paymentMadeOn
+      paymentMadeOn,
+      aggregatorId
     } = req.body;
 
     if (firstName !== undefined) {
@@ -275,6 +288,18 @@ const updateVirtualOffice = async (req, res, next) => {
         });
       }
       updateData.agreedCommercials = amount;
+    }
+
+    if (aggregatorId !== undefined) {
+      const rawAgg = typeof aggregatorId === 'string' ? aggregatorId.trim() : null;
+      updateData.aggregatorId =
+        rawAgg &&
+        rawAgg !== 'null' &&
+        rawAgg !== 'undefined' &&
+        rawAgg !== 'direct' &&
+        rawAgg !== 'none'
+          ? rawAgg
+          : null;
     }
 
     const virtualOffice = await virtualOfficeService.updateVirtualOffice(
