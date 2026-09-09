@@ -81,6 +81,10 @@ export const DetailRow = ({
   className = ''
 }) => {
   const renderValue = () => {
+    if (React.isValidElement(value)) {
+      return value;
+    }
+
     if (value === undefined || value === null || (typeof value === 'string' && !value.trim())) {
       return <span className="text-neutral-400 text-xs italic">Not provided</span>;
     }

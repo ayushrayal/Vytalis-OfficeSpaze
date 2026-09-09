@@ -1,4 +1,4 @@
-import React, { useState, useRef, useMemo, useEffect } from 'react';
+import React, { useState, useRef, useMemo, useEffect, useCallback } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
@@ -70,34 +70,34 @@ const EscalationsPage = () => {
   const [deletingEscalation, setDeletingEscalation] = useState(null);
 
   const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
-  const [selectedEscalation, setSelectedEscalation] = useState(null);
 
-  // Check if the escalation requested via URL ?open=<id> already exists in the loaded list
-  const isAlreadyInList = useMemo(() => {
-    if (!openId) return false;
-    return escalations.some((esc) => (esc.id || esc._id) === openId);
-  }, [openId, escalations]);
+  // Stable Drawer State (ID + boolean visibility)
+  const [selectedEscalationId, setSelectedEscalationId] = useState(null);
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const handledDeepLinkRef = useRef(null);
 
-  // If not in the loaded list (e.g. direct URL / refresh / filtered), fetch exact record
+  // Consume deep-link intent once per distinct openId
+  useEffect(() => {
+    if (openId && handledDeepLinkRef.current !== openId) {
+      handledDeepLinkRef.current = openId;
+      setSelectedEscalationId(openId);
+      setIsDrawerOpen(true);
+    }
+  }, [openId]);
+
+  // Look in the loaded escalations list first (reuses cache, zero duplicate API calls)
+  const matchedFromList = useMemo(() => {
+    if (!selectedEscalationId) return null;
+    return escalations.find((esc) => (esc.id || esc._id) === selectedEscalationId) || null;
+  }, [selectedEscalationId, escalations]);
+
+  // If not found in current list, fetch exact record by ID
   const { data: fetchedEscalation } = useEscalationDetails(
-    openId && !isAlreadyInList ? openId : null
+    selectedEscalationId && !matchedFromList ? selectedEscalationId : null
   );
 
-  // Active escalation for the drawer (preserves exact record ID)
-  const activeEscalation = useMemo(() => {
-    if (openId) {
-      if (selectedEscalation && (selectedEscalation.id === openId || selectedEscalation._id === openId)) {
-        return selectedEscalation;
-      }
-      const foundInList = escalations.find((esc) => (esc.id || esc._id) === openId);
-      if (foundInList) return foundInList;
-      if (fetchedEscalation && (fetchedEscalation.id === openId || fetchedEscalation._id === openId)) {
-        return fetchedEscalation;
-      }
-      return null;
-    }
-    return selectedEscalation;
-  }, [openId, selectedEscalation, escalations, fetchedEscalation]);
+  // Active escalation record (stable reference)
+  const activeEscalation = matchedFromList || fetchedEscalation || null;
 
   // Available escalation types for dropdown
   const availableTypes = useMemo(() => {
@@ -141,48 +141,48 @@ const EscalationsPage = () => {
   );
 
   // Handlers
-  const handleOpenAddModal = () => {
+  const handleOpenAddModal = useCallback(() => {
     setEditingEscalation(null);
     setIsFormModalOpen(true);
-  };
+  }, []);
 
-  const handleOpenEditModal = (escalation) => {
+  const handleOpenEditModal = useCallback((escalation) => {
     setEditingEscalation(escalation);
     setIsFormModalOpen(true);
-  };
+  }, []);
 
-  const handleCloseFormModal = () => {
+  const handleCloseFormModal = useCallback(() => {
     setIsFormModalOpen(false);
     setEditingEscalation(null);
-  };
+  }, []);
 
-  const handleSelectRecord = (record) => {
+  const handleSelectRecord = useCallback((record) => {
     const id = record?.id || record?._id;
-    setSelectedEscalation(record);
     if (id) {
+      handledDeepLinkRef.current = id;
+      setSelectedEscalationId(id);
+      setIsDrawerOpen(true);
       const newParams = new URLSearchParams(searchParams);
       newParams.set('open', id);
       setSearchParams(newParams, { replace: true });
     }
-  };
+  }, [searchParams, setSearchParams]);
 
-  const handleCloseDrawer = () => {
-    setSelectedEscalation(null);
+  const handleCloseDrawer = useCallback(() => {
+    setIsDrawerOpen(false);
+    setSelectedEscalationId(null);
     if (searchParams.has('open')) {
       const newParams = new URLSearchParams(searchParams);
       newParams.delete('open');
       setSearchParams(newParams, { replace: true });
     }
-  };
+  }, [searchParams, setSearchParams]);
 
   const handleFormSubmit = async (formData) => {
     try {
       if (editingEscalation) {
         const id = editingEscalation.id || editingEscalation._id;
-        const updated = await updateMutation.mutateAsync({ id, data: formData });
-        if (updated && activeEscalation && (activeEscalation.id === id || activeEscalation._id === id)) {
-          setSelectedEscalation(updated);
-        }
+        await updateMutation.mutateAsync({ id, data: formData });
       } else {
         await createMutation.mutateAsync(formData);
       }
@@ -192,21 +192,21 @@ const EscalationsPage = () => {
     }
   };
 
-  const handleOpenResolveModal = (escalation) => {
+  const handleOpenResolveModal = useCallback((escalation) => {
     setResolvingEscalation(escalation);
     setIsResolveModalOpen(true);
-  };
+  }, []);
 
-  const handleCloseResolveModal = () => {
+  const handleCloseResolveModal = useCallback(() => {
     setIsResolveModalOpen(false);
     setResolvingEscalation(null);
-  };
+  }, []);
 
   const handleResolveConfirm = async (id) => {
     try {
       await resolveMutation.mutateAsync(id);
       handleCloseResolveModal();
-      if (activeEscalation && (activeEscalation.id === id || activeEscalation._id === id)) {
+      if (selectedEscalationId === id) {
         handleCloseDrawer();
       }
     } catch {
@@ -214,21 +214,21 @@ const EscalationsPage = () => {
     }
   };
 
-  const handleOpenDeleteModal = (escalation) => {
+  const handleOpenDeleteModal = useCallback((escalation) => {
     setDeletingEscalation(escalation);
     setIsDeleteModalOpen(true);
-  };
+  }, []);
 
-  const handleCloseDeleteModal = () => {
+  const handleCloseDeleteModal = useCallback(() => {
     setIsDeleteModalOpen(false);
     setDeletingEscalation(null);
-  };
+  }, []);
 
   const handleDeleteConfirm = async (id) => {
     try {
       await deleteMutation.mutateAsync(id);
       handleCloseDeleteModal();
-      if (activeEscalation && (activeEscalation.id === id || activeEscalation._id === id)) {
+      if (selectedEscalationId === id) {
         handleCloseDrawer();
       }
     } catch {
@@ -245,12 +245,12 @@ const EscalationsPage = () => {
     }
   };
 
-  const handleClearFilters = () => {
+  const handleClearFilters = useCallback(() => {
     setSearch('');
     setStatusFilter('All');
     setPriorityFilter('All');
     setTypeFilter('All');
-  };
+  }, []);
 
   return (
     <div ref={pageRef} className="space-y-6">
@@ -344,7 +344,7 @@ const EscalationsPage = () => {
 
       {/* Escalation Details Drawer */}
       <EscalationDetailsDrawer
-        isOpen={Boolean(activeEscalation)}
+        isOpen={isDrawerOpen && Boolean(activeEscalation)}
         onClose={handleCloseDrawer}
         escalation={activeEscalation}
         onEdit={handleOpenEditModal}

@@ -15,10 +15,20 @@ const DetailsDrawer = ({
 }) => {
   const drawerRef = useRef(null);
   const backdropRef = useRef(null);
+  const onCloseRef = useRef(onClose);
+  const wasOpenRef = useRef(false);
+
+  // Keep onClose ref current without causing effect re-runs
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  });
 
   // Lock body scroll and set up listeners
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      wasOpenRef.current = false;
+      return;
+    }
 
     // Body scroll lock
     const originalOverflow = document.body.style.overflow;
@@ -27,34 +37,37 @@ const DetailsDrawer = ({
     // Keydown Escape handler
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') {
-        onClose();
+        onCloseRef.current?.();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
 
-    // GSAP entrance animation
-    const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (drawerRef.current && !prefersReducedMotion) {
-      gsap.fromTo(
-        drawerRef.current,
-        { x: '100%' },
-        { x: '0%', duration: 0.35, ease: 'power3.out' }
-      );
-    }
+    // GSAP entrance animation - RUNS ONLY ONCE on opening transition!
+    if (!wasOpenRef.current) {
+      wasOpenRef.current = true;
+      const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (drawerRef.current && !prefersReducedMotion) {
+        gsap.fromTo(
+          drawerRef.current,
+          { x: '100%' },
+          { x: '0%', duration: 0.35, ease: 'power3.out' }
+        );
+      }
 
-    if (backdropRef.current && !prefersReducedMotion) {
-      gsap.fromTo(
-        backdropRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.25, ease: 'power2.out' }
-      );
+      if (backdropRef.current && !prefersReducedMotion) {
+        gsap.fromTo(
+          backdropRef.current,
+          { opacity: 0 },
+          { opacity: 1, duration: 0.25, ease: 'power2.out' }
+        );
+      }
     }
 
     return () => {
       document.body.style.overflow = originalOverflow;
       window.removeEventListener('keydown', handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 
