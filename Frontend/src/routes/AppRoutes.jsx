@@ -16,6 +16,7 @@ import DedicatedSpacePage from '../features/dedicated-space/pages/DedicatedSpace
 import InvoiceTemplatesPage from '../features/invoice-templates/pages/InvoiceTemplatesPage';
 import WalkinsPage from '../features/walkins/pages/WalkinsPage';
 import AggregatorsPage from '../features/aggregators/pages/AggregatorsPage';
+import EscalationsPage from '../features/escalations/pages/EscalationsPage';
 
 const AppRoutes = () => {
   return (
@@ -36,6 +37,7 @@ const AppRoutes = () => {
           <Route path={ROUTES.INVOICE_TEMPLATES} element={<InvoiceTemplatesPage />} />
           <Route path={ROUTES.WALKINS} element={<WalkinsPage />} />
           <Route path={ROUTES.AGGREGATORS} element={<AggregatorsPage />} />
+          <Route path={ROUTES.ESCALATIONS} element={<EscalationsPage />} />
         </Route>
       </Route>
 

@@ -9,7 +9,8 @@ import {
   FileText,
   Users,
   Briefcase,
-  FileSpreadsheet
+  FileSpreadsheet,
+  AlertOctagon
 } from 'lucide-react';
 import { ROUTES } from '../routes/routeConfig';
 
@@ -46,6 +47,11 @@ export const NAVIGATION_SECTIONS = [
         label: 'Aggregators',
         path: ROUTES.AGGREGATORS,
         icon: Handshake
+      },
+      {
+        label: 'Escalations',
+        path: ROUTES.ESCALATIONS || '/escalations',
+        icon: AlertOctagon
       }
     ]
   },

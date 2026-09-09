@@ -15,6 +15,7 @@ const coworkSpaceRoutes = require('./routes/coworkSpace.routes');
 const dedicatedSpaceRoutes = require('./routes/dedicatedSpace.routes');
 const invoiceTemplateRoutes = require('./routes/invoiceTemplate.routes');
 const aggregatorRoutes = require('./routes/aggregator.routes');
+const escalationRoutes = require('./routes/escalation.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const errorMiddleware = require('./middleware/error.middleware');
 
@@ -71,6 +72,7 @@ app.use('/api/cowork-spaces', coworkSpaceRoutes);
 app.use('/api/dedicated-spaces', dedicatedSpaceRoutes);
 app.use('/api/invoice-templates', invoiceTemplateRoutes);
 app.use('/api/aggregators', aggregatorRoutes);
+app.use('/api/escalations', escalationRoutes);
 
 // 404 Handler for unknown /api routes
 app.use('/api', (req, res) => {

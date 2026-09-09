@@ -24,8 +24,9 @@ export const useDashboardSse = () => {
         } catch (e) {
           // Ignore parse errors safely
         }
-        // Invalidate dashboardData query to refetch authoritative aggregated metrics & recent activity
+        // Invalidate queries to refetch authoritative metrics, activity, and escalations
         queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
+        queryClient.invalidateQueries({ queryKey: ['escalations'] });
       };
 
       eventSource.addEventListener('dashboard_update', handleDashboardUpdate);

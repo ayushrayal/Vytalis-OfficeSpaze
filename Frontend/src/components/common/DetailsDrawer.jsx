@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import gsap from 'gsap';
 import { X } from 'lucide-react';
 
@@ -57,7 +58,7 @@ const DetailsDrawer = ({
 
   if (!isOpen) return null;
 
-  return (
+  const drawerContent = (
     <div
       className="fixed inset-0 z-50 overflow-hidden font-urbanist"
       role="dialog"
@@ -130,6 +131,8 @@ const DetailsDrawer = ({
       </div>
     </div>
   );
+
+  return createPortal(drawerContent, document.body);
 };
 
 export default DetailsDrawer;

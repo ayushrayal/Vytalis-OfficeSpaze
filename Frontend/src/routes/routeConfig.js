@@ -11,5 +11,6 @@ export const ROUTES = {
   DEDICATED_SPACE: '/dedicated-space',
   INVOICE_TEMPLATES: '/invoice-templates',
   WALKINS: '/walkins',
-  AGGREGATORS: '/aggregators'
+  AGGREGATORS: '/aggregators',
+  ESCALATIONS: '/escalations'
 };

@@ -13,6 +13,7 @@ import DuePayments from '../components/DuePayments';
 import RecentActivity from '../components/RecentActivity';
 import DashboardSkeleton from '../components/DashboardSkeleton';
 import DashboardError from '../components/DashboardError';
+import DashboardEscalationsSection from '../components/DashboardEscalationsSection';
 
 const DashboardPage = () => {
   const { data, isLoading, isError, refetch, isFetching } = useDashboardData();
@@ -56,6 +57,11 @@ const DashboardPage = () => {
       {/* Primary KPI Grid */}
       <div className="dash-section">
         <KpiGrid data={data} />
+      </div>
+
+      {/* Operational Attention: Critical Escalations */}
+      <div className="dash-section">
+        <DashboardEscalationsSection />
       </div>
 
       {/* Financial Overview */}
