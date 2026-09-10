@@ -54,14 +54,14 @@ const DashboardPage = () => {
         <DashboardHeader onRefresh={refetch} isFetching={isFetching} />
       </div>
 
-      {/* Primary KPI Grid */}
-      <div className="dash-section">
-        <KpiGrid data={data} />
-      </div>
-
       {/* Operational Attention: Critical Escalations */}
       <div className="dash-section">
         <DashboardEscalationsSection />
+      </div>
+
+      {/* Primary KPI Grid */}
+      <div className="dash-section">
+        <KpiGrid data={data} />
       </div>
 
       {/* Financial Overview */}

@@ -7,18 +7,19 @@ import {
   Edit3,
   Trash2,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  ChevronDown
 } from 'lucide-react';
 import { useRecentActivities } from '../hooks/useRecentActivities';
 import { formatDashboardDateTime } from '../utils/dashboard.utils';
 
-const FILTER_TABS = [
-  { id: '', label: 'All' },
-  { id: 'virtual_office', label: 'Virtual' },
-  { id: 'managed_office', label: 'Managed' },
-  { id: 'cowork_space', label: 'Cowork' },
-  { id: 'dedicated_space', label: 'Dedicated' },
-  { id: 'salary,utility_bill,operation_bill', label: 'Others' }
+const FILTER_OPTIONS = [
+  { value: '', label: 'All' },
+  { value: 'virtual_office', label: 'Virtual Office' },
+  { value: 'managed_office', label: 'Managed Office' },
+  { value: 'cowork_space', label: 'Cowork Space' },
+  { value: 'dedicated_space', label: 'Dedicated Space' },
+  { value: 'salary,utility_bill,operation_bill', label: 'Others' }
 ];
 
 const RecentActivity = () => {
@@ -129,7 +130,7 @@ const RecentActivity = () => {
         };
       default:
         return {
-          badge: 'OPERATIONS & FINANCE',
+          badge: 'OPERATIONS & OTHERS',
           description: 'Latest timeline records across workspace and other operations.'
         };
     }
@@ -169,27 +170,29 @@ const RecentActivity = () => {
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-center shrink-0 max-w-full">
-          {/* Segmented Entity Filter Tabs */}
-          <div className="inline-flex p-0.5 rounded-lg bg-warm-bg border border-border max-w-[calc(100vw-7rem)] sm:max-w-none overflow-x-auto">
-            {FILTER_TABS.map((tab) => (
-              <button
-                key={tab.id}
-                type="button"
-                onClick={() => {
-                  setEntityType(tab.id);
-                  setPage(1);
-                }}
-                className={`px-2.5 py-1 rounded-md text-[11px] font-bold transition-all cursor-pointer whitespace-nowrap ${
-                  entityType === tab.id
-                    ? 'bg-white text-black shadow-2xs'
-                    : 'text-muted-text hover:text-black'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+        <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
+          {/* Activity Filter Dropdown */}
+          <label className="relative inline-flex items-center h-8 bg-warm-bg border border-border rounded-lg pl-2.5 pr-7 hover:bg-neutral-200 focus-within:ring-2 focus-within:ring-black/10 transition-all shadow-2xs cursor-pointer shrink-0">
+            <span className="text-xs font-semibold text-muted-text whitespace-nowrap select-none mr-1.5">
+              Activity:
+            </span>
+            <select
+              value={entityType}
+              onChange={(e) => {
+                setEntityType(e.target.value);
+                setPage(1);
+              }}
+              aria-label="Filter recent activity by module"
+              className="appearance-none text-xs font-bold text-black bg-transparent focus:outline-hidden cursor-pointer"
+            >
+              {FILTER_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value} className="bg-white text-black font-medium py-1">
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <ChevronDown className="w-3.5 h-3.5 text-muted-text pointer-events-none absolute right-2 top-1/2 -translate-y-1/2" />
+          </label>
 
           {/* Refresh current page */}
           <button
