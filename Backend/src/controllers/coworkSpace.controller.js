@@ -1,4 +1,5 @@
 const coworkSpaceService = require('../services/coworkSpace.service');
+const activityService = require('../services/activity.service');
 const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -105,6 +106,20 @@ const createCoworkSpace = async (req, res, next) => {
       coworkSpaceData,
       req.file
     );
+
+    const entityName = `${coworkSpace.firstName || ''} ${coworkSpace.lastName || ''}`.trim() || 'Cowork Client';
+    await activityService.logActivity({
+      action: 'created',
+      entityType: 'cowork_space',
+      entityId: coworkSpace._id,
+      entityName,
+      actor: req.user,
+      metadata: {
+        totalSeats: coworkSpace.totalSeats,
+        businessType: coworkSpace.businessType,
+        seatPerCost: coworkSpace.seatPerCost
+      }
+    });
 
     broadcastDashboardUpdate({
       type: 'COWORK_SPACE_CREATED',
@@ -279,6 +294,20 @@ const updateCoworkSpace = async (req, res, next) => {
       req.file
     );
 
+    const entityName = `${coworkSpace.firstName || ''} ${coworkSpace.lastName || ''}`.trim() || 'Cowork Client';
+    await activityService.logActivity({
+      action: 'updated',
+      entityType: 'cowork_space',
+      entityId: coworkSpace._id,
+      entityName,
+      actor: req.user,
+      metadata: {
+        totalSeats: coworkSpace.totalSeats,
+        businessType: coworkSpace.businessType,
+        seatPerCost: coworkSpace.seatPerCost
+      }
+    });
+
     broadcastDashboardUpdate({
       type: 'COWORK_SPACE_UPDATED',
       entity: 'coworkSpace',
@@ -300,7 +329,21 @@ const updateCoworkSpace = async (req, res, next) => {
 
 const deleteCoworkSpace = async (req, res, next) => {
   try {
+    // Capture identity BEFORE deletion
+    const existingRecord = await coworkSpaceService.getCoworkSpaceById(req.params.id);
+    const entityName = `${existingRecord?.firstName || ''} ${existingRecord?.lastName || ''}`.trim() || 'Cowork Client';
+
+    // Perform business deletion
     await coworkSpaceService.deleteCoworkSpace(req.params.id);
+
+    // Persist delete activity only after successful deletion
+    await activityService.logActivity({
+      action: 'deleted',
+      entityType: 'cowork_space',
+      entityId: req.params.id,
+      entityName,
+      actor: req.user
+    });
 
     broadcastDashboardUpdate({
       type: 'COWORK_SPACE_DELETED',

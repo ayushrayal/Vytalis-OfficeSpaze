@@ -44,6 +44,8 @@ const logActivity = async ({
   }
 };
 
+const VALID_ENTITY_TYPES = ['virtual_office', 'managed_office', 'cowork_space'];
+
 /**
  * Retrieves recent activities in reverse chronological order with server-side pagination.
  */
@@ -53,7 +55,7 @@ const getRecentActivities = async ({ page = 1, limit = 10, entityType } = {}) =>
   const skip = (parsedPage - 1) * parsedLimit;
 
   const query = {};
-  if (entityType && typeof entityType === 'string' && entityType.trim()) {
+  if (entityType && typeof entityType === 'string' && VALID_ENTITY_TYPES.includes(entityType.trim())) {
     query.entityType = entityType.trim();
   }
 
