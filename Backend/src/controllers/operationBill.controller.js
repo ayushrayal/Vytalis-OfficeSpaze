@@ -1,4 +1,5 @@
 const operationBillService = require('../services/operationBill.service');
+const activityService = require('../services/activity.service');
 const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const createOperationBill = async (req, res, next) => {
@@ -35,6 +36,18 @@ const createOperationBill = async (req, res, next) => {
       operationBillData,
       req.file
     );
+
+    await activityService.logActivity({
+      action: 'created',
+      entityType: 'operation_bill',
+      entityId: operationBill._id,
+      entityName: operationBill.expenseType || 'Operation Expense',
+      actor: req.user,
+      metadata: {
+        status: operationBill.status,
+        date: operationBill.date
+      }
+    });
 
     broadcastDashboardUpdate({
       type: 'OPERATION_BILL_CREATED',
@@ -127,6 +140,18 @@ const updateOperationBill = async (req, res, next) => {
       req.file
     );
 
+    await activityService.logActivity({
+      action: 'updated',
+      entityType: 'operation_bill',
+      entityId: operationBill._id,
+      entityName: operationBill.expenseType || 'Operation Expense',
+      actor: req.user,
+      metadata: {
+        status: operationBill.status,
+        date: operationBill.date
+      }
+    });
+
     broadcastDashboardUpdate({
       type: 'OPERATION_BILL_UPDATED',
       entity: 'operationBill',
@@ -148,7 +173,21 @@ const updateOperationBill = async (req, res, next) => {
 
 const deleteOperationBill = async (req, res, next) => {
   try {
+    // Capture identity BEFORE deletion
+    const existingRecord = await operationBillService.getOperationBillById(req.params.id);
+    const entityName = existingRecord?.expenseType || 'Operation Expense';
+
+    // Perform business deletion
     await operationBillService.deleteOperationBill(req.params.id);
+
+    // Persist delete activity only after successful deletion
+    await activityService.logActivity({
+      action: 'deleted',
+      entityType: 'operation_bill',
+      entityId: req.params.id,
+      entityName,
+      actor: req.user
+    });
 
     broadcastDashboardUpdate({
       type: 'OPERATION_BILL_DELETED',

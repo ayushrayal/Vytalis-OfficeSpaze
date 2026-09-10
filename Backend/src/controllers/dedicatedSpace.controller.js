@@ -1,4 +1,5 @@
 const dedicatedSpaceService = require('../services/dedicatedSpace.service');
+const activityService = require('../services/activity.service');
 const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -105,6 +106,20 @@ const createDedicatedSpace = async (req, res, next) => {
       dedicatedSpaceData,
       req.file
     );
+
+    const entityName = `${dedicatedSpace.firstName || ''} ${dedicatedSpace.lastName || ''}`.trim() || 'Dedicated Client';
+    await activityService.logActivity({
+      action: 'created',
+      entityType: 'dedicated_space',
+      entityId: dedicatedSpace._id,
+      entityName,
+      actor: req.user,
+      metadata: {
+        totalSeats: dedicatedSpace.totalSeats,
+        businessType: dedicatedSpace.businessType,
+        seatPerCost: dedicatedSpace.seatPerCost
+      }
+    });
 
     broadcastDashboardUpdate({
       type: 'DEDICATED_SPACE_CREATED',
@@ -279,6 +294,20 @@ const updateDedicatedSpace = async (req, res, next) => {
       req.file
     );
 
+    const entityName = `${dedicatedSpace.firstName || ''} ${dedicatedSpace.lastName || ''}`.trim() || 'Dedicated Client';
+    await activityService.logActivity({
+      action: 'updated',
+      entityType: 'dedicated_space',
+      entityId: dedicatedSpace._id,
+      entityName,
+      actor: req.user,
+      metadata: {
+        totalSeats: dedicatedSpace.totalSeats,
+        businessType: dedicatedSpace.businessType,
+        seatPerCost: dedicatedSpace.seatPerCost
+      }
+    });
+
     broadcastDashboardUpdate({
       type: 'DEDICATED_SPACE_UPDATED',
       entity: 'dedicatedSpace',
@@ -300,7 +329,21 @@ const updateDedicatedSpace = async (req, res, next) => {
 
 const deleteDedicatedSpace = async (req, res, next) => {
   try {
+    // Capture identity BEFORE deletion
+    const existingRecord = await dedicatedSpaceService.getDedicatedSpaceById(req.params.id);
+    const entityName = `${existingRecord?.firstName || ''} ${existingRecord?.lastName || ''}`.trim() || 'Dedicated Client';
+
+    // Perform business deletion
     await dedicatedSpaceService.deleteDedicatedSpace(req.params.id);
+
+    // Persist delete activity only after successful deletion
+    await activityService.logActivity({
+      action: 'deleted',
+      entityType: 'dedicated_space',
+      entityId: req.params.id,
+      entityName,
+      actor: req.user
+    });
 
     broadcastDashboardUpdate({
       type: 'DEDICATED_SPACE_DELETED',

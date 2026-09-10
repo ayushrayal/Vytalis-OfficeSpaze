@@ -10,7 +10,15 @@ const activitySchema = new mongoose.Schema(
     entityType: {
       type: String,
       required: [true, 'Entity type is required'],
-      enum: ['virtual_office', 'managed_office', 'cowork_space']
+      enum: [
+        'virtual_office',
+        'managed_office',
+        'cowork_space',
+        'dedicated_space',
+        'salary',
+        'utility_bill',
+        'operation_bill'
+      ]
     },
     entityId: {
       type: mongoose.Schema.Types.ObjectId,

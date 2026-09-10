@@ -16,7 +16,9 @@ const FILTER_TABS = [
   { id: '', label: 'All' },
   { id: 'virtual_office', label: 'Virtual' },
   { id: 'managed_office', label: 'Managed' },
-  { id: 'cowork_space', label: 'Cowork' }
+  { id: 'cowork_space', label: 'Cowork' },
+  { id: 'dedicated_space', label: 'Dedicated' },
+  { id: 'salary,utility_bill,operation_bill', label: 'Others' }
 ];
 
 const RecentActivity = () => {
@@ -80,6 +82,14 @@ const RecentActivity = () => {
 
   const getEntityMeta = (type) => {
     switch (type) {
+      case 'dedicated_space':
+        return { label: 'Dedicated Space', prefix: 'Dedicated Space' };
+      case 'salary':
+        return { label: 'Salary', prefix: 'Salary' };
+      case 'utility_bill':
+        return { label: 'Utility Bill', prefix: 'Utility Bill' };
+      case 'operation_bill':
+        return { label: 'Operation Bill', prefix: 'Operation Bill' };
       case 'cowork_space':
         return { label: 'Cowork Space', prefix: 'Cowork Space' };
       case 'managed_office':
@@ -90,8 +100,47 @@ const RecentActivity = () => {
     }
   };
 
+  const getHeaderContext = () => {
+    switch (entityType) {
+      case 'virtual_office':
+        return {
+          badge: 'VIRTUAL OFFICE',
+          description: 'Latest timeline records across Virtual Office operations.'
+        };
+      case 'managed_office':
+        return {
+          badge: 'MANAGED OFFICE',
+          description: 'Latest timeline records across Managed Office operations.'
+        };
+      case 'cowork_space':
+        return {
+          badge: 'COWORK SPACE',
+          description: 'Latest timeline records across Cowork Space operations.'
+        };
+      case 'dedicated_space':
+        return {
+          badge: 'DEDICATED SPACE',
+          description: 'Latest timeline records across Dedicated Space operations.'
+        };
+      case 'salary,utility_bill,operation_bill':
+        return {
+          badge: 'OTHER OPERATIONS',
+          description: 'Latest timeline records across other operational activities.'
+        };
+      default:
+        return {
+          badge: 'OPERATIONS & FINANCE',
+          description: 'Latest timeline records across workspace and other operations.'
+        };
+    }
+  };
+
   const getEmptyStateMessage = () => {
     switch (entityType) {
+      case 'dedicated_space':
+        return 'No recent Dedicated Space activity recorded.';
+      case 'salary,utility_bill,operation_bill':
+        return 'No recent other operational activity recorded.';
       case 'cowork_space':
         return 'No recent Cowork Space activity recorded.';
       case 'virtual_office':
@@ -103,6 +152,8 @@ const RecentActivity = () => {
     }
   };
 
+  const headerContext = getHeaderContext();
+
   return (
     <div className="bg-white p-6 rounded-2xl border border-border shadow-xs space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -110,17 +161,17 @@ const RecentActivity = () => {
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-base font-extrabold text-black tracking-tight">Recent Activity</h2>
             <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-warm-bg text-muted-text border border-border shrink-0">
-              Workspace Operations
+              {headerContext.badge}
             </span>
           </div>
           <p className="text-xs text-muted-text">
-            Latest timeline records across virtual, managed & cowork operations.
+            {headerContext.description}
           </p>
         </div>
 
-        <div className="flex items-center gap-2 self-start sm:self-center shrink-0 flex-wrap sm:flex-nowrap">
+        <div className="flex items-center gap-2 self-start sm:self-center shrink-0 max-w-full">
           {/* Segmented Entity Filter Tabs */}
-          <div className="inline-flex p-0.5 rounded-lg bg-warm-bg border border-border max-w-full overflow-x-auto">
+          <div className="inline-flex p-0.5 rounded-lg bg-warm-bg border border-border max-w-[calc(100vw-7rem)] sm:max-w-none overflow-x-auto">
             {FILTER_TABS.map((tab) => (
               <button
                 key={tab.id}

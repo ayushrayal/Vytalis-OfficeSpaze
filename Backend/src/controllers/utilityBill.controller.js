@@ -1,4 +1,5 @@
 const utilityBillService = require('../services/utilityBill.service');
+const activityService = require('../services/activity.service');
 const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const createUtilityBill = async (req, res, next) => {
@@ -54,6 +55,18 @@ const createUtilityBill = async (req, res, next) => {
     };
 
     const utilityBill = await utilityBillService.createUtilityBill(utilityBillData, req.file);
+
+    await activityService.logActivity({
+      action: 'created',
+      entityType: 'utility_bill',
+      entityId: utilityBill._id,
+      entityName: utilityBill.billName || 'Utility Bill',
+      actor: req.user,
+      metadata: {
+        billAmount: utilityBill.billAmount,
+        status: utilityBill.status
+      }
+    });
 
     broadcastDashboardUpdate({
       type: 'UTILITY_BILL_CREATED',
@@ -175,6 +188,18 @@ const updateUtilityBill = async (req, res, next) => {
       req.file
     );
 
+    await activityService.logActivity({
+      action: 'updated',
+      entityType: 'utility_bill',
+      entityId: utilityBill._id,
+      entityName: utilityBill.billName || 'Utility Bill',
+      actor: req.user,
+      metadata: {
+        billAmount: utilityBill.billAmount,
+        status: utilityBill.status
+      }
+    });
+
     broadcastDashboardUpdate({
       type: 'UTILITY_BILL_UPDATED',
       entity: 'utilityBill',
@@ -196,7 +221,21 @@ const updateUtilityBill = async (req, res, next) => {
 
 const deleteUtilityBill = async (req, res, next) => {
   try {
+    // Capture identity BEFORE deletion
+    const existingRecord = await utilityBillService.getUtilityBillById(req.params.id);
+    const entityName = existingRecord?.billName || 'Utility Bill';
+
+    // Perform business deletion
     await utilityBillService.deleteUtilityBill(req.params.id);
+
+    // Persist delete activity only after successful deletion
+    await activityService.logActivity({
+      action: 'deleted',
+      entityType: 'utility_bill',
+      entityId: req.params.id,
+      entityName,
+      actor: req.user
+    });
 
     broadcastDashboardUpdate({
       type: 'UTILITY_BILL_DELETED',

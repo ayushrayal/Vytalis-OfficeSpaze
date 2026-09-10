@@ -44,7 +44,15 @@ const logActivity = async ({
   }
 };
 
-const VALID_ENTITY_TYPES = ['virtual_office', 'managed_office', 'cowork_space'];
+const VALID_ENTITY_TYPES = [
+  'virtual_office',
+  'managed_office',
+  'cowork_space',
+  'dedicated_space',
+  'salary',
+  'utility_bill',
+  'operation_bill'
+];
 
 /**
  * Retrieves recent activities in reverse chronological order with server-side pagination.
@@ -55,8 +63,17 @@ const getRecentActivities = async ({ page = 1, limit = 10, entityType } = {}) =>
   const skip = (parsedPage - 1) * parsedLimit;
 
   const query = {};
-  if (entityType && typeof entityType === 'string' && VALID_ENTITY_TYPES.includes(entityType.trim())) {
-    query.entityType = entityType.trim();
+  if (entityType && typeof entityType === 'string' && entityType.trim()) {
+    const requestedTypes = entityType
+      .split(',')
+      .map((t) => t.trim())
+      .filter((t) => VALID_ENTITY_TYPES.includes(t));
+
+    if (requestedTypes.length === 1) {
+      query.entityType = requestedTypes[0];
+    } else if (requestedTypes.length > 1) {
+      query.entityType = { $in: requestedTypes };
+    }
   }
 
   const [total, activities] = await Promise.all([

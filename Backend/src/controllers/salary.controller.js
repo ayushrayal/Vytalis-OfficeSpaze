@@ -1,4 +1,5 @@
 const salaryService = require('../services/salary.service');
+const activityService = require('../services/activity.service');
 const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -52,6 +53,19 @@ const createSalary = async (req, res, next) => {
     };
 
     const salary = await salaryService.createSalary(salaryData);
+
+    await activityService.logActivity({
+      action: 'created',
+      entityType: 'salary',
+      entityId: salary._id,
+      entityName: salary.employeeName || 'Employee',
+      actor: req.user,
+      metadata: {
+        role: salary.role,
+        employeeSalary: salary.employeeSalary,
+        status: salary.status
+      }
+    });
 
     broadcastDashboardUpdate({
       type: 'SALARY_CREATED',
@@ -156,6 +170,19 @@ const updateSalary = async (req, res, next) => {
 
     const salary = await salaryService.updateSalary(req.params.id, updateData);
 
+    await activityService.logActivity({
+      action: 'updated',
+      entityType: 'salary',
+      entityId: salary._id,
+      entityName: salary.employeeName || 'Employee',
+      actor: req.user,
+      metadata: {
+        role: salary.role,
+        employeeSalary: salary.employeeSalary,
+        status: salary.status
+      }
+    });
+
     broadcastDashboardUpdate({
       type: 'SALARY_UPDATED',
       entity: 'salary',
@@ -177,7 +204,21 @@ const updateSalary = async (req, res, next) => {
 
 const deleteSalary = async (req, res, next) => {
   try {
+    // Capture identity BEFORE deletion
+    const existingRecord = await salaryService.getSalaryById(req.params.id);
+    const entityName = existingRecord?.employeeName || 'Employee';
+
+    // Perform business deletion
     await salaryService.deleteSalary(req.params.id);
+
+    // Persist delete activity only after successful deletion
+    await activityService.logActivity({
+      action: 'deleted',
+      entityType: 'salary',
+      entityId: req.params.id,
+      entityName,
+      actor: req.user
+    });
 
     broadcastDashboardUpdate({
       type: 'SALARY_DELETED',
