@@ -1,4 +1,5 @@
 const managedOfficeService = require('../services/managedOffice.service');
+const activityService = require('../services/activity.service');
 const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -136,6 +137,19 @@ const createManagedOffice = async (req, res, next) => {
     };
 
     const managedOffice = await managedOfficeService.createManagedOffice(managedOfficeData, req.file);
+
+    await activityService.logActivity({
+      action: 'created',
+      entityType: 'managed_office',
+      entityId: managedOffice._id,
+      entityName: managedOffice.companyName || `${managedOffice.firstName || ''} ${managedOffice.lastName || ''}`.trim(),
+      actor: req.user,
+      metadata: {
+        agreedCommercials: managedOffice.agreedCommercials,
+        totalSeats: managedOffice.totalSeats,
+        officeNo: managedOffice.officeNo
+      }
+    });
 
     broadcastDashboardUpdate({
       type: 'MANAGED_OFFICE_CREATED',
@@ -337,6 +351,19 @@ const updateManagedOffice = async (req, res, next) => {
       req.file
     );
 
+    await activityService.logActivity({
+      action: 'updated',
+      entityType: 'managed_office',
+      entityId: managedOffice._id,
+      entityName: managedOffice.companyName || `${managedOffice.firstName || ''} ${managedOffice.lastName || ''}`.trim(),
+      actor: req.user,
+      metadata: {
+        agreedCommercials: managedOffice.agreedCommercials,
+        totalSeats: managedOffice.totalSeats,
+        officeNo: managedOffice.officeNo
+      }
+    });
+
     broadcastDashboardUpdate({
       type: 'MANAGED_OFFICE_UPDATED',
       entity: 'managedOffice',
@@ -358,7 +385,24 @@ const updateManagedOffice = async (req, res, next) => {
 
 const deleteManagedOffice = async (req, res, next) => {
   try {
+    // Capture identity BEFORE deletion
+    const existingOffice = await managedOfficeService.getManagedOfficeById(req.params.id);
+    const entityName =
+      existingOffice?.companyName ||
+      `${existingOffice?.firstName || ''} ${existingOffice?.lastName || ''}`.trim() ||
+      'Managed Office';
+
+    // Perform business deletion
     await managedOfficeService.deleteManagedOffice(req.params.id);
+
+    // Persist delete activity only after successful deletion
+    await activityService.logActivity({
+      action: 'deleted',
+      entityType: 'managed_office',
+      entityId: req.params.id,
+      entityName,
+      actor: req.user
+    });
 
     broadcastDashboardUpdate({
       type: 'MANAGED_OFFICE_DELETED',

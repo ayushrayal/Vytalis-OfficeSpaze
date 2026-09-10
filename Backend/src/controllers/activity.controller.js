@@ -2,18 +2,17 @@ const activityService = require('../services/activity.service');
 
 const getRecentActivities = async (req, res, next) => {
   try {
-    const { limit, entityType } = req.query;
+    const { page, limit, entityType } = req.query;
 
-    const activities = await activityService.getRecentActivities({
+    const result = await activityService.getRecentActivities({
+      page,
       limit,
       entityType
     });
 
     res.status(200).json({
       success: true,
-      data: {
-        activities
-      }
+      data: result
     });
   } catch (error) {
     next(error);

@@ -45,26 +45,45 @@ const logActivity = async ({
 };
 
 /**
- * Retrieves recent activities in reverse chronological order.
+ * Retrieves recent activities in reverse chronological order with server-side pagination.
  */
-const getRecentActivities = async ({ limit = 10, entityType } = {}) => {
-  const parsedLimit = Number(limit);
-  const safeLimit = !isNaN(parsedLimit) && parsedLimit > 0 ? Math.min(parsedLimit, 50) : 10;
+const getRecentActivities = async ({ page = 1, limit = 10, entityType } = {}) => {
+  const parsedPage = Math.max(1, parseInt(page, 10) || 1);
+  const parsedLimit = Math.max(1, Math.min(parseInt(limit, 10) || 10, 50));
+  const skip = (parsedPage - 1) * parsedLimit;
 
   const query = {};
   if (entityType && typeof entityType === 'string' && entityType.trim()) {
     query.entityType = entityType.trim();
   }
 
-  const activities = await Activity.find(query)
-    .sort({ createdAt: -1 })
-    .limit(safeLimit)
-    .lean();
+  const [total, activities] = await Promise.all([
+    Activity.countDocuments(query),
+    Activity.find(query)
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(parsedLimit)
+      .lean()
+  ]);
 
-  return activities.map((act) => ({
-    ...act,
-    id: act._id ? act._id.toString() : act.id
-  }));
+  const totalPages = total === 0 ? 0 : Math.ceil(total / parsedLimit);
+  const hasNextPage = parsedPage < totalPages;
+  const hasPrevPage = parsedPage > 1 && totalPages > 0;
+
+  return {
+    activities: activities.map((act) => ({
+      ...act,
+      id: act._id ? act._id.toString() : act.id
+    })),
+    pagination: {
+      page: parsedPage,
+      limit: parsedLimit,
+      total,
+      totalPages,
+      hasNextPage,
+      hasPrevPage
+    }
+  };
 };
 
 module.exports = {
