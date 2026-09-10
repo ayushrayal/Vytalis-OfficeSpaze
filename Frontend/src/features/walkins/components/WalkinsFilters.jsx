@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search, X, Filter } from 'lucide-react';
+import FilterSelect from '../../../components/ui/FilterSelect';
 
 const WalkinsFilters = ({
   search,
@@ -18,20 +19,25 @@ const WalkinsFilters = ({
     { label: 'This Month', value: 'this_month' }
   ];
 
+  const sourceOptions = [
+    { value: 'all', label: `All Sources (${sources.length})` },
+    ...sources.map((src) => ({ value: src, label: src }))
+  ];
+
   const hasActiveFilters = search || dateFilter !== 'all' || sourceFilter !== 'all';
 
   return (
-    <div className="bg-white p-4 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4 mb-6 font-urbanist">
+    <div className="bg-white relative z-30 p-4 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4 mb-6 font-urbanist">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {/* Search input */}
-        <div className="relative flex-1 min-w-0 w-full">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-neutral-400" />
+        {/* Search Bar */}
+        <div className="relative flex-1 max-w-md">
+          <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by name, phone, email, source, notes..."
-            className="w-full pl-10 pr-9 py-2.5 bg-neutral-50/60 border border-neutral-200 rounded-xl text-sm text-neutral-900 placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ED1F23]/20 focus:border-[#ED1F23] transition-all"
+            placeholder="Search by visitor name, phone, email, host..."
+            className="w-full pl-10 pr-9 py-2.5 bg-neutral-50/60 border border-neutral-200 rounded-xl text-sm font-medium text-neutral-800 placeholder:text-neutral-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ED1F23]/20 focus:border-[#ED1F23] transition-all"
           />
           {search && (
             <button
@@ -46,21 +52,14 @@ const WalkinsFilters = ({
 
         <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
           {/* Source Dropdown */}
-          <div className="flex items-center gap-2 w-full sm:w-auto">
-            <Filter className="w-4 h-4 text-neutral-400 hidden sm:inline-block" />
-            <select
-              value={sourceFilter}
-              onChange={(e) => onSourceFilterChange(e.target.value)}
-              className="w-full sm:w-auto py-2.5 pl-3 pr-8 bg-neutral-50/60 border border-neutral-200 rounded-xl text-sm font-medium text-neutral-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#ED1F23]/20 focus:border-[#ED1F23] transition-all"
-            >
-              <option value="all">All Sources ({sources.length})</option>
-              {sources.map((src) => (
-                <option key={src} value={src}>
-                  {src}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FilterSelect
+            label="Source"
+            value={sourceFilter}
+            onChange={onSourceFilterChange}
+            options={sourceOptions}
+            icon={Filter}
+            className="w-full sm:w-auto min-w-[160px]"
+          />
 
           {/* Clear button */}
           {hasActiveFilters && (

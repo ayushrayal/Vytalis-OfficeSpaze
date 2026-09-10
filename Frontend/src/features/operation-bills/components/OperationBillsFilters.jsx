@@ -1,5 +1,19 @@
 import React from 'react';
 import { Search, X, Filter } from 'lucide-react';
+import FilterSelect from '../../../components/ui/FilterSelect';
+
+const statusOptions = [
+  { value: 'All', label: 'All Statuses' },
+  { value: 'Due', label: 'Due Only' },
+  { value: 'Paid', label: 'Paid Only' }
+];
+
+const dateOptions = [
+  { value: 'All', label: 'All Dates' },
+  { value: 'Today', label: 'Today' },
+  { value: 'This Week', label: 'This Week' },
+  { value: 'This Month', label: 'This Month' }
+];
 
 const OperationBillsFilters = ({
   search,
@@ -14,8 +28,13 @@ const OperationBillsFilters = ({
   onClearFilters,
   hasActiveFilters
 }) => {
+  const expenseTypeOptions = [
+    { value: 'All', label: 'All Expense Types' },
+    ...expenseTypes.map((type) => ({ value: type, label: type }))
+  ];
+
   return (
-    <div className="filters-container bg-white border border-[#E5E5E5] rounded-xl p-4 mb-6 shadow-sm">
+    <div className="filters-container relative z-30 bg-white border border-[#E5E5E5] rounded-xl p-4 mb-6 shadow-sm">
       <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
         {/* Search Bar */}
         <div className="relative flex-1 min-w-[240px]">
@@ -41,47 +60,31 @@ const OperationBillsFilters = ({
         {/* Dropdown Filters */}
         <div className="flex flex-wrap items-center gap-3">
           {/* Status Filter */}
-          <div className="flex items-center gap-1.5 min-w-[130px]">
-            <select
-              value={statusFilter}
-              onChange={(e) => onStatusChange(e.target.value)}
-              className="w-full px-3 py-2 bg-[#F5F0EB]/40 border border-[#E5E5E5] rounded-lg text-sm text-[#000000] font-medium focus:outline-none focus:border-[#000000] cursor-pointer"
-            >
-              <option value="All">All Statuses</option>
-              <option value="Due">Due Only</option>
-              <option value="Paid">Paid Only</option>
-            </select>
-          </div>
+          <FilterSelect
+            label="Status"
+            value={statusFilter}
+            onChange={onStatusChange}
+            options={statusOptions}
+            className="min-w-[130px]"
+          />
 
           {/* Dynamic Expense Type Filter */}
-          <div className="flex items-center gap-1.5 min-w-[150px]">
-            <select
-              value={expenseTypeFilter}
-              onChange={(e) => onExpenseTypeChange(e.target.value)}
-              className="w-full px-3 py-2 bg-[#F5F0EB]/40 border border-[#E5E5E5] rounded-lg text-sm text-[#000000] font-medium focus:outline-none focus:border-[#000000] cursor-pointer"
-            >
-              <option value="All">All Expense Types</option>
-              {expenseTypes.map((type) => (
-                <option key={type} value={type}>
-                  {type}
-                </option>
-              ))}
-            </select>
-          </div>
+          <FilterSelect
+            label="Expense"
+            value={expenseTypeFilter}
+            onChange={onExpenseTypeChange}
+            options={expenseTypeOptions}
+            className="min-w-[160px]"
+          />
 
           {/* Date Filter */}
-          <div className="flex items-center gap-1.5 min-w-[130px]">
-            <select
-              value={dateFilter}
-              onChange={(e) => onDateChange(e.target.value)}
-              className="w-full px-3 py-2 bg-[#F5F0EB]/40 border border-[#E5E5E5] rounded-lg text-sm text-[#000000] font-medium focus:outline-none focus:border-[#000000] cursor-pointer"
-            >
-              <option value="All">All Dates</option>
-              <option value="Today">Today</option>
-              <option value="This Week">This Week</option>
-              <option value="This Month">This Month</option>
-            </select>
-          </div>
+          <FilterSelect
+            label="Date"
+            value={dateFilter}
+            onChange={onDateChange}
+            options={dateOptions}
+            className="min-w-[130px]"
+          />
 
           {/* Clear Filters */}
           {hasActiveFilters && (

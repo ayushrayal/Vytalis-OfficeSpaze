@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search, X, Filter, Calendar } from 'lucide-react';
+import FilterSelect from '../../../components/ui/FilterSelect';
 
 const UtilityBillsFilters = ({
   search = '',
@@ -40,7 +41,7 @@ const UtilityBillsFilters = ({
   ];
 
   return (
-    <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
+    <div className="bg-white relative z-30 p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Search Bar */}
         <div className="relative flex-1 max-w-md">
@@ -109,20 +110,14 @@ const UtilityBillsFilters = ({
           </div>
 
           {/* Reminder Date Filter Dropdown */}
-          <div className="relative">
-            <select
-              value={dateFilter}
-              onChange={(e) => onDateFilterChange(e.target.value)}
-              className="pl-3 pr-8 py-2 bg-neutral-100/80 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-700 focus:outline-hidden focus:border-black cursor-pointer appearance-none"
-            >
-              {dateOptions.map((opt) => (
-                <option key={opt.id} value={opt.id}>
-                  Reminder: {opt.label}
-                </option>
-              ))}
-            </select>
-            <Calendar className="w-3.5 h-3.5 text-neutral-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-          </div>
+          <FilterSelect
+            label="Reminder"
+            value={dateFilter}
+            onChange={onDateFilterChange}
+            options={dateOptions}
+            icon={Calendar}
+            className="min-w-[155px]"
+          />
 
           {isFiltered && (
             <button

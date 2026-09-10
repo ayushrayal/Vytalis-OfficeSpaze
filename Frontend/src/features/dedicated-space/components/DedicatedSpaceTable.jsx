@@ -15,7 +15,7 @@ const DedicatedSpaceTable = ({
   onSelectRecord
 }) => {
   return (
-    <div className="table-container bg-white border border-[#E5E5E5] rounded-xl shadow-sm overflow-hidden mb-6 font-urbanist">
+    <div className="table-container relative z-0 bg-white border border-[#E5E5E5] rounded-xl shadow-sm overflow-hidden mb-6 font-urbanist">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>

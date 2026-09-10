@@ -234,7 +234,7 @@ const UtilityBillsPage = () => {
       ) : (
         <>
           {/* Filters Bar */}
-          <div className="ub-section">
+          <div className="ub-section relative z-20">
             <UtilityBillsFilters
               search={search}
               onSearchChange={setSearch}
@@ -254,7 +254,7 @@ const UtilityBillsPage = () => {
           </div>
 
           {/* Table / Loading / Empty States */}
-          <div className="ub-section">
+          <div className="ub-section relative z-0">
             {isLoading ? (
               <UtilityBillsSkeleton />
             ) : utilityBills.length === 0 ? (

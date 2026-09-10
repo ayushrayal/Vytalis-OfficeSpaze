@@ -7,11 +7,11 @@ import {
   Edit3,
   Trash2,
   ChevronLeft,
-  ChevronRight,
-  ChevronDown
+  ChevronRight
 } from 'lucide-react';
 import { useRecentActivities } from '../hooks/useRecentActivities';
 import { formatDashboardDateTime } from '../utils/dashboard.utils';
+import FilterSelect from '../../../components/ui/FilterSelect';
 
 const FILTER_OPTIONS = [
   { value: '', label: 'All' },
@@ -157,7 +157,7 @@ const RecentActivity = () => {
 
   return (
     <div className="bg-white p-6 rounded-2xl border border-border shadow-xs space-y-4">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 relative z-20">
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-base font-extrabold text-black tracking-tight">Recent Activity</h2>
@@ -171,28 +171,18 @@ const RecentActivity = () => {
         </div>
 
         <div className="flex items-center gap-2 self-start sm:self-center shrink-0">
-          {/* Activity Filter Dropdown */}
-          <label className="relative inline-flex items-center h-8 bg-warm-bg border border-border rounded-lg pl-2.5 pr-7 hover:bg-neutral-200 focus-within:ring-2 focus-within:ring-black/10 transition-all shadow-2xs cursor-pointer shrink-0">
-            <span className="text-xs font-semibold text-muted-text whitespace-nowrap select-none mr-1.5">
-              Activity:
-            </span>
-            <select
-              value={entityType}
-              onChange={(e) => {
-                setEntityType(e.target.value);
-                setPage(1);
-              }}
-              aria-label="Filter recent activity by module"
-              className="appearance-none text-xs font-bold text-black bg-transparent focus:outline-hidden cursor-pointer"
-            >
-              {FILTER_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value} className="bg-white text-black font-medium py-1">
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown className="w-3.5 h-3.5 text-muted-text pointer-events-none absolute right-2 top-1/2 -translate-y-1/2" />
-          </label>
+          {/* Custom Activity Filter Dropdown */}
+          <FilterSelect
+            label="Activity"
+            value={entityType}
+            onChange={(val) => {
+              setEntityType(val);
+              setPage(1);
+            }}
+            options={FILTER_OPTIONS}
+            align="right"
+            className="shrink-0 min-w-[140px]"
+          />
 
           {/* Refresh current page */}
           <button
@@ -209,17 +199,18 @@ const RecentActivity = () => {
       </div>
 
       {isLoading ? (
-        <div className="space-y-3 py-2">
-          {[1, 2, 3].map((n) => (
-            <div key={n} className="flex items-center justify-between gap-4 animate-pulse">
-              <div className="flex items-start gap-3 flex-1">
+        <div className="space-y-0 py-2">
+          {[1, 2, 3].map((n, idx) => (
+            <div key={n} className="flex items-stretch gap-3 animate-pulse">
+              <div className="w-5 flex flex-col items-center shrink-0">
                 <div className="w-2.5 h-2.5 rounded-full bg-border mt-1" />
-                <div className="space-y-1.5 flex-1">
-                  <div className="h-3.5 bg-warm-bg rounded w-1/3" />
-                  <div className="h-3 bg-warm-bg rounded w-1/4" />
-                </div>
+                {idx < 2 && <div className="w-0.5 bg-border flex-1 my-0.5" />}
               </div>
-              <div className="h-3 bg-warm-bg rounded w-20" />
+              <div className={`space-y-1.5 flex-1 ${idx < 2 ? 'pb-4' : 'pb-0'}`}>
+                <div className="h-3.5 bg-warm-bg rounded w-1/3" />
+                <div className="h-3 bg-warm-bg rounded w-1/4" />
+              </div>
+              <div className="h-3 bg-warm-bg rounded w-20 shrink-0 mt-0.5" />
             </div>
           ))}
         </div>
@@ -244,17 +235,30 @@ const RecentActivity = () => {
           </p>
         </div>
       ) : (
-        <div className="relative pl-6 space-y-4 before:absolute before:left-2.5 before:top-2 before:bottom-2 before:w-0.5 before:bg-border">
-          {activities.map((act) => {
+        <div className="space-y-0">
+          {activities.map((act, index) => {
+            const isLast = index === activities.length - 1;
             const config = getActionConfig(act.action);
             const actorName = act.actor?.name || 'Admin';
             const entityMeta = getEntityMeta(act.entityType);
 
             return (
-              <div key={act.id || act._id} className="relative flex items-start justify-between gap-4 text-xs">
-                <div className={`absolute -left-6 top-1.5 w-2.5 h-2.5 rounded-full ${config.dotColor} ring-4 ring-white`} />
-                <div className="space-y-0.5 min-w-0 flex-1">
-                  <div className="flex items-center gap-1.5">
+              <div key={act.id || act._id} className="flex items-stretch gap-3 text-xs">
+                {/* Marker Column: perfectly centered dot and vertical connecting line */}
+                <div className="w-5 flex flex-col items-center shrink-0 relative">
+                  {/* Dot */}
+                  <div
+                    className={`w-2.5 h-2.5 rounded-full ${config.dotColor} ring-4 ring-white z-10 shrink-0 mt-1`}
+                  />
+                  {/* Vertical Connecting Line to next item */}
+                  {!isLast && (
+                    <div className="w-0.5 bg-border flex-1 my-0.5" />
+                  )}
+                </div>
+
+                {/* Activity Content */}
+                <div className={`space-y-0.5 min-w-0 flex-1 ${!isLast ? 'pb-4' : 'pb-0'}`}>
+                  <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-muted-text">
                       {entityMeta.label}
                     </span>
@@ -269,7 +273,9 @@ const RecentActivity = () => {
                     By: <span className="font-semibold text-black/80">{actorName}</span>
                   </p>
                 </div>
-                <span className="text-[11px] font-semibold text-muted-text whitespace-nowrap shrink-0">
+
+                {/* Timestamp */}
+                <span className="text-[11px] font-semibold text-muted-text whitespace-nowrap shrink-0 mt-0.5">
                   {formatDashboardDateTime(act.createdAt)}
                 </span>
               </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search, X, Filter, Handshake } from 'lucide-react';
+import FilterSelect from '../../../components/ui/FilterSelect';
 
 const VirtualOfficesFilters = ({
   search = '',
@@ -21,8 +22,17 @@ const VirtualOfficesFilters = ({
     { id: 'Expired', label: 'Expired' }
   ];
 
+  const aggregatorOptions = [
+    { value: 'All', label: 'All Aggregators' },
+    { value: 'direct', label: 'Direct Only' },
+    ...aggregators.map((agg) => ({
+      value: agg.id || agg._id,
+      label: agg.name
+    }))
+  ];
+
   return (
-    <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
+    <div className="bg-white relative z-30 p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
       <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Search Bar */}
         <div className="relative flex-1 max-w-md">
@@ -71,28 +81,14 @@ const VirtualOfficesFilters = ({
           </div>
 
           {/* Aggregator Dropdown Filter */}
-          <div className="flex items-center gap-1.5 bg-neutral-100/80 p-1 rounded-xl border border-neutral-200">
-            <span className="pl-2 pr-1 text-xs font-semibold text-neutral-500 hidden sm:flex items-center gap-1">
-              <Handshake className="w-3.5 h-3.5 text-brand-red" />
-              Aggregator:
-            </span>
-            <select
-              value={aggregatorFilter}
-              onChange={(e) => onAggregatorFilterChange(e.target.value)}
-              className="px-2.5 py-1 rounded-lg text-xs font-bold bg-white text-black border border-neutral-200 focus:outline-hidden cursor-pointer"
-            >
-              <option value="All">All Aggregators</option>
-              <option value="direct">Direct Only</option>
-              {aggregators.map((agg) => {
-                const aggId = agg.id || agg._id;
-                return (
-                  <option key={aggId} value={aggId}>
-                    {agg.name}
-                  </option>
-                );
-              })}
-            </select>
-          </div>
+          <FilterSelect
+            label="Aggregator"
+            value={aggregatorFilter}
+            onChange={onAggregatorFilterChange}
+            options={aggregatorOptions}
+            icon={Handshake}
+            className="min-w-[150px]"
+          />
 
           {isFiltered && (
             <button

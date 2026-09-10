@@ -154,7 +154,7 @@ const WalkinsPage = () => {
       </div>
 
       {/* Filters Bar */}
-      <div className="walkin-section">
+      <div className="walkin-section relative z-20">
         <WalkinsFilters
           search={search}
           onSearchChange={setSearch}
@@ -168,7 +168,7 @@ const WalkinsPage = () => {
       </div>
 
       {/* Main Table or Empty State */}
-      <div className="walkin-section">
+      <div className="walkin-section relative z-0">
         {filteredWalkins.length > 0 ? (
           <WalkinsTable
             walkins={filteredWalkins}

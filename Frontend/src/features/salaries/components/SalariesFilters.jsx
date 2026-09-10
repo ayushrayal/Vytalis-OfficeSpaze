@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search, X, Filter, Briefcase } from 'lucide-react';
+import FilterSelect from '../../../components/ui/FilterSelect';
 
 const SalariesFilters = ({
   search = '',
@@ -22,9 +23,14 @@ const SalariesFilters = ({
     { id: 'Due', label: 'Due' }
   ];
 
+  const roleOptions = [
+    { value: 'All', label: 'All Roles' },
+    ...availableRoles.map((r) => ({ value: r, label: r }))
+  ];
+
   return (
-    <div className="bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="bg-white relative z-30 p-4 sm:p-5 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
         {/* Search Bar */}
         <div className="relative flex-1 max-w-md">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-neutral-400 pointer-events-none" />
@@ -32,7 +38,7 @@ const SalariesFilters = ({
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Search by employee name, role, email, phone..."
+            placeholder="Search employee name, role, email, phone..."
             className="w-full pl-10 pr-9 py-2.5 bg-neutral-50 border border-neutral-200 rounded-xl text-sm font-medium text-black placeholder:text-neutral-400 focus:outline-hidden focus:border-brand-red focus:bg-white transition-all"
           />
           {search && (
@@ -73,21 +79,14 @@ const SalariesFilters = ({
 
           {/* Dynamic Role Filter Dropdown */}
           {availableRoles.length > 0 && (
-            <div className="relative">
-              <select
-                value={roleFilter}
-                onChange={(e) => onRoleFilterChange(e.target.value)}
-                className="pl-3 pr-8 py-2 bg-neutral-100/80 border border-neutral-200 rounded-xl text-xs font-bold text-neutral-700 focus:outline-hidden focus:border-black cursor-pointer appearance-none"
-              >
-                <option value="All">All Roles</option>
-                {availableRoles.map((r) => (
-                  <option key={r} value={r}>
-                    Role: {r}
-                  </option>
-                ))}
-              </select>
-              <Briefcase className="w-3.5 h-3.5 text-neutral-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none" />
-            </div>
+            <FilterSelect
+              label="Role"
+              value={roleFilter}
+              onChange={onRoleFilterChange}
+              options={roleOptions}
+              icon={Briefcase}
+              className="min-w-[140px]"
+            />
           )}
 
           {isFiltered && (

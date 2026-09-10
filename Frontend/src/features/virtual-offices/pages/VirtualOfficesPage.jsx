@@ -176,7 +176,7 @@ const VirtualOfficesPage = () => {
       ) : (
         <>
           {/* Filters Bar */}
-          <div className="vo-section">
+          <div className="vo-section relative z-20">
             <VirtualOfficesFilters
               search={search}
               onSearchChange={setSearch}
@@ -192,7 +192,7 @@ const VirtualOfficesPage = () => {
           </div>
 
           {/* Table / Loading / Empty States */}
-          <div className="vo-section">
+          <div className="vo-section relative z-0">
             {isLoading ? (
               <VirtualOfficesSkeleton />
             ) : virtualOffices.length === 0 ? (

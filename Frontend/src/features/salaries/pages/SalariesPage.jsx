@@ -166,7 +166,7 @@ const SalariesPage = () => {
       ) : (
         <>
           {/* Filters Bar */}
-          <div className="sa-section">
+          <div className="sa-section relative z-20">
             <SalariesFilters
               search={search}
               onSearchChange={setSearch}
@@ -182,7 +182,7 @@ const SalariesPage = () => {
           </div>
 
           {/* Table / Loading / Empty States */}
-          <div className="sa-section">
+          <div className="sa-section relative z-0">
             {isLoading ? (
               <SalariesSkeleton />
             ) : salaries.length === 0 ? (

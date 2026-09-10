@@ -298,7 +298,7 @@ const EscalationsPage = () => {
           </div>
 
           {/* 3. Filter Controls Bar */}
-          <div className="esc-section">
+          <div className="esc-section relative z-20">
             <EscalationsFilters
               search={search}
               onSearchChange={setSearch}
@@ -316,7 +316,7 @@ const EscalationsPage = () => {
           </div>
 
           {/* 4. Table / Skeleton / Empty State */}
-          <div className="esc-section">
+          <div className="esc-section relative z-0">
             {isLoading ? (
               <EscalationsSkeleton />
             ) : escalations.length === 0 ? (
