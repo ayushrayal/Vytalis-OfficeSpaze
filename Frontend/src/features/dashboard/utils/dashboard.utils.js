@@ -61,103 +61,20 @@ export const calculateSumByField = (records = [], fieldName) => {
   }, 0);
 };
 
-export const combineRecentActivities = ({
-  walkIns = [],
-  virtualOffices = [],
-  managedOffices = [],
-  coworkSpaces = [],
-  dedicatedSpaces = [],
-  invoiceTemplates = []
-}) => {
-  const activities = [];
-
-  walkIns.forEach((item) => {
-    const name = item.name || `${item.firstName || ''} ${item.lastName || ''}`.trim() || 'Walk-in visitor';
-    activities.push({
-      id: item._id || item.id,
-      module: 'Walk-in',
-      title: `Walk-in registered: ${name}`,
-      subtitle: item.source ? `Source: ${item.source}` : 'Visitor log',
-      date: item.date || item.createdAt,
-      type: 'walkin'
-    });
+export const formatDashboardDateTime = (dateVal) => {
+  if (!dateVal) return '-';
+  const d = new Date(dateVal);
+  if (isNaN(d.getTime())) return '-';
+  const datePart = d.toLocaleDateString('en-IN', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric'
   });
-
-  virtualOffices.forEach((item) => {
-    const name = item.companyName || `${item.firstName || ''} ${item.lastName || ''}`.trim();
-    activities.push({
-      id: item._id || item.id,
-      module: 'Virtual Office',
-      title: `Virtual Office: ${name}`,
-      subtitle: item.agreedCommercials ? `Commercials: ${formatINR(item.agreedCommercials)}` : 'Client',
-      date: item.createdAt || item.startDate,
-      type: 'virtual-office'
-    });
+  const timePart = d.toLocaleTimeString('en-IN', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
   });
-
-  managedOffices.forEach((item) => {
-    const name = item.companyName || `${item.firstName || ''} ${item.lastName || ''}`.trim();
-    activities.push({
-      id: item._id || item.id,
-      module: 'Managed Office',
-      title: `Managed Office: ${name}`,
-      subtitle: `${item.totalSeats || 0} seats allotted`,
-      date: item.createdAt || item.startDate,
-      type: 'managed-office'
-    });
-  });
-
-const formatBT = (type) => {
-  if (!type) return '';
-  const norm = String(type).trim().toLowerCase();
-  if (norm === 'non registor' || norm === 'non register' || norm === 'unregistered') {
-    return 'Unregistered';
-  }
-  if (norm === 'registor' || norm === 'register') {
-    return 'Register';
-  }
-  return type;
+  return `${datePart}, ${timePart}`;
 };
 
-  coworkSpaces.forEach((item) => {
-    const name = `${item.firstName || ''} ${item.lastName || ''}`.trim();
-    const bType = formatBT(item.businessType) || 'Booking';
-    activities.push({
-      id: item._id || item.id,
-      module: 'Cowork Space',
-      title: `Cowork Space booking: ${name}`,
-      subtitle: `${item.totalSeats || 0} seats • ${bType}`,
-      date: item.addedDate || item.createdAt,
-      type: 'cowork-space'
-    });
-  });
-
-  dedicatedSpaces.forEach((item) => {
-    const name = `${item.firstName || ''} ${item.lastName || ''}`.trim();
-    const bType = formatBT(item.businessType) || 'Booking';
-    activities.push({
-      id: item._id || item.id,
-      module: 'Dedicated Space',
-      title: `Dedicated Space booking: ${name}`,
-      subtitle: `${item.totalSeats || 0} seats • ${bType}`,
-      date: item.addedDate || item.createdAt,
-      type: 'dedicated-space'
-    });
-  });
-
-  invoiceTemplates.forEach((item) => {
-    activities.push({
-      id: item._id || item.id,
-      module: 'Invoice',
-      title: `Invoice created: ${item.invoiceNumber || 'Template'}`,
-      subtitle: item.clientName ? `Client: ${item.clientName}` : 'Template',
-      date: item.createdAt || item.invoiceDate,
-      type: 'invoice'
-    });
-  });
-
-  return activities
-    .filter((a) => a.date && !isNaN(new Date(a.date).getTime()))
-    .sort((a, b) => new Date(b.date) - new Date(a.date))
-    .slice(0, 7);
-};

@@ -1,4 +1,5 @@
 const virtualOfficeService = require('../services/virtualOffice.service');
+const activityService = require('../services/activity.service');
 const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -118,6 +119,17 @@ const createVirtualOffice = async (req, res, next) => {
     };
 
     const virtualOffice = await virtualOfficeService.createVirtualOffice(virtualOfficeData, req.file);
+
+    await activityService.logActivity({
+      action: 'created',
+      entityType: 'virtual_office',
+      entityId: virtualOffice._id,
+      entityName: virtualOffice.companyName || `${virtualOffice.firstName || ''} ${virtualOffice.lastName || ''}`.trim(),
+      actor: req.user,
+      metadata: {
+        agreedCommercials: virtualOffice.agreedCommercials
+      }
+    });
 
     broadcastDashboardUpdate({
       type: 'VIRTUAL_OFFICE_CREATED',
@@ -308,6 +320,17 @@ const updateVirtualOffice = async (req, res, next) => {
       req.file
     );
 
+    await activityService.logActivity({
+      action: 'updated',
+      entityType: 'virtual_office',
+      entityId: virtualOffice._id,
+      entityName: virtualOffice.companyName || `${virtualOffice.firstName || ''} ${virtualOffice.lastName || ''}`.trim(),
+      actor: req.user,
+      metadata: {
+        agreedCommercials: virtualOffice.agreedCommercials
+      }
+    });
+
     broadcastDashboardUpdate({
       type: 'VIRTUAL_OFFICE_UPDATED',
       entity: 'virtualOffice',
@@ -329,7 +352,24 @@ const updateVirtualOffice = async (req, res, next) => {
 
 const deleteVirtualOffice = async (req, res, next) => {
   try {
+    // Capture Virtual Office identity BEFORE deletion
+    const existingOffice = await virtualOfficeService.getVirtualOfficeById(req.params.id);
+    const entityName =
+      existingOffice?.companyName ||
+      `${existingOffice?.firstName || ''} ${existingOffice?.lastName || ''}`.trim() ||
+      'Virtual Office';
+
+    // Perform the actual business deletion
     await virtualOfficeService.deleteVirtualOffice(req.params.id);
+
+    // Persist delete activity only after successful deletion
+    await activityService.logActivity({
+      action: 'deleted',
+      entityType: 'virtual_office',
+      entityId: req.params.id,
+      entityName,
+      actor: req.user
+    });
 
     broadcastDashboardUpdate({
       type: 'VIRTUAL_OFFICE_DELETED',

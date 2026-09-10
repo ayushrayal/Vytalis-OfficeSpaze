@@ -16,17 +16,24 @@ export const useDashboardSse = () => {
       eventSource = new EventSource(streamUrl, { withCredentials: true });
 
       const handleDashboardUpdate = (event) => {
+        let eventType = '';
         try {
           if (event.data) {
             const data = JSON.parse(event.data);
-            console.log('[SSE Dashboard Event Received]:', data.type || data);
+            eventType = data.type || '';
+            console.log('[SSE Dashboard Event Received]:', eventType);
           }
         } catch (e) {
           // Ignore parse errors safely
         }
-        // Invalidate queries to refetch authoritative metrics, activity, and escalations
+        // Invalidate dashboard metrics and recent activities
         queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
-        queryClient.invalidateQueries({ queryKey: ['escalations'] });
+        queryClient.invalidateQueries({ queryKey: ['recentActivities'] });
+
+        // Only invalidate escalations if the event relates to escalations
+        if (eventType && (eventType.startsWith('ESCALATION_') || eventType.includes('ESCALATION'))) {
+          queryClient.invalidateQueries({ queryKey: ['escalations'] });
+        }
       };
 
       eventSource.addEventListener('dashboard_update', handleDashboardUpdate);

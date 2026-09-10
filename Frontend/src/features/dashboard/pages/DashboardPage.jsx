@@ -83,7 +83,7 @@ const DashboardPage = () => {
 
       {/* Recent Activity Timeline */}
       <div className="dash-section">
-        <RecentActivity data={data} />
+        <RecentActivity />
       </div>
     </div>
   );
