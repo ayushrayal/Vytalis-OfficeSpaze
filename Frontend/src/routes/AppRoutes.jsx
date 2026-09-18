@@ -1,6 +1,7 @@
 import React from 'react';
 import { Routes, Route, Navigate } from 'react-router-dom';
 import ProtectedRoute from './ProtectedRoute';
+import PermissionRoute from './PermissionRoute';
 import AppShell from '../components/layout/AppShell';
 import { ROUTES } from './routeConfig';
 import LoginPage from '../features/auth/pages/LoginPage';
@@ -17,6 +18,7 @@ import InvoiceTemplatesPage from '../features/invoice-templates/pages/InvoiceTem
 import WalkinsPage from '../features/walkins/pages/WalkinsPage';
 import AggregatorsPage from '../features/aggregators/pages/AggregatorsPage';
 import EscalationsPage from '../features/escalations/pages/EscalationsPage';
+import UsersPage from '../features/users/pages/UsersPage';
 
 const AppRoutes = () => {
   return (
@@ -26,18 +28,110 @@ const AppRoutes = () => {
 
       <Route element={<ProtectedRoute />}>
         <Route element={<AppShell />}>
-          <Route path={ROUTES.DASHBOARD} element={<DashboardPage />} />
-          <Route path={ROUTES.VIRTUAL_OFFICES} element={<VirtualOfficesPage />} />
-          <Route path={ROUTES.MANAGED_OFFICES} element={<ManagedOfficesPage />} />
-          <Route path={ROUTES.UTILITY_BILLS} element={<UtilityBillsPage />} />
-          <Route path={ROUTES.SALARIES} element={<SalariesPage />} />
-          <Route path={ROUTES.OPERATION_BILLS} element={<OperationBillsPage />} />
-          <Route path={ROUTES.COWORK_SPACE} element={<CoworkSpacePage />} />
-          <Route path={ROUTES.DEDICATED_SPACE} element={<DedicatedSpacePage />} />
-          <Route path={ROUTES.INVOICE_TEMPLATES} element={<InvoiceTemplatesPage />} />
-          <Route path={ROUTES.WALKINS} element={<WalkinsPage />} />
-          <Route path={ROUTES.AGGREGATORS} element={<AggregatorsPage />} />
-          <Route path={ROUTES.ESCALATIONS} element={<EscalationsPage />} />
+          <Route
+            path={ROUTES.DASHBOARD}
+            element={
+              <PermissionRoute module="dashboard">
+                <DashboardPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.VIRTUAL_OFFICES}
+            element={
+              <PermissionRoute module="virtual_offices">
+                <VirtualOfficesPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.MANAGED_OFFICES}
+            element={
+              <PermissionRoute module="managed_offices">
+                <ManagedOfficesPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.UTILITY_BILLS}
+            element={
+              <PermissionRoute module="utility_bills">
+                <UtilityBillsPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.SALARIES}
+            element={
+              <PermissionRoute module="salaries">
+                <SalariesPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.OPERATION_BILLS}
+            element={
+              <PermissionRoute module="operation_bills">
+                <OperationBillsPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.COWORK_SPACE}
+            element={
+              <PermissionRoute module="cowork_spaces">
+                <CoworkSpacePage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.DEDICATED_SPACE}
+            element={
+              <PermissionRoute module="dedicated_spaces">
+                <DedicatedSpacePage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.INVOICE_TEMPLATES}
+            element={
+              <PermissionRoute module="invoice_templates">
+                <InvoiceTemplatesPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.WALKINS}
+            element={
+              <PermissionRoute module="walkins">
+                <WalkinsPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.AGGREGATORS}
+            element={
+              <PermissionRoute module="aggregators">
+                <AggregatorsPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.ESCALATIONS}
+            element={
+              <PermissionRoute module="escalations">
+                <EscalationsPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.USER_MANAGEMENT}
+            element={
+              <PermissionRoute adminOnly>
+                <UsersPage />
+              </PermissionRoute>
+            }
+          />
         </Route>
       </Route>
 

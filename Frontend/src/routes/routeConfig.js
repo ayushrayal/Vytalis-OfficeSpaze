@@ -12,5 +12,7 @@ export const ROUTES = {
   INVOICE_TEMPLATES: '/invoice-templates',
   WALKINS: '/walkins',
   AGGREGATORS: '/aggregators',
-  ESCALATIONS: '/escalations'
+  ESCALATIONS: '/escalations',
+  USER_MANAGEMENT: '/users'
 };
+

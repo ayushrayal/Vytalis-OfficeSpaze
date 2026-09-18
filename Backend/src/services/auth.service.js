@@ -23,12 +23,15 @@ const registerAdmin = async ({ name, email, password, accessCode }) => {
   // Hash password using bcryptjs with 10 salt rounds
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  // Force role to ADMIN on backend
+  // Force role to ADMIN on backend — ignore any client-supplied role
   const user = await User.create({
     name: name.trim(),
     email: normalizedEmail,
     password: hashedPassword,
-    role: 'ADMIN'
+    role: 'ADMIN',
+    status: 'ACTIVE',
+    isActive: true,
+    permissions: []
   });
 
   return user;
@@ -40,8 +43,14 @@ const loginAdmin = async ({ email, password }) => {
   // Explicitly select password and refreshTokenHash for verification
   const user = await User.findOne({ email: normalizedEmail }).select('+password +refreshTokenHash');
 
-  if (!user || !user.isActive) {
+  if (!user) {
     const error = new Error('Invalid email or password');
+    error.statusCode = 401;
+    throw error;
+  }
+
+  if (user.status === 'INACTIVE' || !user.isActive) {
+    const error = new Error('Account is inactive. Please contact your administrator.');
     error.statusCode = 401;
     throw error;
   }
@@ -99,8 +108,14 @@ const refreshAccessToken = async (refreshTokenCookie) => {
   }
 
   const user = await User.findById(decoded.userId).select('+refreshTokenHash');
-  if (!user || !user.isActive || !user.refreshTokenHash) {
-    const error = new Error('User not found, inactive, or session revoked');
+  if (!user || !user.refreshTokenHash) {
+    const error = new Error('User not found or session revoked');
+    error.statusCode = 401;
+    throw error;
+  }
+
+  if (user.status === 'INACTIVE' || !user.isActive) {
+    const error = new Error('Account is inactive. Please contact your administrator.');
     error.statusCode = 401;
     throw error;
   }
@@ -147,8 +162,13 @@ const logoutUser = async (refreshTokenCookie) => {
 
 const getCurrentUser = async (userId) => {
   const user = await User.findById(userId);
-  if (!user || !user.isActive) {
-    const error = new Error('User not found or inactive');
+  if (!user) {
+    const error = new Error('User not found');
+    error.statusCode = 401;
+    throw error;
+  }
+  if (user.status === 'INACTIVE' || !user.isActive) {
+    const error = new Error('Account is inactive. Please contact your administrator.');
     error.statusCode = 401;
     throw error;
   }

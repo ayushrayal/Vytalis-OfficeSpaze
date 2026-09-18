@@ -30,6 +30,11 @@ export const useDashboardSse = () => {
         queryClient.invalidateQueries({ queryKey: ['dashboardData'] });
         queryClient.invalidateQueries({ queryKey: ['recentActivities'] });
 
+        // Invalidate users queries when a user mutation event arrives
+        if (eventType === 'USER_MUTATED' || eventType.includes('USER')) {
+          queryClient.invalidateQueries({ queryKey: ['users'] });
+        }
+
         // Only invalidate escalations if the event relates to escalations
         if (eventType && (eventType.startsWith('ESCALATION_') || eventType.includes('ESCALATION'))) {
           queryClient.invalidateQueries({ queryKey: ['escalations'] });

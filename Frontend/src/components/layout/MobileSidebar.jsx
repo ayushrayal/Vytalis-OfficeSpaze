@@ -4,9 +4,11 @@ import { X } from 'lucide-react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { NAVIGATION_SECTIONS } from '../../constants/navigation';
+import usePermissions from '../../hooks/usePermissions';
 
 const MobileSidebar = ({ isOpen, onClose }) => {
   const location = useLocation();
+  const { can, isAdmin } = usePermissions();
   const drawerRef = useRef(null);
   const backdropRef = useRef(null);
 
@@ -88,34 +90,43 @@ const MobileSidebar = ({ isOpen, onClose }) => {
 
         {/* Navigation */}
         <div className="flex-1 overflow-y-auto py-4 px-3 space-y-6">
-          {NAVIGATION_SECTIONS.map((section) => (
-            <div key={section.title} className="space-y-1.5">
-              <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
-                {section.title}
-              </p>
+          {NAVIGATION_SECTIONS.map((section) => {
+            // Filter items: admin sees all; non-admin sees only permitted modules where can(module, 'view') is true
+            const visibleItems = section.items.filter((item) => {
+              if (item.adminOnly) return isAdmin;
+              if (isAdmin) return true;
+              return item.module ? can(item.module, 'view') : false;
+            });
+            if (visibleItems.length === 0) return null;
+            return (
+              <div key={section.title} className="space-y-1.5">
+                <p className="px-3 text-[10px] font-bold uppercase tracking-wider text-neutral-500">
+                  {section.title}
+                </p>
 
-              {section.items.map((item) => {
-                const Icon = item.icon;
-                const isActive = location.pathname === item.path;
+                {visibleItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = location.pathname === item.path;
 
-                return (
-                  <NavLink
-                    key={item.path}
-                    to={item.path}
-                    onClick={onClose}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
-                      isActive
-                        ? 'bg-brand-red text-white shadow-xs font-bold'
-                        : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'
-                    }`}
-                  >
-                    <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-neutral-400'}`} />
-                    <span className="truncate">{item.label}</span>
-                  </NavLink>
-                );
-              })}
-            </div>
-          ))}
+                  return (
+                    <NavLink
+                      key={item.path}
+                      to={item.path}
+                      onClick={onClose}
+                      className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                        isActive
+                          ? 'bg-brand-red text-white shadow-xs font-bold'
+                          : 'text-neutral-400 hover:bg-neutral-900 hover:text-white'
+                      }`}
+                    >
+                      <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-neutral-400'}`} />
+                      <span className="truncate">{item.label}</span>
+                    </NavLink>
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
       </aside>
     </div>

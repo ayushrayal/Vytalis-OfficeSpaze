@@ -5,7 +5,15 @@ const activitySchema = new mongoose.Schema(
     action: {
       type: String,
       required: [true, 'Action is required'],
-      enum: ['created', 'updated', 'deleted']
+      enum: [
+        'created',
+        'updated',
+        'deleted',
+        'role_updated',
+        'permissions_updated',
+        'status_updated',
+        'password_reset'
+      ]
     },
     entityType: {
       type: String,
@@ -17,7 +25,8 @@ const activitySchema = new mongoose.Schema(
         'dedicated_space',
         'salary',
         'utility_bill',
-        'operation_bill'
+        'operation_bill',
+        'user'
       ]
     },
     entityId: {

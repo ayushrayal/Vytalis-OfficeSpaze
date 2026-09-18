@@ -15,6 +15,7 @@ import FilterSelect from '../../../components/ui/FilterSelect';
 
 const FILTER_OPTIONS = [
   { value: '', label: 'All' },
+  { value: 'user', label: 'User' },
   { value: 'virtual_office', label: 'Virtual Office' },
   { value: 'managed_office', label: 'Managed Office' },
   { value: 'cowork_space', label: 'Cowork Space' },
@@ -83,6 +84,8 @@ const RecentActivity = () => {
 
   const getEntityMeta = (type) => {
     switch (type) {
+      case 'user':
+        return { label: 'User', prefix: 'User' };
       case 'dedicated_space':
         return { label: 'Dedicated Space', prefix: 'Dedicated Space' };
       case 'salary':
@@ -103,6 +106,11 @@ const RecentActivity = () => {
 
   const getHeaderContext = () => {
     switch (entityType) {
+      case 'user':
+        return {
+          badge: 'USER MANAGEMENT',
+          description: 'Latest timeline records across User Management operations.'
+        };
       case 'virtual_office':
         return {
           badge: 'VIRTUAL OFFICE',
@@ -138,6 +146,8 @@ const RecentActivity = () => {
 
   const getEmptyStateMessage = () => {
     switch (entityType) {
+      case 'user':
+        return 'No recent User Management activity recorded.';
       case 'dedicated_space':
         return 'No recent Dedicated Space activity recorded.';
       case 'salary,utility_bill,operation_bill':

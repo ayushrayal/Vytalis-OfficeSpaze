@@ -5,6 +5,7 @@ const path = require('path');
 const fs = require('fs');
 
 const authRoutes = require('./routes/auth.routes');
+const userRoutes = require('./routes/user.routes');
 const walkInRoutes = require('./routes/walkin.routes');
 const virtualOfficeRoutes = require('./routes/virtualOffice.routes');
 const managedOfficeRoutes = require('./routes/managedOffice.routes');
@@ -62,6 +63,7 @@ app.get('/api/health', (req, res) => {
 
 // API Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
 app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/walkins', walkInRoutes);
 app.use('/api/virtual-offices', virtualOfficeRoutes);

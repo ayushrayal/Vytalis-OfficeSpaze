@@ -10,7 +10,8 @@ import {
   Users,
   Briefcase,
   FileSpreadsheet,
-  AlertOctagon
+  AlertOctagon,
+  ShieldCheck
 } from 'lucide-react';
 import { ROUTES } from '../routes/routeConfig';
 
@@ -21,7 +22,8 @@ export const NAVIGATION_SECTIONS = [
       {
         label: 'Dashboard',
         path: ROUTES.DASHBOARD,
-        icon: LayoutDashboard
+        icon: LayoutDashboard,
+        module: 'dashboard'
       }
     ]
   },
@@ -31,27 +33,32 @@ export const NAVIGATION_SECTIONS = [
       {
         label: 'Walk-ins',
         path: ROUTES.WALKINS,
-        icon: UserCheck
+        icon: UserCheck,
+        module: 'walkins'
       },
       {
         label: 'Virtual Offices',
-        path: '/virtual-offices',
-        icon: Building2
+        path: ROUTES.VIRTUAL_OFFICES,
+        icon: Building2,
+        module: 'virtual_offices'
       },
       {
         label: 'Managed Offices',
-        path: '/managed-offices',
-        icon: Building
+        path: ROUTES.MANAGED_OFFICES,
+        icon: Building,
+        module: 'managed_offices'
       },
       {
         label: 'Aggregators',
         path: ROUTES.AGGREGATORS,
-        icon: Handshake
+        icon: Handshake,
+        module: 'aggregators'
       },
       {
         label: 'Escalations',
-        path: ROUTES.ESCALATIONS || '/escalations',
-        icon: AlertOctagon
+        path: ROUTES.ESCALATIONS,
+        icon: AlertOctagon,
+        module: 'escalations'
       }
     ]
   },
@@ -60,18 +67,21 @@ export const NAVIGATION_SECTIONS = [
     items: [
       {
         label: 'Utility Bills',
-        path: '/utility-bills',
-        icon: Receipt
+        path: ROUTES.UTILITY_BILLS,
+        icon: Receipt,
+        module: 'utility_bills'
       },
       {
         label: 'Salaries',
-        path: '/salaries',
-        icon: Banknote
+        path: ROUTES.SALARIES,
+        icon: Banknote,
+        module: 'salaries'
       },
       {
         label: 'Operation Bills',
-        path: '/operation-bills',
-        icon: FileText
+        path: ROUTES.OPERATION_BILLS,
+        icon: FileText,
+        module: 'operation_bills'
       }
     ]
   },
@@ -80,13 +90,15 @@ export const NAVIGATION_SECTIONS = [
     items: [
       {
         label: 'Cowork Space',
-        path: '/cowork-space',
-        icon: Users
+        path: ROUTES.COWORK_SPACE,
+        icon: Users,
+        module: 'cowork_spaces'
       },
       {
         label: 'Dedicated Space',
-        path: '/dedicated-space',
-        icon: Briefcase
+        path: ROUTES.DEDICATED_SPACE,
+        icon: Briefcase,
+        module: 'dedicated_spaces'
       }
     ]
   },
@@ -95,8 +107,21 @@ export const NAVIGATION_SECTIONS = [
     items: [
       {
         label: 'Invoice Templates',
-        path: '/invoice-templates',
-        icon: FileSpreadsheet
+        path: ROUTES.INVOICE_TEMPLATES,
+        icon: FileSpreadsheet,
+        module: 'invoice_templates'
+      }
+    ]
+  },
+  {
+    title: 'Administration',
+    items: [
+      {
+        label: 'User Management',
+        path: ROUTES.USER_MANAGEMENT,
+        icon: ShieldCheck,
+        module: 'user_management',
+        adminOnly: true
       }
     ]
   }
