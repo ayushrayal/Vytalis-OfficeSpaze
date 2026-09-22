@@ -20,7 +20,8 @@ export const MODULES = [
   'invoice_templates',
   'escalations',
   'recent_activity',
-  'user_management'
+  'user_management',
+  'meta_leads'
 ];
 
 export const ACTIONS = ['view', 'create', 'update', 'delete'];
@@ -52,5 +53,6 @@ export const MODULE_LABELS = {
   invoice_templates: 'Invoice Templates',
   escalations: 'Escalations',
   recent_activity: 'Recent Activity',
-  user_management: 'User Management'
+  user_management: 'User Management',
+  meta_leads: 'Meta Leads'
 };

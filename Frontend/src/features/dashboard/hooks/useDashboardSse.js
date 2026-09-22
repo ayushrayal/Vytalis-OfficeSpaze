@@ -39,6 +39,12 @@ export const useDashboardSse = () => {
         if (eventType && (eventType.startsWith('ESCALATION_') || eventType.includes('ESCALATION'))) {
           queryClient.invalidateQueries({ queryKey: ['escalations'] });
         }
+
+        // Invalidate leads and sync status queries when a Meta Leads sync event arrives
+        if (eventType === 'META_LEADS_SYNCED' || eventType.includes('META_LEADS')) {
+          queryClient.invalidateQueries({ queryKey: ['leads'] });
+          queryClient.invalidateQueries({ queryKey: ['leadSyncStatus'] });
+        }
       };
 
       eventSource.addEventListener('dashboard_update', handleDashboardUpdate);

@@ -13,6 +13,7 @@ export const ROUTES = {
   WALKINS: '/walkins',
   AGGREGATORS: '/aggregators',
   ESCALATIONS: '/escalations',
-  USER_MANAGEMENT: '/users'
+  USER_MANAGEMENT: '/users',
+  LEADS: '/leads'
 };
 

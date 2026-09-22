@@ -19,6 +19,7 @@ import WalkinsPage from '../features/walkins/pages/WalkinsPage';
 import AggregatorsPage from '../features/aggregators/pages/AggregatorsPage';
 import EscalationsPage from '../features/escalations/pages/EscalationsPage';
 import UsersPage from '../features/users/pages/UsersPage';
+import LeadsPage from '../features/leads/pages/LeadsPage';
 
 const AppRoutes = () => {
   return (
@@ -121,6 +122,14 @@ const AppRoutes = () => {
             element={
               <PermissionRoute module="escalations">
                 <EscalationsPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.LEADS}
+            element={
+              <PermissionRoute module="meta_leads" action="view">
+                <LeadsPage />
               </PermissionRoute>
             }
           />

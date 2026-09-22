@@ -25,6 +25,11 @@ export const MODULE_DEFINITIONS = [
   { key: 'escalations', label: 'Escalations', description: 'Operational issues, service tickets, and resolution logs' },
   { key: 'recent_activity', label: 'Recent Activity', description: 'Audit trail of workspace operations and system logs' },
   {
+    key: 'meta_leads',
+    label: 'Meta Leads',
+    description: 'Facebook Lead Ads integration, lead viewing, and synchronization'
+  },
+  {
     key: 'user_management',
     label: 'User Management',
     description: 'Staff accounts, role assignments, and permissions',

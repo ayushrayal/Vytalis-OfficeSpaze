@@ -19,6 +19,7 @@ const aggregatorRoutes = require('./routes/aggregator.routes');
 const escalationRoutes = require('./routes/escalation.routes');
 const dashboardRoutes = require('./routes/dashboard.routes');
 const activityRoutes = require('./routes/activity.routes');
+const leadRoutes = require('./routes/lead.routes');
 const errorMiddleware = require('./middleware/error.middleware');
 
 const app = express();
@@ -77,6 +78,7 @@ app.use('/api/invoice-templates', invoiceTemplateRoutes);
 app.use('/api/aggregators', aggregatorRoutes);
 app.use('/api/escalations', escalationRoutes);
 app.use('/api/activities', activityRoutes);
+app.use('/api/leads', leadRoutes);
 
 // 404 Handler for unknown /api routes
 app.use('/api', (req, res) => {

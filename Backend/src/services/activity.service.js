@@ -51,7 +51,9 @@ const VALID_ENTITY_TYPES = [
   'dedicated_space',
   'salary',
   'utility_bill',
-  'operation_bill'
+  'operation_bill',
+  'user',
+  'meta_lead'
 ];
 
 /**

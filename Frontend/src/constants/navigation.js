@@ -11,7 +11,8 @@ import {
   Briefcase,
   FileSpreadsheet,
   AlertOctagon,
-  ShieldCheck
+  ShieldCheck,
+  Megaphone
 } from 'lucide-react';
 import { ROUTES } from '../routes/routeConfig';
 
@@ -59,6 +60,12 @@ export const NAVIGATION_SECTIONS = [
         path: ROUTES.ESCALATIONS,
         icon: AlertOctagon,
         module: 'escalations'
+      },
+      {
+        label: 'Meta Leads',
+        path: ROUTES.LEADS,
+        icon: Megaphone,
+        module: 'meta_leads'
       }
     ]
   },

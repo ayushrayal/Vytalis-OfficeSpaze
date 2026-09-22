@@ -21,7 +21,8 @@ const MODULES = [
   'invoice_templates',
   'escalations',
   'recent_activity',
-  'user_management'
+  'user_management',
+  'meta_leads'
 ];
 
 const ACTIONS = ['view', 'create', 'update', 'delete'];

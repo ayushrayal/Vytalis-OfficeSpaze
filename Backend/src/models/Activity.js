@@ -12,7 +12,8 @@ const activitySchema = new mongoose.Schema(
         'role_updated',
         'permissions_updated',
         'status_updated',
-        'password_reset'
+        'password_reset',
+        'synced'
       ]
     },
     entityType: {
@@ -26,12 +27,14 @@ const activitySchema = new mongoose.Schema(
         'salary',
         'utility_bill',
         'operation_bill',
-        'user'
+        'user',
+        'meta_lead'
       ]
     },
     entityId: {
       type: mongoose.Schema.Types.ObjectId,
-      required: [true, 'Entity ID is required']
+      required: false,
+      default: () => new mongoose.Types.ObjectId()
     },
     entityName: {
       type: String,
