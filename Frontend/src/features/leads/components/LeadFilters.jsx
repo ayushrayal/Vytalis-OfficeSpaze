@@ -1,18 +1,30 @@
 import React from 'react';
-import { Search, X, Activity, UserCheck } from 'lucide-react';
+import { Search, X, Activity, UserCheck, Calendar } from 'lucide-react';
 import FilterSelect from '../../../components/ui/FilterSelect';
-import { STATUS_OPTIONS, ASSIGNMENT_OPTIONS } from '../constants/leads.constant';
+import {
+  STATUS_OPTIONS,
+  ASSIGNMENT_OPTIONS,
+  FOLLOW_UP_FILTER_OPTIONS
+} from '../constants/leads.constant';
 
 const LeadFilters = ({
   search,
   onSearchChange,
   statusFilter,
   onStatusFilterChange,
+  followUpFilter = '',
+  onFollowUpFilterChange,
   assignmentFilter,
   onAssignmentFilterChange,
-  onClearFilters
+  onClearFilters,
+  isAdmin = false
 }) => {
-  const hasActiveFilters = Boolean(search || statusFilter || assignmentFilter);
+  const hasActiveFilters = Boolean(
+    search ||
+    statusFilter ||
+    followUpFilter ||
+    (isAdmin && assignmentFilter)
+  );
 
   return (
     <div className="bg-white relative z-30 p-4 rounded-2xl border border-neutral-200/80 shadow-xs space-y-4 mb-6 font-urbanist">
@@ -47,17 +59,29 @@ const LeadFilters = ({
             onChange={onStatusFilterChange}
             options={STATUS_OPTIONS}
             icon={Activity}
-            className="w-full sm:w-auto min-w-[150px]"
+            className="w-full sm:w-auto min-w-[140px]"
           />
 
           <FilterSelect
-            label="Assignment"
-            value={assignmentFilter}
-            onChange={onAssignmentFilterChange}
-            options={ASSIGNMENT_OPTIONS}
-            icon={UserCheck}
-            className="w-full sm:w-auto min-w-[160px]"
+            label="Follow-up"
+            value={followUpFilter}
+            onChange={onFollowUpFilterChange}
+            options={FOLLOW_UP_FILTER_OPTIONS}
+            icon={Calendar}
+            className="w-full sm:w-auto min-w-[150px]"
           />
+
+          {/* Assignment Filter: strictly for Admin only */}
+          {isAdmin && (
+            <FilterSelect
+              label="Assignment"
+              value={assignmentFilter}
+              onChange={onAssignmentFilterChange}
+              options={ASSIGNMENT_OPTIONS}
+              icon={UserCheck}
+              className="w-full sm:w-auto min-w-[150px]"
+            />
+          )}
 
           {hasActiveFilters && (
             <button

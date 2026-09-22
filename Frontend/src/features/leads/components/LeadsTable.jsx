@@ -1,7 +1,11 @@
 import React from 'react';
-import { Eye, User, Phone, Mail, Megaphone, Calendar, AlertCircle } from 'lucide-react';
+import { Eye, User, Phone, Mail, Megaphone, Calendar, AlertCircle, Clock } from 'lucide-react';
 import { format, isValid } from 'date-fns';
-import { LEAD_STATUS_CONFIG } from '../constants/leads.constant';
+import {
+  LEAD_STATUS_CONFIG,
+  FOLLOW_UP_STATUS_CONFIG,
+  getFollowUpCategory
+} from '../constants/leads.constant';
 
 const formatMetaDate = (dateVal) => {
   if (!dateVal) return '—';
@@ -17,7 +21,14 @@ const formatMetaDate = (dateVal) => {
 const LeadsTable = ({
   leads = [],
   isLoading = false,
-  onViewDetails
+  onViewDetails,
+  isAdmin = false,
+  selectedIds = [],
+  onToggleSelect,
+  onToggleSelectAllCurrentPage,
+  isAllCurrentPageSelected = false,
+  isPartiallySelected = false,
+  currentView = 'active'
 }) => {
   if (isLoading) {
     return (
@@ -27,7 +38,8 @@ const LeadsTable = ({
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-neutral-200/80 bg-neutral-50/50">
-                {['Lead', 'Phone', 'Email', 'Source', 'Campaign', 'Status', 'Assigned To', 'Created', 'Actions'].map((h, i) => (
+                <th className="py-3 px-4 w-10"></th>
+                {['Lead', 'Phone', 'Email', 'Source', 'Campaign', 'Status', 'Follow-up', 'Assigned To', currentView === 'archived' ? 'Archived At' : 'Created', 'Actions'].map((h, i) => (
                   <th key={i} className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-400">
                     {h}
                   </th>
@@ -37,12 +49,14 @@ const LeadsTable = ({
             <tbody className="divide-y divide-neutral-100">
               {[...Array(6)].map((_, idx) => (
                 <tr key={idx} className="animate-pulse">
+                  <td className="py-4 px-4 w-10"><div className="w-4 h-4 bg-neutral-200 rounded"></div></td>
                   <td className="py-4 px-4"><div className="h-4 bg-neutral-200 rounded w-28 mb-1.5"></div><div className="h-2.5 bg-neutral-100 rounded w-20"></div></td>
                   <td className="py-4 px-4"><div className="h-3.5 bg-neutral-100 rounded w-24"></div></td>
                   <td className="py-4 px-4"><div className="h-3.5 bg-neutral-100 rounded w-32"></div></td>
                   <td className="py-4 px-4"><div className="h-5 bg-neutral-100 rounded-full w-20"></div></td>
                   <td className="py-4 px-4"><div className="h-3.5 bg-neutral-100 rounded w-28"></div></td>
                   <td className="py-4 px-4"><div className="h-5 bg-neutral-200 rounded-full w-16"></div></td>
+                  <td className="py-4 px-4"><div className="h-5 bg-neutral-100 rounded-full w-20"></div></td>
                   <td className="py-4 px-4"><div className="h-3.5 bg-neutral-100 rounded w-20"></div></td>
                   <td className="py-4 px-4"><div className="h-3.5 bg-neutral-100 rounded w-24"></div></td>
                   <td className="py-4 px-4"><div className="h-8 bg-neutral-100 rounded-xl w-10"></div></td>
@@ -72,9 +86,19 @@ const LeadsTable = ({
         <div className="w-12 h-12 rounded-2xl bg-neutral-100 flex items-center justify-center mx-auto mb-3.5 text-neutral-400">
           <AlertCircle className="w-6 h-6" />
         </div>
-        <h3 className="text-base font-bold text-neutral-900 mb-1">No leads found</h3>
+        <h3 className="text-base font-bold text-neutral-900 mb-1">
+          {currentView === 'archived'
+            ? 'No archived leads'
+            : isAdmin
+              ? 'No leads found'
+              : 'No leads assigned to you'}
+        </h3>
         <p className="text-xs text-neutral-500 max-w-sm mx-auto">
-          No Meta Lead Ads records match your current filters or search criteria. Try modifying your filter settings or sync new leads.
+          {currentView === 'archived'
+            ? 'There are currently no archived leads matching your filters.'
+            : isAdmin
+              ? 'No Meta Lead Ads records match your current filters or search criteria. Try modifying your filter settings or sync new leads.'
+              : 'You currently have no leads assigned matching the selected search or filter criteria.'}
         </p>
       </div>
     );
@@ -87,19 +111,38 @@ const LeadsTable = ({
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="border-b border-neutral-200/80 bg-neutral-50/50">
+              {/* Checkbox: Select All on Current Page */}
+              <th className="py-3 px-4 w-10">
+                <input
+                  type="checkbox"
+                  checked={isAllCurrentPageSelected}
+                  ref={(el) => {
+                    if (el) el.indeterminate = isPartiallySelected;
+                  }}
+                  onChange={onToggleSelectAllCurrentPage}
+                  className="w-4 h-4 rounded border-neutral-300 text-[#ED1F23] focus:ring-[#ED1F23]/20 cursor-pointer"
+                  aria-label="Select all leads on current page"
+                />
+              </th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Lead</th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Phone</th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Email</th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Source</th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Campaign</th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Status</th>
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Follow-up</th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Assigned To</th>
-              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Created</th>
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+                {currentView === 'archived' ? 'Archived At' : 'Created'}
+              </th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 text-sm">
             {leads.map((lead) => {
+              const leadId = lead.id || lead._id;
+              const isSelected = selectedIds.includes(leadId);
+
               const statusCfg = LEAD_STATUS_CONFIG[lead.status] || {
                 label: lead.status || 'New',
                 badgeClass: 'bg-neutral-100 text-neutral-700 border-neutral-200',
@@ -107,65 +150,86 @@ const LeadsTable = ({
               };
 
               const assignedUserName = lead.assignedTo?.name || (typeof lead.assignedTo === 'string' ? lead.assignedTo : null);
+              const followUpCategory = getFollowUpCategory(lead.nextFollowUpAt);
+              const followUpCfg = FOLLOW_UP_STATUS_CONFIG[followUpCategory] || FOLLOW_UP_STATUS_CONFIG.NO_FOLLOW_UP;
 
               return (
                 <tr
-                  key={lead.id || lead._id || lead.metaLeadId}
-                  className="hover:bg-neutral-50/60 transition-colors group"
+                  key={leadId || lead.metaLeadId}
+                  className={`transition-colors group ${
+                    isSelected ? 'bg-rose-50/40 hover:bg-rose-50/70' : 'hover:bg-neutral-50/60'
+                  }`}
                 >
-                  {/* 1. Lead */}
-                  <td className="py-3.5 px-4">
-                    <div className="font-semibold text-neutral-900 group-hover:text-[#ED1F23] transition-colors">
-                      {lead.fullName || 'Unknown Lead'}
+                  {/* Checkbox Column */}
+                  <td className="py-3.5 px-4 w-10">
+                    <input
+                      type="checkbox"
+                      checked={isSelected}
+                      onChange={() => onToggleSelect && onToggleSelect(leadId)}
+                      className="w-4 h-4 rounded border-neutral-300 text-[#ED1F23] focus:ring-[#ED1F23]/20 cursor-pointer"
+                      aria-label={`Select lead ${lead.fullName || lead.metaLeadId}`}
+                    />
+                  </td>
+
+                  {/* 1. Lead Name & Meta ID */}
+                  <td className="py-3.5 px-4 whitespace-nowrap">
+                    <div className="font-bold text-neutral-900 group-hover:text-[#ED1F23] transition-colors flex items-center gap-2">
+                      <span>{lead.fullName || 'Unknown Lead'}</span>
+                      {lead.archivedAt && (
+                        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                          Archived
+                        </span>
+                      )}
                     </div>
-                    <div className="text-[11px] text-neutral-400 font-mono">
+                    <div className="text-[11px] text-neutral-400 font-mono tracking-tight">
                       ID: {lead.metaLeadId}
                     </div>
                   </td>
 
                   {/* 2. Phone */}
-                  <td className="py-3.5 px-4 font-medium text-neutral-700 whitespace-nowrap">
+                  <td className="py-3.5 px-4 whitespace-nowrap text-xs text-neutral-700">
                     {lead.phoneNumber ? (
-                      <a
-                        href={`tel:${lead.phoneNumber}`}
-                        className="hover:text-[#ED1F23] transition-colors"
-                      >
-                        {lead.phoneNumber}
-                      </a>
+                      <div className="flex items-center gap-1.5 font-medium">
+                        <Phone className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                        <span>{lead.phoneNumber}</span>
+                      </div>
                     ) : (
-                      <span className="text-neutral-400">—</span>
+                      <span className="text-neutral-400 italic">No phone</span>
                     )}
                   </td>
 
                   {/* 3. Email */}
-                  <td className="py-3.5 px-4 text-neutral-600 max-w-[200px] truncate">
+                  <td className="py-3.5 px-4 whitespace-nowrap text-xs text-neutral-700 max-w-[200px] truncate">
                     {lead.email ? (
-                      <a
-                        href={`mailto:${lead.email}`}
-                        className="hover:text-[#ED1F23] hover:underline transition-colors"
-                        title={lead.email}
-                      >
-                        {lead.email}
-                      </a>
+                      <div className="flex items-center gap-1.5 truncate">
+                        <Mail className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                        <span className="truncate">{lead.email}</span>
+                      </div>
                     ) : (
-                      <span className="text-neutral-400">—</span>
+                      <span className="text-neutral-400 italic">No email</span>
                     )}
                   </td>
 
                   {/* 4. Source */}
                   <td className="py-3.5 px-4 whitespace-nowrap">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200/80">
-                      <Megaphone className="w-3 h-3" />
-                      Meta Lead
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50 text-blue-700 border border-blue-200/80">
+                      Meta Ads
                     </span>
                   </td>
 
-                  {/* 5. Campaign */}
-                  <td className="py-3.5 px-4 text-neutral-700 max-w-[160px] truncate" title={lead.campaignName || ''}>
-                    {lead.campaignName || <span className="text-neutral-400">—</span>}
+                  {/* 5. Campaign Name */}
+                  <td className="py-3.5 px-4 whitespace-nowrap text-xs text-neutral-600 max-w-[180px] truncate">
+                    {lead.campaignName ? (
+                      <div className="flex items-center gap-1.5 truncate" title={lead.campaignName}>
+                        <Megaphone className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                        <span className="truncate">{lead.campaignName}</span>
+                      </div>
+                    ) : (
+                      <span className="text-neutral-400">—</span>
+                    )}
                   </td>
 
-                  {/* 6. Status */}
+                  {/* 6. Status Badge */}
                   <td className="py-3.5 px-4 whitespace-nowrap">
                     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statusCfg.badgeClass}`}>
                       <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dotClass}`}></span>
@@ -173,31 +237,55 @@ const LeadsTable = ({
                     </span>
                   </td>
 
-                  {/* 7. Assigned To */}
+                  {/* 7. Follow-up Badge */}
                   <td className="py-3.5 px-4 whitespace-nowrap">
+                    {lead.nextFollowUpAt ? (
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${followUpCfg.badgeClass}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${followUpCfg.dotClass}`}></span>
+                        <span>{followUpCfg.label}</span>
+                      </span>
+                    ) : (
+                      <span className="text-xs text-neutral-400 font-medium">—</span>
+                    )}
+                  </td>
+
+                  {/* 8. Assigned To */}
+                  <td className="py-3.5 px-4 whitespace-nowrap text-xs">
                     {assignedUserName ? (
-                      <div className="flex items-center gap-1.5 text-xs font-medium text-neutral-800">
-                        <User className="w-3.5 h-3.5 text-neutral-400" />
+                      <div className="flex items-center gap-1.5 font-semibold text-neutral-800">
+                        <div className="w-5 h-5 rounded-full bg-neutral-100 flex items-center justify-center text-neutral-600 font-bold text-[10px]">
+                          {assignedUserName.charAt(0).toUpperCase()}
+                        </div>
                         <span>{assignedUserName}</span>
                       </div>
                     ) : (
-                      <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-neutral-100 text-neutral-500">
+                      <span className="inline-flex items-center gap-1 text-neutral-400 italic">
+                        <User className="w-3 h-3 text-neutral-300" />
                         Unassigned
                       </span>
                     )}
                   </td>
 
-                  {/* 8. Created */}
-                  <td className="py-3.5 px-4 text-xs text-neutral-500 whitespace-nowrap">
-                    {formatMetaDate(lead.createdTime)}
+                  {/* 9. Created Date / Archived Date */}
+                  <td className="py-3.5 px-4 whitespace-nowrap text-xs text-neutral-500">
+                    {currentView === 'archived' ? (
+                      <div>
+                        <div className="font-semibold text-neutral-800">{formatMetaDate(lead.archivedAt)}</div>
+                        {lead.archivedBy && (
+                          <div className="text-[11px] text-neutral-400">by {lead.archivedBy.name || 'Staff'}</div>
+                        )}
+                      </div>
+                    ) : (
+                      formatMetaDate(lead.createdTime)
+                    )}
                   </td>
 
-                  {/* 9. Actions */}
-                  <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                  {/* 10. Actions */}
+                  <td className="py-3.5 px-4 whitespace-nowrap text-right">
                     <button
                       type="button"
                       onClick={() => onViewDetails(lead)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-200 bg-white text-xs font-semibold text-neutral-700 hover:text-[#ED1F23] hover:border-[#ED1F23]/30 hover:bg-[#ED1F23]/5 transition-all cursor-pointer shadow-2xs"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-200 bg-white text-xs font-semibold text-neutral-700 hover:bg-neutral-50 hover:text-[#ED1F23] active:bg-neutral-100 transition-all cursor-pointer shadow-2xs"
                       title="View lead details"
                     >
                       <Eye className="w-3.5 h-3.5" />
@@ -211,35 +299,70 @@ const LeadsTable = ({
         </table>
       </div>
 
-      {/* ─── MOBILE CARD VIEW ────────────────────────────────────────── */}
+      {/* ─── MOBILE CARD VIEW ───────────────────────────────────────────── */}
       <div className="lg:hidden divide-y divide-neutral-100">
         {leads.map((lead) => {
+          const leadId = lead.id || lead._id;
+          const isSelected = selectedIds.includes(leadId);
+
           const statusCfg = LEAD_STATUS_CONFIG[lead.status] || {
             label: lead.status || 'New',
             badgeClass: 'bg-neutral-100 text-neutral-700 border-neutral-200',
             dotClass: 'bg-neutral-400'
           };
+          const followUpCategory = getFollowUpCategory(lead.nextFollowUpAt);
+          const followUpCfg = FOLLOW_UP_STATUS_CONFIG[followUpCategory] || FOLLOW_UP_STATUS_CONFIG.NO_FOLLOW_UP;
           const assignedUserName = lead.assignedTo?.name || (typeof lead.assignedTo === 'string' ? lead.assignedTo : null);
 
           return (
             <div
-              key={lead.id || lead._id || lead.metaLeadId}
-              className="p-4 space-y-3 hover:bg-neutral-50/50 transition-colors"
+              key={leadId || lead.metaLeadId}
+              className={`p-4 space-y-3 transition-colors ${
+                isSelected ? 'bg-rose-50/40' : 'hover:bg-neutral-50/50'
+              }`}
             >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h4 className="font-bold text-neutral-900 text-base">
-                    {lead.fullName || 'Unknown Lead'}
-                  </h4>
-                  <p className="text-[11px] text-neutral-400 font-mono">ID: {lead.metaLeadId}</p>
+              <div className="flex items-start gap-3">
+                <input
+                  type="checkbox"
+                  checked={isSelected}
+                  onChange={() => onToggleSelect && onToggleSelect(leadId)}
+                  className="w-4 h-4 mt-1 rounded border-neutral-300 text-[#ED1F23] focus:ring-[#ED1F23]/20 cursor-pointer shrink-0"
+                  aria-label={`Select lead ${lead.fullName || lead.metaLeadId}`}
+                />
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <h4 className="font-bold text-neutral-900 text-base">
+                          {lead.fullName || 'Unknown Lead'}
+                        </h4>
+                        {lead.archivedAt && (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                            Archived
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[11px] text-neutral-400 font-mono">ID: {lead.metaLeadId}</p>
+                    </div>
+
+                    <div className="flex flex-col items-end gap-1 shrink-0">
+                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${statusCfg.badgeClass}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dotClass}`}></span>
+                        {statusCfg.label}
+                      </span>
+                      {lead.nextFollowUpAt && (
+                        <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${followUpCfg.badgeClass}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${followUpCfg.dotClass}`}></span>
+                          {followUpCfg.label}
+                        </span>
+                      )}
+                    </div>
+                  </div>
                 </div>
-                <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${statusCfg.badgeClass}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dotClass}`}></span>
-                  {statusCfg.label}
-                </span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-neutral-600">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-neutral-600 pl-7">
                 {lead.phoneNumber && (
                   <div className="flex items-center gap-1.5">
                     <Phone className="w-3.5 h-3.5 text-neutral-400" />
@@ -258,12 +381,22 @@ const LeadsTable = ({
                     <span className="truncate">{lead.campaignName}</span>
                   </div>
                 )}
+                {assignedUserName && (
+                  <div className="flex items-center gap-1.5 sm:col-span-2 text-neutral-700">
+                    <User className="w-3.5 h-3.5 text-neutral-400" />
+                    <span>Assigned to: <strong>{assignedUserName}</strong></span>
+                  </div>
+                )}
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-neutral-100 text-xs">
+              <div className="flex items-center justify-between pt-2 border-t border-neutral-100 text-xs pl-7">
                 <div className="flex items-center gap-1.5 text-neutral-500">
                   <Calendar className="w-3.5 h-3.5 text-neutral-400" />
-                  <span>{formatMetaDate(lead.createdTime)}</span>
+                  <span>
+                    {currentView === 'archived'
+                      ? `Archived: ${formatMetaDate(lead.archivedAt)}`
+                      : formatMetaDate(lead.createdTime)}
+                  </span>
                 </div>
 
                 <button

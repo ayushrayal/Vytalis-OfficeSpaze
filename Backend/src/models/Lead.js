@@ -2,6 +2,22 @@ const mongoose = require('mongoose');
 
 const LEAD_STATUS = ['NEW', 'CONTACTED', 'FOLLOW_UP', 'QUALIFIED', 'CONVERTED', 'LOST'];
 
+const CONVERSION_TYPES = [
+  'VIRTUAL_OFFICE',
+  'MANAGED_OFFICE',
+  'COWORK_SPACE',
+  'DEDICATED_SPACE',
+  'OTHER'
+];
+
+const CONVERSION_TARGET_TYPES = [
+  'virtual_office',
+  'managed_office',
+  'cowork_space',
+  'dedicated_space',
+  null
+];
+
 const formResponseSchema = new mongoose.Schema(
   {
     field: {
@@ -158,6 +174,50 @@ const leadSchema = new mongoose.Schema(
       type: String,
       trim: true,
       default: ''
+    },
+
+    // Archive Lifecycle Tracking
+    archivedAt: {
+      type: Date,
+      default: null,
+      index: true
+    },
+    archivedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null
+    },
+
+    // Conversion Lifecycle & Business Outcome Tracking
+    convertedAt: {
+      type: Date,
+      default: null,
+      index: true
+    },
+    convertedBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      default: null
+    },
+    conversionType: {
+      type: String,
+      enum: {
+        values: [...CONVERSION_TYPES, null],
+        message: 'Conversion type must be one of: ' + CONVERSION_TYPES.join(', ')
+      },
+      default: null
+    },
+    conversionTargetType: {
+      type: String,
+      enum: {
+        values: CONVERSION_TARGET_TYPES,
+        message: 'Conversion target type must be one of: virtual_office, managed_office, cowork_space, dedicated_space'
+      },
+      default: null
+    },
+    conversionTargetId: {
+      type: String,
+      default: null
     }
   },
   {
@@ -175,7 +235,12 @@ const leadSchema = new mongoose.Schema(
 
 // Compound indexes for fast CRM searches & filtering
 leadSchema.index({ status: 1, createdAt: -1 });
+leadSchema.index({ status: 1, convertedAt: -1 });
 leadSchema.index({ assignedTo: 1, status: 1 });
+leadSchema.index({ assignedTo: 1, createdAt: -1 });
+leadSchema.index({ assignedTo: 1, nextFollowUpAt: 1 });
+leadSchema.index({ archivedAt: 1, createdAt: -1 });
+leadSchema.index({ archivedAt: 1, assignedTo: 1, createdAt: -1 });
 leadSchema.index({ createdAt: -1 });
 leadSchema.index({ fullName: 'text', email: 'text', phoneNumber: 'text' });
 
@@ -183,5 +248,7 @@ const Lead = mongoose.model('Lead', leadSchema);
 
 module.exports = {
   Lead,
-  LEAD_STATUS
+  LEAD_STATUS,
+  CONVERSION_TYPES,
+  CONVERSION_TARGET_TYPES
 };

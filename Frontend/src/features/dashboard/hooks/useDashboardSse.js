@@ -17,10 +17,11 @@ export const useDashboardSse = () => {
 
       const handleDashboardUpdate = (event) => {
         let eventType = '';
+        let eventPayload = null;
         try {
           if (event.data) {
-            const data = JSON.parse(event.data);
-            eventType = data.type || '';
+            eventPayload = JSON.parse(event.data);
+            eventType = eventPayload.type || '';
             console.log('[SSE Dashboard Event Received]:', eventType);
           }
         } catch (e) {
@@ -44,6 +45,17 @@ export const useDashboardSse = () => {
         if (eventType === 'META_LEADS_SYNCED' || eventType.includes('META_LEADS')) {
           queryClient.invalidateQueries({ queryKey: ['leads'] });
           queryClient.invalidateQueries({ queryKey: ['leadSyncStatus'] });
+          queryClient.invalidateQueries({ queryKey: ['leadStats'] });
+        }
+
+        // Invalidate leads when a lead mutation event arrives (assignment, status, notes, follow-up, bulk)
+        if (eventType === 'LEAD_MUTATED' || eventType === 'LEADS_BULK_MUTATED') {
+          queryClient.invalidateQueries({ queryKey: ['leads'] });
+          queryClient.invalidateQueries({ queryKey: ['leadStats'] });
+          if (eventPayload?.entityId) {
+            queryClient.invalidateQueries({ queryKey: ['lead', eventPayload.entityId] });
+            queryClient.invalidateQueries({ queryKey: ['leadActivity', eventPayload.entityId] });
+          }
         }
       };
 

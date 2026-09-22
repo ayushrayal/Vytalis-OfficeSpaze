@@ -13,7 +13,15 @@ const activitySchema = new mongoose.Schema(
         'permissions_updated',
         'status_updated',
         'password_reset',
-        'synced'
+        'synced',
+        'lead_assigned',
+        'lead_unassigned',
+        'lead_status_updated',
+        'lead_note_updated',
+        'lead_followup_updated',
+        'lead_archived',
+        'lead_restored',
+        'lead_converted'
       ]
     },
     entityType: {
