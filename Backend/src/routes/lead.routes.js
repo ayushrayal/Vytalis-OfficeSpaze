@@ -5,6 +5,10 @@ const { requireAdmin, requirePermission } = require('../middleware/permission.mi
 const leadController = require('../controllers/lead.controller');
 
 const leadFollowUpController = require('../controllers/leadFollowUp.controller');
+const leadAnalyticsRoutes = require('./leadAnalytics.routes');
+
+// CRM Analytics module routes (must be mounted before /:id routes)
+router.use('/analytics', leadAnalyticsRoutes);
 
 // Read endpoints: authenticated + requirePermission('meta_leads', 'view')
 router.get('/', authMiddleware, requirePermission('meta_leads', 'view'), leadController.getLeads);

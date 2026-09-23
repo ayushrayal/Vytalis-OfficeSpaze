@@ -13,7 +13,8 @@ import {
   AlertOctagon,
   ShieldCheck,
   Megaphone,
-  CalendarCheck
+  CalendarCheck,
+  BarChart3
 } from 'lucide-react';
 import { ROUTES } from '../routes/routeConfig';
 
@@ -72,6 +73,12 @@ export const NAVIGATION_SECTIONS = [
         label: 'Follow-ups',
         path: ROUTES.FOLLOW_UPS,
         icon: CalendarCheck,
+        module: 'meta_leads'
+      },
+      {
+        label: 'CRM Analytics',
+        path: ROUTES.CRM_ANALYTICS,
+        icon: BarChart3,
         module: 'meta_leads'
       }
     ]

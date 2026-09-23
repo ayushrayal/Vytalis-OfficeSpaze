@@ -46,12 +46,14 @@ export const useDashboardSse = () => {
           queryClient.invalidateQueries({ queryKey: ['leads'] });
           queryClient.invalidateQueries({ queryKey: ['leadSyncStatus'] });
           queryClient.invalidateQueries({ queryKey: ['leadStats'] });
+          queryClient.invalidateQueries({ queryKey: ['leadAnalytics'] });
         }
 
         // Invalidate leads when a lead mutation event arrives (assignment, status, notes, follow-up, bulk)
         if (eventType === 'LEAD_MUTATED' || eventType === 'LEADS_BULK_MUTATED') {
           queryClient.invalidateQueries({ queryKey: ['leads'] });
           queryClient.invalidateQueries({ queryKey: ['leadStats'] });
+          queryClient.invalidateQueries({ queryKey: ['leadAnalytics'] });
           if (eventPayload?.entityId) {
             queryClient.invalidateQueries({ queryKey: ['lead', eventPayload.entityId] });
             queryClient.invalidateQueries({ queryKey: ['leadActivity', eventPayload.entityId] });
@@ -64,6 +66,7 @@ export const useDashboardSse = () => {
           queryClient.invalidateQueries({ queryKey: ['followUpMetrics'] });
           queryClient.invalidateQueries({ queryKey: ['leads'] });
           queryClient.invalidateQueries({ queryKey: ['leadStats'] });
+          queryClient.invalidateQueries({ queryKey: ['leadAnalytics'] });
           if (eventPayload?.entityId) {
             queryClient.invalidateQueries({ queryKey: ['lead', eventPayload.entityId] });
             queryClient.invalidateQueries({ queryKey: ['leadFollowUps', eventPayload.entityId] });

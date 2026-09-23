@@ -21,6 +21,7 @@ import EscalationsPage from '../features/escalations/pages/EscalationsPage';
 import UsersPage from '../features/users/pages/UsersPage';
 import LeadsPage from '../features/leads/pages/LeadsPage';
 import FollowUpsPage from '../features/leads/pages/FollowUpsPage';
+import LeadAnalyticsPage from '../features/leads/pages/LeadAnalyticsPage';
 
 const AppRoutes = () => {
   return (
@@ -139,6 +140,14 @@ const AppRoutes = () => {
             element={
               <PermissionRoute module="meta_leads" action="view">
                 <FollowUpsPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.CRM_ANALYTICS}
+            element={
+              <PermissionRoute module="meta_leads" action="view">
+                <LeadAnalyticsPage />
               </PermissionRoute>
             }
           />

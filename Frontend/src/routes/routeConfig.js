@@ -15,6 +15,7 @@ export const ROUTES = {
   ESCALATIONS: '/escalations',
   USER_MANAGEMENT: '/users',
   LEADS: '/leads',
-  FOLLOW_UPS: '/follow-ups'
+  FOLLOW_UPS: '/follow-ups',
+  CRM_ANALYTICS: '/leads/analytics'
 };
 

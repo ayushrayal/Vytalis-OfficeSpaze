@@ -241,6 +241,9 @@ leadSchema.index({ assignedTo: 1, createdAt: -1 });
 leadSchema.index({ assignedTo: 1, nextFollowUpAt: 1 });
 leadSchema.index({ archivedAt: 1, createdAt: -1 });
 leadSchema.index({ archivedAt: 1, assignedTo: 1, createdAt: -1 });
+// Analytics indexes for deterministic date-range filtering on createdTime
+leadSchema.index({ archivedAt: 1, createdTime: -1 });
+leadSchema.index({ assignedTo: 1, archivedAt: 1, createdTime: -1 });
 leadSchema.index({ createdAt: -1 });
 leadSchema.index({ fullName: 'text', email: 'text', phoneNumber: 'text' });
 
