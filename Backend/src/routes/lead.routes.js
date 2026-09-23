@@ -4,6 +4,8 @@ const authMiddleware = require('../middleware/auth.middleware');
 const { requireAdmin, requirePermission } = require('../middleware/permission.middleware');
 const leadController = require('../controllers/lead.controller');
 
+const leadFollowUpController = require('../controllers/leadFollowUp.controller');
+
 // Read endpoints: authenticated + requirePermission('meta_leads', 'view')
 router.get('/', authMiddleware, requirePermission('meta_leads', 'view'), leadController.getLeads);
 router.get('/sync/status', authMiddleware, requirePermission('meta_leads', 'view'), leadController.getSyncStatus);
@@ -25,6 +27,13 @@ router.delete('/bulk/permanent', authMiddleware, requireAdmin, leadController.bu
 // Individual lead endpoints
 router.get('/:id', authMiddleware, requirePermission('meta_leads', 'view'), leadController.getLeadById);
 router.get('/:id/activity', authMiddleware, requirePermission('meta_leads', 'view'), leadController.getLeadActivity);
+
+// Follow-up task endpoints
+router.post('/:id/follow-ups', authMiddleware, requirePermission('meta_leads', 'update'), leadFollowUpController.scheduleFollowUp);
+router.get('/:id/follow-ups', authMiddleware, requirePermission('meta_leads', 'view'), leadFollowUpController.getLeadFollowUps);
+router.patch('/:id/follow-ups/:followUpId/complete', authMiddleware, requirePermission('meta_leads', 'update'), leadFollowUpController.completeFollowUp);
+router.patch('/:id/follow-ups/:followUpId/cancel', authMiddleware, requirePermission('meta_leads', 'update'), leadFollowUpController.cancelFollowUp);
+router.patch('/:id/follow-ups/:followUpId/reschedule', authMiddleware, requirePermission('meta_leads', 'update'), leadFollowUpController.rescheduleFollowUp);
 
 // CRM mutations
 // Lead assignment: strictly ADMIN-only

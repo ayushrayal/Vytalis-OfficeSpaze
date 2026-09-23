@@ -1,9 +1,12 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { leadService } from '../services/lead.service';
+import { followUpService } from '../services/followUp.service';
 import { toast } from 'sonner';
 
 export const LEADS_QUERY_KEY = ['leads'];
 export const LEAD_SYNC_STATUS_KEY = ['leadSyncStatus'];
+export const FOLLOW_UPS_QUERY_KEY = ['followUps'];
+export const FOLLOW_UP_METRICS_QUERY_KEY = ['followUpMetrics'];
 
 /**
  * Hook to fetch paginated leads with search and filter parameters.
@@ -317,6 +320,164 @@ export const useConvertLead = () => {
     },
     onError: (error) => {
       const message = error.response?.data?.message || 'Failed to convert lead';
+      toast.error(message);
+    }
+  });
+};
+
+/**
+ * Hook to retrieve follow-up history for a single lead.
+ */
+export const useLeadFollowUps = (leadId, params = {}) => {
+  return useQuery({
+    queryKey: ['leadFollowUps', leadId, params],
+    queryFn: () => followUpService.getLeadFollowUps(leadId, params),
+    enabled: Boolean(leadId)
+  });
+};
+
+/**
+ * Hook to retrieve global or scoped follow-ups for dedicated Follow-ups page and widget.
+ */
+export const useFollowUpsList = (params = {}) => {
+  return useQuery({
+    queryKey: [FOLLOW_UPS_QUERY_KEY[0], params],
+    queryFn: () => followUpService.getFollowUpsList(params),
+    placeholderData: (previousData) => previousData
+  });
+};
+
+/**
+ * Hook to retrieve follow-up aggregate metrics.
+ */
+export const useFollowUpMetrics = () => {
+  return useQuery({
+    queryKey: FOLLOW_UP_METRICS_QUERY_KEY,
+    queryFn: () => followUpService.getFollowUpMetrics(),
+    staleTime: 30 * 1000
+  });
+};
+
+/**
+ * Hook to schedule a new follow-up for a lead.
+ */
+export const useScheduleFollowUp = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ leadId, ...data }) => followUpService.scheduleFollowUp(leadId, data),
+    onSuccess: (res, variables) => {
+      queryClient.invalidateQueries({ queryKey: LEADS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['lead', variables.leadId] });
+      queryClient.invalidateQueries({ queryKey: ['leadFollowUps', variables.leadId] });
+      queryClient.invalidateQueries({ queryKey: FOLLOW_UPS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FOLLOW_UP_METRICS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['leadActivity', variables.leadId] });
+      queryClient.invalidateQueries({ queryKey: LEAD_STATS_QUERY_KEY });
+      toast.success('Follow-up scheduled successfully');
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || 'Failed to schedule follow-up';
+      toast.error(message);
+    }
+  });
+};
+
+/**
+ * Hook to reschedule an active pending follow-up.
+ */
+export const useRescheduleFollowUp = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ leadId, followUpId, ...data }) =>
+      followUpService.rescheduleFollowUp(leadId, followUpId, data),
+    onSuccess: (res, variables) => {
+      queryClient.invalidateQueries({ queryKey: LEADS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['lead', variables.leadId] });
+      queryClient.invalidateQueries({ queryKey: ['leadFollowUps', variables.leadId] });
+      queryClient.invalidateQueries({ queryKey: FOLLOW_UPS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FOLLOW_UP_METRICS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['leadActivity', variables.leadId] });
+      queryClient.invalidateQueries({ queryKey: LEAD_STATS_QUERY_KEY });
+      toast.success('Follow-up rescheduled successfully');
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || 'Failed to reschedule follow-up';
+      toast.error(message);
+    }
+  });
+};
+
+/**
+ * Hook to mark an active pending follow-up as COMPLETED.
+ */
+export const useCompleteFollowUp = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ leadId, followUpId }) =>
+      followUpService.completeFollowUp(leadId, followUpId),
+    onSuccess: (res, variables) => {
+      queryClient.invalidateQueries({ queryKey: LEADS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['lead', variables.leadId] });
+      queryClient.invalidateQueries({ queryKey: ['leadFollowUps', variables.leadId] });
+      queryClient.invalidateQueries({ queryKey: FOLLOW_UPS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FOLLOW_UP_METRICS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['leadActivity', variables.leadId] });
+      queryClient.invalidateQueries({ queryKey: LEAD_STATS_QUERY_KEY });
+      toast.success('Follow-up marked as completed');
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || 'Failed to complete follow-up';
+      toast.error(message);
+    }
+  });
+};
+
+/**
+ * Hook to cancel an active pending follow-up.
+ */
+export const useCancelFollowUp = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ leadId, followUpId }) =>
+      followUpService.cancelFollowUp(leadId, followUpId),
+    onSuccess: (res, variables) => {
+      queryClient.invalidateQueries({ queryKey: LEADS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['lead', variables.leadId] });
+      queryClient.invalidateQueries({ queryKey: ['leadFollowUps', variables.leadId] });
+      queryClient.invalidateQueries({ queryKey: FOLLOW_UPS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FOLLOW_UP_METRICS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['leadActivity', variables.leadId] });
+      queryClient.invalidateQueries({ queryKey: LEAD_STATS_QUERY_KEY });
+      toast.success('Follow-up cancelled');
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || 'Failed to cancel follow-up';
+      toast.error(message);
+    }
+  });
+};
+
+/**
+ * Hook for admin to trigger batch missed follow-up processing.
+ */
+export const useProcessMissedFollowUps = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => followUpService.processMissedFollowUps(),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: LEADS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FOLLOW_UPS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: FOLLOW_UP_METRICS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: LEAD_STATS_QUERY_KEY });
+      toast.success(`Processed missed follow-ups (${res?.data?.processedCount ?? 0} updated)`);
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || 'Failed to process missed follow-ups';
       toast.error(message);
     }
   });

@@ -7,6 +7,11 @@ const errorMiddleware = (err, req, res, next) => {
     message = 'File size limit exceeded. Maximum allowed size is 5MB.';
   }
 
+  if (err.name === 'CastError') {
+    statusCode = 400;
+    message = `Invalid format for field: ${err.path}`;
+  }
+
   if (process.env.NODE_ENV === 'production' && statusCode === 500) {
     message = 'Internal Server Error';
   }

@@ -21,7 +21,12 @@ const activitySchema = new mongoose.Schema(
         'lead_followup_updated',
         'lead_archived',
         'lead_restored',
-        'lead_converted'
+        'lead_converted',
+        'lead_followup_scheduled',
+        'lead_followup_rescheduled',
+        'lead_followup_completed',
+        'lead_followup_cancelled',
+        'lead_followup_missed'
       ]
     },
     entityType: {

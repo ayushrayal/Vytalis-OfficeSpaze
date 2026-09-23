@@ -12,7 +12,8 @@ import {
   FileSpreadsheet,
   AlertOctagon,
   ShieldCheck,
-  Megaphone
+  Megaphone,
+  CalendarCheck
 } from 'lucide-react';
 import { ROUTES } from '../routes/routeConfig';
 
@@ -65,6 +66,12 @@ export const NAVIGATION_SECTIONS = [
         label: 'Meta Leads',
         path: ROUTES.LEADS,
         icon: Megaphone,
+        module: 'meta_leads'
+      },
+      {
+        label: 'Follow-ups',
+        path: ROUTES.FOLLOW_UPS,
+        icon: CalendarCheck,
         module: 'meta_leads'
       }
     ]

@@ -14,6 +14,7 @@ import RecentActivity from '../components/RecentActivity';
 import DashboardSkeleton from '../components/DashboardSkeleton';
 import DashboardError from '../components/DashboardError';
 import DashboardEscalationsSection from '../components/DashboardEscalationsSection';
+import DashboardFollowUpsSection from '../components/DashboardFollowUpsSection';
 
 const DashboardPage = () => {
   const { data, isLoading, isError, refetch, isFetching } = useDashboardData();
@@ -57,6 +58,11 @@ const DashboardPage = () => {
       {/* Operational Attention: Critical Escalations */}
       <div className="dash-section">
         <DashboardEscalationsSection />
+      </div>
+
+      {/* Follow-up Reminders */}
+      <div className="dash-section">
+        <DashboardFollowUpsSection />
       </div>
 
       {/* Primary KPI Grid */}

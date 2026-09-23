@@ -7,6 +7,8 @@ const ManagedOffice = require('../models/ManagedOffice');
 const CoworkSpace = require('../models/CoworkSpace');
 const DedicatedSpace = require('../models/DedicatedSpace');
 const windsorProvider = require('../providers/windsor.provider');
+const { LeadFollowUp } = require('../models/LeadFollowUp');
+const leadFollowUpService = require('./leadFollowUp.service');
 const { logActivity } = require('./activity.service');
 const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 const { getKolkataDayBounds } = require('../utils/timezone.util');
@@ -803,7 +805,9 @@ const updateLeadFollowUp = async (leadId, nextFollowUpAt, actor) => {
     throw error;
   }
 
+  const previousFollowUpAt = lead.nextFollowUpAt;
   let parsedDate = null;
+
   if (nextFollowUpAt !== null && nextFollowUpAt !== undefined && nextFollowUpAt !== '') {
     if (typeof nextFollowUpAt !== 'string' && !(nextFollowUpAt instanceof Date)) {
       const error = new Error('Invalid follow-up date');
@@ -816,19 +820,50 @@ const updateLeadFollowUp = async (leadId, nextFollowUpAt, actor) => {
       error.statusCode = 400;
       throw error;
     }
+
+    // Check if an active PENDING follow-up already exists
+    const existingPending = await LeadFollowUp.findOne({
+      lead: lead._id,
+      status: 'PENDING'
+    });
+
+    if (existingPending) {
+      await leadFollowUpService.rescheduleFollowUp(
+        lead._id.toString(),
+        existingPending._id.toString(),
+        { dueAt: parsedDate.toISOString() },
+        actor
+      );
+    } else {
+      await leadFollowUpService.scheduleFollowUp(
+        lead._id.toString(),
+        { dueAt: parsedDate.toISOString() },
+        actor
+      );
+    }
+  } else {
+    // Clear follow-up -> Cancel active pending follow-up if present
+    const existingPending = await LeadFollowUp.findOne({
+      lead: lead._id,
+      status: 'PENDING'
+    });
+
+    if (existingPending) {
+      await leadFollowUpService.cancelFollowUp(
+        lead._id.toString(),
+        existingPending._id.toString(),
+        actor
+      );
+    } else if (lead.nextFollowUpAt) {
+      lead.nextFollowUpAt = null;
+      await lead.save();
+    }
   }
 
-  const previousFollowUpAt = lead.nextFollowUpAt;
-
-  // Check if identical to avoid duplicate activity noise
+  // Legacy Activity & SSE broadcast to preserve Phase 3B assertions
   const prevTime = previousFollowUpAt ? new Date(previousFollowUpAt).getTime() : null;
   const newTime = parsedDate ? parsedDate.getTime() : null;
-  const isChanged = prevTime !== newTime;
-
-  lead.nextFollowUpAt = parsedDate;
-  await lead.save();
-
-  if (isChanged) {
+  if (prevTime !== newTime) {
     await logActivity({
       action: 'lead_followup_updated',
       entityType: 'meta_lead',
@@ -1332,34 +1367,131 @@ const bulkArchiveLeads = async ({ mode, leadIds, filters }, actor) => {
   const leads = await resolveTargetLeadIds({ mode, leadIds, filters }, actor, { targetArchived: false });
   const targetIds = leads.map((l) => l._id);
   const now = new Date();
+  const actorId = actor?._id || actor?.id || null;
 
-  await Lead.updateMany(
-    { _id: { $in: targetIds } },
-    { $set: { archivedAt: now, archivedBy: actor?._id || null } }
-  );
+  let session = null;
+  let isStandaloneFallback = false;
 
-  const activities = leads.map((l) => ({
-    action: 'lead_archived',
-    entityType: 'meta_lead',
-    entityId: l._id,
-    entityName: `Lead ${l.metaLeadId || l._id}`,
-    actor: {
-      id: actor?._id || actor?.id || null,
-      name: actor?.name || 'Staff User',
-      email: actor?.email || '',
-      role: actor?.role || 'Staff'
-    },
-    metadata: {
-      archivedAt: now.toISOString()
+  try {
+    session = await mongoose.startSession();
+    session.startTransaction();
+  } catch (err) {
+    if (session) {
+      session.endSession();
+      session = null;
     }
-  }));
-  await Activity.insertMany(activities);
+    const isLocalFallbackAllowed =
+      process.env.ALLOW_STANDALONE_TX_FALLBACK === 'true' &&
+      process.env.NODE_ENV !== 'production';
 
+    if (isLocalFallbackAllowed) {
+      isStandaloneFallback = true;
+    } else {
+      const error = new Error('Database transaction service unavailable for bulk archive.');
+      error.statusCode = 503;
+      throw error;
+    }
+  }
+
+  let cancelledFollowUpCount = 0;
+
+  try {
+    const sessionOpt = session && !isStandaloneFallback ? { session } : undefined;
+
+    // 1. Archive ALL resolved target leads unconditionally, setting nextFollowUpAt = null
+    await Lead.updateMany(
+      { _id: { $in: targetIds } },
+      { $set: { archivedAt: now, archivedBy: actorId, nextFollowUpAt: null } },
+      sessionOpt
+    );
+
+    // 2. Prepare lead_archived activities
+    const leadActivities = leads.map((l) => ({
+      action: 'lead_archived',
+      entityType: 'meta_lead',
+      entityId: l._id,
+      entityName: `Lead ${l.metaLeadId || l._id}`,
+      actor: {
+        id: actorId,
+        name: actor?.name || 'Staff User',
+        email: actor?.email || '',
+        role: actor?.role || 'Staff'
+      },
+      metadata: {
+        archivedAt: now.toISOString()
+      }
+    }));
+
+    // 3. Find active pending follow-ups for all target leads in one single query
+    const pendingFollowUps = await LeadFollowUp.find(
+      { lead: { $in: targetIds }, status: 'PENDING' },
+      null,
+      sessionOpt
+    );
+
+    let followUpActivities = [];
+    if (pendingFollowUps.length > 0) {
+      cancelledFollowUpCount = pendingFollowUps.length;
+      await LeadFollowUp.updateMany(
+        { _id: { $in: pendingFollowUps.map((f) => f._id) } },
+        { $set: { status: 'CANCELLED', cancelledAt: now, cancelledBy: actorId } },
+        sessionOpt
+      );
+
+      followUpActivities = pendingFollowUps.map((f) => ({
+        action: 'lead_followup_cancelled',
+        entityType: 'meta_lead',
+        entityId: f.lead,
+        entityName: `Lead ${f.lead}`,
+        actor: {
+          id: actorId,
+          name: actor?.name || 'Staff User',
+          email: actor?.email || '',
+          role: actor?.role || 'Staff'
+        },
+        metadata: {
+          followUpId: f._id.toString(),
+          reason: 'lead_archived'
+        }
+      }));
+    }
+
+    const allActivities = [...leadActivities, ...followUpActivities];
+    if (session && !isStandaloneFallback) {
+      await Activity.insertMany(allActivities, { session });
+      await session.commitTransaction();
+    } else {
+      await Activity.insertMany(allActivities);
+    }
+  } catch (err) {
+    if (session && !isStandaloneFallback) {
+      try {
+        await session.abortTransaction();
+      } catch (e) {
+        // ignore
+      }
+    }
+    throw err;
+  } finally {
+    if (session) {
+      session.endSession();
+    }
+  }
+
+  // 4. Post-commit SSE emissions
   broadcastDashboardUpdate({
     type: 'LEADS_BULK_MUTATED',
     action: 'archived',
     count: targetIds.length
   });
+
+  if (cancelledFollowUpCount > 0) {
+    broadcastDashboardUpdate({
+      type: 'LEAD_FOLLOWUP_MUTATED',
+      action: 'bulk_cancelled',
+      count: cancelledFollowUpCount
+    });
+  }
 
   return {
     requestedCount: targetIds.length,
@@ -1741,7 +1873,8 @@ const convertLead = async (leadId, { conversionType, conversionTargetType, conve
         convertedBy: actorId,
         conversionType,
         conversionTargetType: rawTargetType,
-        conversionTargetId: rawTargetId
+        conversionTargetId: rawTargetId,
+        nextFollowUpAt: null
       }
     };
 
@@ -1756,6 +1889,38 @@ const convertLead = async (leadId, { conversionType, conversionTargetType, conve
       const error = new Error('Lead is already converted.');
       error.statusCode = 409;
       throw error;
+    }
+
+    // Check if an active PENDING follow-up exists on this lead to complete atomically
+    const pendingFollowUp = await LeadFollowUp.findOne(
+      { lead: leadId, status: 'PENDING' },
+      null,
+      session && !isStandaloneFallback ? { session } : undefined
+    );
+
+    let followUpActivity = null;
+    if (pendingFollowUp) {
+      pendingFollowUp.status = 'COMPLETED';
+      pendingFollowUp.completedAt = now;
+      pendingFollowUp.completedBy = actorId;
+      await pendingFollowUp.save({ session: session && !isStandaloneFallback ? session : undefined });
+
+      followUpActivity = {
+        action: 'lead_followup_completed',
+        entityType: 'meta_lead',
+        entityId: updatedLead._id,
+        entityName: `Lead ${updatedLead.metaLeadId || updatedLead._id}`,
+        actor: {
+          id: actorId,
+          name: actor?.name || 'Staff User',
+          email: actor?.email || '',
+          role: actor?.role || 'Staff'
+        },
+        metadata: {
+          followUpId: pendingFollowUp._id.toString(),
+          reason: 'lead_converted'
+        }
+      };
     }
 
     const activityData = {
@@ -1776,12 +1941,24 @@ const convertLead = async (leadId, { conversionType, conversionTargetType, conve
       }
     };
 
+    const allActivities = [activityData, ...(followUpActivity ? [followUpActivity] : [])];
+
     if (session && !isStandaloneFallback) {
-      await Activity.create([activityData], { session });
+      await Activity.insertMany(allActivities, { session });
       // Step 11: Commit Transaction
       await session.commitTransaction();
     } else {
-      await Activity.create(activityData);
+      await Activity.insertMany(allActivities);
+    }
+
+    if (pendingFollowUp) {
+      broadcastDashboardUpdate({
+        type: 'LEAD_FOLLOWUP_MUTATED',
+        entity: 'meta_lead',
+        entityId: leadId.toString(),
+        followUpId: pendingFollowUp._id.toString(),
+        action: 'completed'
+      });
     }
   } catch (mutationErr) {
     if (session && !isStandaloneFallback) {

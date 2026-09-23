@@ -14,6 +14,7 @@ export const ROUTES = {
   AGGREGATORS: '/aggregators',
   ESCALATIONS: '/escalations',
   USER_MANAGEMENT: '/users',
-  LEADS: '/leads'
+  LEADS: '/leads',
+  FOLLOW_UPS: '/follow-ups'
 };
 

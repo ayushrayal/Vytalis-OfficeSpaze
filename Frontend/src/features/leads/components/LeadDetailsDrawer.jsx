@@ -13,7 +13,11 @@ import {
   Trash2,
   History,
   ChevronDown,
-  CheckCircle2
+  ChevronUp,
+  CheckCircle2,
+  XCircle,
+  AlertTriangle,
+  Plus
 } from 'lucide-react';
 import { format, formatDistanceToNow, isValid } from 'date-fns';
 import DetailsDrawer from '../../../components/common/DetailsDrawer';
@@ -26,6 +30,7 @@ import {
   CONVERSION_TYPES_CONFIG
 } from '../constants/leads.constant';
 import ConvertLeadModal from './ConvertLeadModal';
+import FollowUpScheduleModal from './FollowUpScheduleModal';
 import usePermissions from '../../../hooks/usePermissions';
 import {
   useLead,
@@ -34,7 +39,10 @@ import {
   useUpdateLeadNotes,
   useUpdateLeadFollowUp,
   useLeadActivity,
-  useAssignableUsers
+  useAssignableUsers,
+  useLeadFollowUps,
+  useCompleteFollowUp,
+  useCancelFollowUp
 } from '../hooks/useLeads';
 
 const STATUS_CHOICES = STATUS_OPTIONS.filter((o) => o.value);
@@ -85,10 +93,26 @@ const getActivityTitle = (act) => {
       return `Status changed: ${meta.previousStatus || '—'} → ${meta.newStatus || '—'}`;
     case 'lead_note_updated':
       return 'CRM Note updated';
+    case 'lead_followup_scheduled':
+      return `Follow-up scheduled: ${formatTimestamp(meta.dueAt)}`;
+    case 'lead_followup_rescheduled':
+      return `Follow-up rescheduled: ${formatTimestamp(meta.dueAt)}`;
+    case 'lead_followup_completed':
+      return `Follow-up completed${meta.reason ? ` (${meta.reason.replace(/_/g, ' ')})` : ''}`;
+    case 'lead_followup_cancelled':
+      return `Follow-up cancelled${meta.reason ? ` (${meta.reason.replace(/_/g, ' ')})` : ''}`;
+    case 'lead_followup_missed':
+      return 'Follow-up marked missed';
     case 'lead_followup_updated':
       return meta.newFollowUpAt
         ? `Follow-up scheduled: ${formatTimestamp(meta.newFollowUpAt)}`
         : 'Follow-up schedule cleared';
+    case 'lead_converted':
+      return `Lead converted (${meta.conversionType || ''})`;
+    case 'lead_archived':
+      return 'Lead archived';
+    case 'lead_restored':
+      return 'Lead restored';
     default:
       return act.action ? act.action.replace(/_/g, ' ') : 'Lead updated';
   }
@@ -151,17 +175,21 @@ const LeadDetailsDrawer = ({
     setIsEditingNotes(false);
   }, [currentLead._id, currentLead.notes]);
 
-  // Local state for follow-up editing
-  const [isEditingFollowUp, setIsEditingFollowUp] = useState(false);
-  const [followUpInput, setFollowUpInput] = useState(formatToInputDate(currentLead.nextFollowUpAt));
+  // State for Follow-up modal & history toggle
+  const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [isRescheduleMode, setIsRescheduleMode] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+
+  const { data: followUpsRes, isLoading: isLoadingFollowUps } = useLeadFollowUps(leadId);
+  const followUpList = followUpsRes?.data || [];
+  const activeFollowUp = followUpList.find((f) => f.status === 'PENDING') || null;
+  const historicalFollowUps = followUpList.filter((f) => f.status !== 'PENDING');
+
+  const completeFollowUpMutation = useCompleteFollowUp();
+  const cancelFollowUpMutation = useCancelFollowUp();
 
   // State for Convert Lead modal
   const [isConvertModalOpen, setIsConvertModalOpen] = useState(false);
-
-  useEffect(() => {
-    setFollowUpInput(formatToInputDate(currentLead.nextFollowUpAt));
-    setIsEditingFollowUp(false);
-  }, [currentLead._id, currentLead.nextFollowUpAt]);
 
   const isConverted = currentLead.status === 'CONVERTED' && Boolean(currentLead.convertedAt);
   const isActive = !currentLead.archivedAt;
@@ -406,99 +434,201 @@ const LeadDetailsDrawer = ({
           <DetailRow label="Assigned By" value={assignedByName} />
           <DetailRow label="Assigned At" value={assignedAt} />
 
-          {/* ─── FOLLOW-UP SECTION ─── */}
+          {/* ─── PHASE 4B: DEDICATED FOLLOW-UP TASK SECTION ─── */}
           <div className="col-span-1 sm:col-span-2 border-t border-neutral-100 pt-3">
-            <div className="flex items-center justify-between mb-1.5">
-              <span className="text-xs text-neutral-500 font-medium">Next Follow-up</span>
-              {canUpdate && !isEditingFollowUp && (
-                <div className="flex items-center gap-2">
-                  {currentLead.nextFollowUpAt && (
-                    <button
-                      type="button"
-                      disabled={followUpMutation.isPending}
-                      onClick={() => {
-                        followUpMutation.mutate({ id: leadId, nextFollowUpAt: null });
-                      }}
-                      className="inline-flex items-center gap-1 text-xs font-semibold text-neutral-500 hover:text-rose-600 transition-colors cursor-pointer"
-                      title="Clear scheduled follow-up"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                      <span>Clear</span>
-                    </button>
-                  )}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setFollowUpInput(formatToInputDate(currentLead.nextFollowUpAt));
-                      setIsEditingFollowUp(true);
-                    }}
-                    className="inline-flex items-center gap-1 text-xs font-semibold text-neutral-700 hover:text-neutral-900 transition-colors cursor-pointer"
-                  >
-                    <Edit2 className="w-3 h-3" />
-                    <span>{currentLead.nextFollowUpAt ? 'Edit' : 'Schedule'}</span>
-                  </button>
-                </div>
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-1.5">
+                <Clock className="w-3.5 h-3.5 text-neutral-500" />
+                <span className="text-xs text-neutral-700 font-bold">Follow-up Task</span>
+              </div>
+              {canUpdate && !activeFollowUp && !currentLead.archivedAt && currentLead.status !== 'CONVERTED' && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsRescheduleMode(false);
+                    setIsScheduleModalOpen(true);
+                  }}
+                  className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-amber-50 text-amber-700 border border-amber-200/80 hover:bg-amber-100 transition-colors cursor-pointer"
+                >
+                  <Plus className="w-3 h-3" />
+                  <span>Schedule Follow-up</span>
+                </button>
               )}
             </div>
 
-            {canUpdate && isEditingFollowUp ? (
-              <div className="p-3 bg-neutral-50/80 rounded-xl border border-neutral-200 space-y-2.5">
-                <label className="text-[11px] font-semibold text-neutral-600 block">
-                  Select Follow-up Date & Time:
-                </label>
-                <div className="flex flex-wrap items-center gap-2">
-                  <input
-                    type="datetime-local"
-                    value={followUpInput}
-                    onChange={(e) => setFollowUpInput(e.target.value)}
-                    disabled={followUpMutation.isPending}
-                    className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-400 transition-all cursor-pointer"
-                  />
-                  <div className="flex items-center gap-1.5">
-                    <button
-                      type="button"
-                      disabled={followUpMutation.isPending}
-                      onClick={() => setIsEditingFollowUp(false)}
-                      className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-600 hover:bg-neutral-50 transition-colors cursor-pointer"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      disabled={followUpMutation.isPending || !followUpInput}
-                      onClick={() => {
-                        const parsed = new Date(followUpInput);
-                        if (!isValid(parsed)) return;
-                        followUpMutation.mutate(
-                          { id: leadId, nextFollowUpAt: parsed.toISOString() },
-                          {
-                            onSuccess: () => setIsEditingFollowUp(false)
-                          }
-                        );
-                      }}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-semibold rounded-xl bg-neutral-900 text-white hover:bg-neutral-800 transition-colors cursor-pointer disabled:opacity-50"
-                    >
-                      {followUpMutation.isPending ? (
-                        <RefreshCw className="w-3 h-3 animate-spin" />
-                      ) : (
-                        <Check className="w-3 h-3" />
+            {/* Active PENDING follow-up card */}
+            {activeFollowUp ? (
+              <div className="p-3.5 bg-gradient-to-br from-amber-50/50 via-white to-neutral-50/60 rounded-xl border border-amber-200/70 shadow-2xs space-y-2.5">
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                        <Clock className="w-3 h-3" />
+                        PENDING
+                      </span>
+                      {new Date(activeFollowUp.dueAt).getTime() < Date.now() && (
+                        <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-rose-100 text-rose-700 border border-rose-200 animate-pulse">
+                          OVERDUE
+                        </span>
                       )}
-                      <span>Save</span>
-                    </button>
+                    </div>
+                    <div className="text-xs font-bold text-neutral-900 mt-1">
+                      Due: {formatTimestamp(activeFollowUp.dueAt)}
+                    </div>
+                    <div className="text-[11px] text-neutral-500 font-medium">
+                      {formatRelativeTime(activeFollowUp.dueAt)}
+                    </div>
                   </div>
+
+                  {/* Quick Action buttons for pending task */}
+                  {canUpdate && (
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        disabled={completeFollowUpMutation.isPending || cancelFollowUpMutation.isPending}
+                        onClick={() =>
+                          completeFollowUpMutation.mutate({
+                            leadId,
+                            followUpId: activeFollowUp._id
+                          })
+                        }
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition-all cursor-pointer disabled:opacity-50"
+                        title="Mark follow-up as completed"
+                      >
+                        {completeFollowUpMutation.isPending ? (
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <CheckCircle2 className="w-3 h-3" />
+                        )}
+                        <span>Complete</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={completeFollowUpMutation.isPending || cancelFollowUpMutation.isPending}
+                        onClick={() => {
+                          setIsRescheduleMode(true);
+                          setIsScheduleModalOpen(true);
+                        }}
+                        className="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold rounded-lg bg-white border border-neutral-200 text-neutral-700 hover:bg-neutral-50 transition-all cursor-pointer disabled:opacity-50"
+                        title="Reschedule to another time"
+                      >
+                        <Clock className="w-3 h-3" />
+                        <span>Reschedule</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        disabled={completeFollowUpMutation.isPending || cancelFollowUpMutation.isPending}
+                        onClick={() =>
+                          cancelFollowUpMutation.mutate({
+                            leadId,
+                            followUpId: activeFollowUp._id
+                          })
+                        }
+                        className="inline-flex items-center gap-1 p-1 text-xs font-semibold rounded-lg text-neutral-400 hover:text-rose-600 hover:bg-rose-50 transition-all cursor-pointer disabled:opacity-50"
+                        title="Cancel follow-up"
+                      >
+                        {cancelFollowUpMutation.isPending ? (
+                          <RefreshCw className="w-3 h-3 animate-spin" />
+                        ) : (
+                          <X className="w-3.5 h-3.5" />
+                        )}
+                      </button>
+                    </div>
+                  )}
+                </div>
+
+                {activeFollowUp.notes && (
+                  <div className="text-xs text-neutral-700 bg-white/80 p-2.5 rounded-lg border border-amber-100">
+                    <span className="font-semibold text-neutral-800">Objective: </span>
+                    {activeFollowUp.notes}
+                  </div>
+                )}
+
+                <div className="text-[10px] text-neutral-400 flex items-center justify-between">
+                  <span>Created by {activeFollowUp.createdBy?.name || 'Staff'}</span>
+                  <span>{formatTimestamp(activeFollowUp.createdAt)}</span>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center gap-2.5">
-                <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${followUpCfg.badgeClass}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${followUpCfg.dotClass}`}></span>
-                  {followUpCfg.label}
+              <div className="p-3 bg-neutral-50 rounded-xl border border-dashed border-neutral-200 text-xs text-neutral-500 flex items-center justify-between">
+                <span>
+                  {currentLead.archivedAt
+                    ? 'Lead is archived. Restore the lead to schedule follow-ups.'
+                    : currentLead.status === 'CONVERTED'
+                    ? 'Lead is converted. New follow-ups cannot be scheduled.'
+                    : 'No active follow-up scheduled.'}
                 </span>
-                <span className="text-xs font-medium text-neutral-800">
-                  {nextFollowUp || <span className="text-neutral-400 italic">No follow-up scheduled</span>}
-                </span>
-                {followUpMutation.isPending && (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-neutral-400" />
+                {canUpdate && !currentLead.archivedAt && currentLead.status !== 'CONVERTED' && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsRescheduleMode(false);
+                      setIsScheduleModalOpen(true);
+                    }}
+                    className="text-amber-700 font-semibold hover:underline cursor-pointer"
+                  >
+                    + Schedule Now
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* Historical Follow-ups dropdown / toggle */}
+            {historicalFollowUps.length > 0 && (
+              <div className="mt-2.5">
+                <button
+                  type="button"
+                  onClick={() => setShowHistory((prev) => !prev)}
+                  className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-neutral-500 hover:text-neutral-800 transition-colors cursor-pointer"
+                >
+                  <History className="w-3 h-3" />
+                  <span>{showHistory ? 'Hide' : 'Show'} past follow-ups ({historicalFollowUps.length})</span>
+                  {showHistory ? (
+                    <ChevronUp className="w-3 h-3" />
+                  ) : (
+                    <ChevronDown className="w-3 h-3" />
+                  )}
+                </button>
+
+                {showHistory && (
+                  <div className="mt-2 space-y-2 max-h-48 overflow-y-auto pr-1">
+                    {historicalFollowUps.map((hf) => {
+                      const isComp = hf.status === 'COMPLETED';
+                      const isCanc = hf.status === 'CANCELLED';
+                      const isMiss = hf.status === 'MISSED';
+                      const badgeClass = isComp
+                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                        : isMiss
+                        ? 'bg-rose-50 text-rose-700 border-rose-200'
+                        : 'bg-neutral-100 text-neutral-600 border-neutral-200';
+
+                      return (
+                        <div
+                          key={hf._id}
+                          className="p-2.5 rounded-lg border border-neutral-100 bg-white text-xs space-y-1"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-bold border ${badgeClass}`}>
+                              {hf.status}
+                            </span>
+                            <span className="text-[10px] text-neutral-400">
+                              Due: {formatTimestamp(hf.dueAt)}
+                            </span>
+                          </div>
+                          {hf.notes && (
+                            <p className="text-[11px] text-neutral-600">{hf.notes}</p>
+                          )}
+                          <div className="text-[10px] text-neutral-400">
+                            {isComp && `Completed by ${hf.completedBy?.name || 'Staff'} • ${formatTimestamp(hf.completedAt)}`}
+                            {isCanc && `Cancelled by ${hf.cancelledBy?.name || 'Staff'} • ${formatTimestamp(hf.cancelledAt)}`}
+                            {isMiss && `Marked missed automatically • ${formatTimestamp(hf.updatedAt)}`}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 )}
               </div>
             )}
@@ -693,6 +823,14 @@ const LeadDetailsDrawer = ({
         isOpen={isConvertModalOpen}
         onClose={() => setIsConvertModalOpen(false)}
         lead={currentLead}
+      />
+
+      <FollowUpScheduleModal
+        isOpen={isScheduleModalOpen}
+        onClose={() => setIsScheduleModalOpen(false)}
+        leadId={leadId}
+        existingFollowUp={activeFollowUp}
+        isReschedule={isRescheduleMode}
       />
     </DetailsDrawer>
   );

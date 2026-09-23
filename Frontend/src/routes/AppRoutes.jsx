@@ -20,6 +20,7 @@ import AggregatorsPage from '../features/aggregators/pages/AggregatorsPage';
 import EscalationsPage from '../features/escalations/pages/EscalationsPage';
 import UsersPage from '../features/users/pages/UsersPage';
 import LeadsPage from '../features/leads/pages/LeadsPage';
+import FollowUpsPage from '../features/leads/pages/FollowUpsPage';
 
 const AppRoutes = () => {
   return (
@@ -130,6 +131,14 @@ const AppRoutes = () => {
             element={
               <PermissionRoute module="meta_leads" action="view">
                 <LeadsPage />
+              </PermissionRoute>
+            }
+          />
+          <Route
+            path={ROUTES.FOLLOW_UPS}
+            element={
+              <PermissionRoute module="meta_leads" action="view">
+                <FollowUpsPage />
               </PermissionRoute>
             }
           />

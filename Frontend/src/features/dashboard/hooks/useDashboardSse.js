@@ -57,6 +57,19 @@ export const useDashboardSse = () => {
             queryClient.invalidateQueries({ queryKey: ['leadActivity', eventPayload.entityId] });
           }
         }
+
+        // Invalidate follow-ups when follow-up mutation arrives
+        if (eventType === 'LEAD_FOLLOWUP_MUTATED') {
+          queryClient.invalidateQueries({ queryKey: ['followUps'] });
+          queryClient.invalidateQueries({ queryKey: ['followUpMetrics'] });
+          queryClient.invalidateQueries({ queryKey: ['leads'] });
+          queryClient.invalidateQueries({ queryKey: ['leadStats'] });
+          if (eventPayload?.entityId) {
+            queryClient.invalidateQueries({ queryKey: ['lead', eventPayload.entityId] });
+            queryClient.invalidateQueries({ queryKey: ['leadFollowUps', eventPayload.entityId] });
+            queryClient.invalidateQueries({ queryKey: ['leadActivity', eventPayload.entityId] });
+          }
+        }
       };
 
       eventSource.addEventListener('dashboard_update', handleDashboardUpdate);
