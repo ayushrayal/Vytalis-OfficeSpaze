@@ -17,6 +17,8 @@ import {
   useUpdateOperationBill,
   useDeleteOperationBill
 } from '../hooks';
+import { getReceiptAccess } from '../services/operationBills.service';
+import { toast } from 'sonner';
 import {
   filterOperationBills,
   extractUniqueExpenseTypes
@@ -111,6 +113,31 @@ const OperationBillsPage = () => {
     });
   };
 
+  const handleOpenReceiptPreview = async (itemOrReceipt) => {
+    if (!itemOrReceipt) return;
+
+    const billId = itemOrReceipt.id || itemOrReceipt._id;
+    const fileName =
+      itemOrReceipt.receipt?.fileName ||
+      itemOrReceipt.fileName ||
+      'Receipt Document';
+
+    if (billId) {
+      try {
+        const access = await getReceiptAccess(billId);
+        if (access?.url) {
+          setPreviewReceipt({ fileName, url: access.url });
+        } else {
+          toast.error('Could not obtain document access URL');
+        }
+      } catch (err) {
+        toast.error(err.response?.data?.message || 'Failed to access receipt document');
+      }
+    } else if (itemOrReceipt.url) {
+      setPreviewReceipt(itemOrReceipt);
+    }
+  };
+
   return (
     <div ref={containerRef} className="p-4 sm:p-6 md:p-8 max-w-[1600px] mx-auto font-urbanist">
       {/* Header */}
@@ -170,7 +197,7 @@ const OperationBillsPage = () => {
               bills={filteredBills}
               onEdit={(bill) => setEditingBill(bill)}
               onDelete={(bill) => setDeletingBill(bill)}
-              onViewReceipt={(receipt) => setPreviewReceipt(receipt)}
+              onViewReceipt={handleOpenReceiptPreview}
               onSelectRecord={setSelectedBill}
             />
           ) : (
@@ -189,7 +216,7 @@ const OperationBillsPage = () => {
         bill={selectedBill}
         onEdit={(bill) => setEditingBill(bill)}
         onDelete={(bill) => setDeletingBill(bill)}
-        onViewReceipt={(receipt) => setPreviewReceipt(receipt)}
+        onViewReceipt={handleOpenReceiptPreview}
       />
 
       {/* Add Modal */}
@@ -207,7 +234,7 @@ const OperationBillsPage = () => {
         initialData={editingBill}
         onSubmit={handleEditSubmit}
         isLoading={updateMutation.isPending}
-        onViewExistingReceipt={(receipt) => setPreviewReceipt(receipt)}
+        onViewExistingReceipt={handleOpenReceiptPreview}
       />
 
       {/* Delete Modal */}

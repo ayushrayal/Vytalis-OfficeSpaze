@@ -221,7 +221,7 @@ const UtilityBillForm = ({
         </h4>
 
         {/* Existing Receipt Display in Edit Mode */}
-        {isEditMode && initialData?.receipt?.url && (
+        {isEditMode && Boolean(initialData?.receipt?.available || initialData?.receipt?.url || initialData?.receipt?.fileName) && (
           <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-xl flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <FileText className="w-4 h-4 text-brand-red shrink-0" />
@@ -237,7 +237,7 @@ const UtilityBillForm = ({
             {onPreviewReceipt && (
               <button
                 type="button"
-                onClick={() => onPreviewReceipt(initialData.receipt)}
+                onClick={() => onPreviewReceipt(initialData)}
                 className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-neutral-200 hover:border-black text-black text-xs font-semibold transition-all shrink-0 cursor-pointer"
               >
                 <ExternalLink className="w-3 h-3" />
@@ -250,7 +250,7 @@ const UtilityBillForm = ({
         {/* File Input Box */}
         <div>
           <label className="block text-xs font-semibold text-black mb-1">
-            {isEditMode && initialData?.receipt?.url
+            {isEditMode && Boolean(initialData?.receipt?.available || initialData?.receipt?.url || initialData?.receipt?.fileName)
               ? 'Replace Receipt File'
               : 'Upload Receipt File'}
           </label>

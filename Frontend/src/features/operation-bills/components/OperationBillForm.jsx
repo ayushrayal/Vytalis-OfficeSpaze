@@ -178,7 +178,7 @@ const OperationBillForm = ({
           </p>
 
           {/* Existing receipt notification during edit */}
-          {isEditMode && existingReceipt && (existingReceipt.url || existingReceipt.fileName) && (
+          {isEditMode && existingReceipt && (existingReceipt.available || existingReceipt.url || existingReceipt.fileName) && (
             <div className="mb-3 p-3 bg-[#F5F0EB]/60 border border-[#E5E5E5] rounded-xl flex items-center justify-between">
               <div className="flex items-center gap-2 min-w-0">
                 <Paperclip className="w-4 h-4 text-[#000000] shrink-0" />
@@ -188,7 +188,7 @@ const OperationBillForm = ({
               </div>
               <button
                 type="button"
-                onClick={() => onViewExistingReceipt && onViewExistingReceipt(existingReceipt)}
+                onClick={() => onViewExistingReceipt && onViewExistingReceipt(initialData)}
                 className="text-xs text-[#ED1F23] font-semibold hover:underline shrink-0 ml-2"
               >
                 View

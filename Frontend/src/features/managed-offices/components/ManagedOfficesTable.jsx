@@ -143,12 +143,12 @@ const ManagedOfficesTable = ({
 
                   {/* 12. Agreement */}
                   <td className="py-3.5 px-4 whitespace-nowrap">
-                    {office.agreement?.url ? (
+                    {office.agreement?.available || office.agreement?.url ? (
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onPreviewAgreement(office.agreement);
+                          onPreviewAgreement(office);
                         }}
                         className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-red hover:underline cursor-pointer"
                       >

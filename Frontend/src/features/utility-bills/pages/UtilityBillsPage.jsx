@@ -20,6 +20,8 @@ import DeleteUtilityBillModal from '../components/DeleteUtilityBillModal';
 import PauseUtilityBillModal from '../components/PauseUtilityBillModal';
 import ReceiptPreview from '../components/ReceiptPreview';
 import UtilityBillDetailsDrawer from '../components/UtilityBillDetailsDrawer';
+import { getReceiptAccess } from '../services/utilityBills.service';
+import { toast } from 'sonner';
 
 const UtilityBillsPage = () => {
   const { data: utilityBills = [], isLoading, isError, refetch, isFetching } = useUtilityBills();
@@ -125,9 +127,29 @@ const UtilityBillsPage = () => {
     setPausingBill(null);
   };
 
-  const handleOpenReceiptPreview = (receipt) => {
-    if (receipt && receipt.url) {
-      setPreviewReceipt(receipt);
+  const handleOpenReceiptPreview = async (itemOrReceipt) => {
+    if (!itemOrReceipt) return;
+
+    const billId = itemOrReceipt.id || itemOrReceipt._id;
+    const fileName =
+      itemOrReceipt.receipt?.fileName ||
+      itemOrReceipt.fileName ||
+      'Receipt Document';
+
+    if (billId) {
+      try {
+        const access = await getReceiptAccess(billId);
+        if (access?.url) {
+          setPreviewReceipt({ fileName, url: access.url });
+          setIsPreviewModalOpen(true);
+        } else {
+          toast.error('Could not obtain document access URL');
+        }
+      } catch (err) {
+        toast.error(err.response?.data?.message || 'Failed to access receipt document');
+      }
+    } else if (itemOrReceipt.url) {
+      setPreviewReceipt(itemOrReceipt);
       setIsPreviewModalOpen(true);
     }
   };

@@ -483,7 +483,7 @@ const VirtualOfficeForm = ({
         </h4>
 
         {/* Existing Agreement Display in Edit Mode */}
-        {isEditMode && initialData?.agreement?.url && (
+        {isEditMode && Boolean(initialData?.agreement?.available || initialData?.agreement?.url || initialData?.agreement?.fileName) && (
           <div className="p-3 bg-neutral-50 border border-neutral-200 rounded-xl flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <FileText className="w-4 h-4 text-brand-red shrink-0" />
@@ -499,7 +499,7 @@ const VirtualOfficeForm = ({
             {onPreviewAgreement && (
               <button
                 type="button"
-                onClick={() => onPreviewAgreement(initialData.agreement)}
+                onClick={() => onPreviewAgreement(initialData)}
                 className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg bg-white border border-neutral-200 hover:border-black text-black text-xs font-semibold transition-all shrink-0 cursor-pointer"
               >
                 <ExternalLink className="w-3 h-3" />
@@ -512,7 +512,7 @@ const VirtualOfficeForm = ({
         {/* File Input Box */}
         <div>
           <label className="block text-xs font-semibold text-black mb-1">
-            {isEditMode && initialData?.agreement?.url
+            {isEditMode && Boolean(initialData?.agreement?.available || initialData?.agreement?.url || initialData?.agreement?.fileName)
               ? 'Replace Agreement File'
               : 'Upload Agreement File'}
           </label>

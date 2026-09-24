@@ -27,7 +27,7 @@ const OperationBillsTable = ({
           <tbody className="divide-y divide-[#E5E5E5] text-sm text-[#000000]">
             {bills.map((bill) => {
               const id = bill.id || bill._id;
-              const hasReceipt = bill.receipt && (bill.receipt.url || bill.receipt.fileName);
+              const hasReceipt = bill.receipt && (bill.receipt.available || bill.receipt.url || bill.receipt.fileName);
 
               return (
                 <tr
@@ -72,7 +72,7 @@ const OperationBillsTable = ({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onViewReceipt(bill.receipt);
+                          onViewReceipt(bill);
                         }}
                         className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-black/5 hover:bg-[#000000] hover:text-white text-xs font-medium text-[#000000] transition-all max-w-[160px]"
                         title="View Attached Receipt"

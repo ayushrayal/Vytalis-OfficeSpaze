@@ -23,6 +23,8 @@ import VirtualOfficeModal from '../../virtual-offices/components/VirtualOfficeMo
 import DeleteVirtualOfficeModal from '../../virtual-offices/components/DeleteVirtualOfficeModal';
 import { useUpdateVirtualOffice } from '../../virtual-offices/hooks/useUpdateVirtualOffice';
 import { useDeleteVirtualOffice } from '../../virtual-offices/hooks/useDeleteVirtualOffice';
+import { getAgreementAccess } from '../../virtual-offices/services/virtualOffices.service';
+import { toast } from 'sonner';
 
 const AggregatorsPage = () => {
   const { data: aggregators = [], isLoading, isError, refetch, isFetching } = useAggregators();
@@ -138,9 +140,29 @@ const AggregatorsPage = () => {
     setSelectedVirtualOffice(office);
   };
 
-  const handleOpenAgreementPreview = (agreement) => {
-    if (agreement && agreement.url) {
-      setPreviewAgreement(agreement);
+  const handleOpenAgreementPreview = async (itemOrAgreement) => {
+    if (!itemOrAgreement) return;
+
+    const officeId = itemOrAgreement.id || itemOrAgreement._id;
+    const fileName =
+      itemOrAgreement.agreement?.fileName ||
+      itemOrAgreement.fileName ||
+      'Agreement Document';
+
+    if (officeId) {
+      try {
+        const access = await getAgreementAccess(officeId);
+        if (access?.url) {
+          setPreviewAgreement({ fileName, url: access.url });
+          setIsPreviewModalOpen(true);
+        } else {
+          toast.error('Could not obtain document access URL');
+        }
+      } catch (err) {
+        toast.error(err.response?.data?.message || 'Failed to access agreement document');
+      }
+    } else if (itemOrAgreement.url) {
+      setPreviewAgreement(itemOrAgreement);
       setIsPreviewModalOpen(true);
     }
   };

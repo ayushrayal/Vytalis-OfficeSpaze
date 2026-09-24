@@ -9,6 +9,7 @@ router.use(authMiddleware);
 
 router.post('/', requirePermission('operation_bills', 'create'), uploadOperationBillReceiptMiddleware, operationBillController.createOperationBill);
 router.get('/', requirePermission('operation_bills', 'view'), operationBillController.getOperationBills);
+router.get('/:id/receipt/access', requirePermission('operation_bills', 'view'), operationBillController.getReceiptAccess);
 router.get('/:id', requirePermission('operation_bills', 'view'), operationBillController.getOperationBill);
 router.put('/:id', requirePermission('operation_bills', 'update'), uploadOperationBillReceiptMiddleware, operationBillController.updateOperationBill);
 router.delete('/:id', requirePermission('operation_bills', 'delete'), operationBillController.deleteOperationBill);

@@ -1,5 +1,35 @@
 const mongoose = require('mongoose');
 
+const receiptSchema = new mongoose.Schema(
+  {
+    url: {
+      type: String,
+      default: null
+    },
+    fileId: {
+      type: String,
+      required: true
+    },
+    fileName: {
+      type: String,
+      required: true
+    },
+    filePath: {
+      type: String,
+      default: null
+    },
+    mimeType: {
+      type: String,
+      default: null
+    },
+    size: {
+      type: Number,
+      default: null
+    }
+  },
+  { _id: false }
+);
+
 const operationBillSchema = new mongoose.Schema(
   {
     date: {
@@ -12,11 +42,7 @@ const operationBillSchema = new mongoose.Schema(
       trim: true
     },
     receipt: {
-      type: {
-        url: { type: String, required: true },
-        fileId: { type: String, required: true },
-        fileName: { type: String, required: true }
-      },
+      type: receiptSchema,
       default: null
     },
     uploadedBy: {
@@ -34,7 +60,26 @@ const operationBillSchema = new mongoose.Schema(
     }
   },
   {
-    timestamps: true
+    timestamps: true,
+    toJSON: {
+      transform(doc, ret) {
+        ret.id = ret._id;
+        delete ret._id;
+        delete ret.__v;
+
+        // Response sanitization: never expose permanent document URLs or storage paths
+        if (ret.receipt) {
+          ret.receipt = {
+            fileName: ret.receipt.fileName,
+            available: true
+          };
+        } else {
+          ret.receipt = null;
+        }
+
+        return ret;
+      }
+    }
   }
 );
 

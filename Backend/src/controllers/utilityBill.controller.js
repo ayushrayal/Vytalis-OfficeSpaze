@@ -1,5 +1,7 @@
+const mongoose = require('mongoose');
 const utilityBillService = require('../services/utilityBill.service');
 const activityService = require('../services/activity.service');
+const imagekitProvider = require('../providers/imagekit.provider');
 const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const createUtilityBill = async (req, res, next) => {
@@ -253,11 +255,61 @@ const deleteUtilityBill = async (req, res, next) => {
   }
 };
 
+const getReceiptAccess = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid ID format'
+      });
+    }
+
+    const bill = await utilityBillService.getUtilityBillById(id);
+    if (!bill) {
+      return res.status(404).json({
+        success: false,
+        message: 'Utility bill not found'
+      });
+    }
+
+    if (!bill.receipt || (!bill.receipt.filePath && !bill.receipt.url)) {
+      return res.status(404).json({
+        success: false,
+        message: 'No receipt document found for this utility bill'
+      });
+    }
+
+    const accessData = imagekitProvider.generateSignedDocumentUrl({
+      filePath: bill.receipt.filePath,
+      url: bill.receipt.url
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Document access granted',
+      data: {
+        url: accessData.url,
+        expiresAt: accessData.expiresAt
+      }
+    });
+  } catch (error) {
+    if (error.statusCode === 404) {
+      return res.status(404).json({
+        success: false,
+        message: error.message || 'Utility bill not found'
+      });
+    }
+    next(error);
+  }
+};
+
 module.exports = {
   createUtilityBill,
   getUtilityBills,
   getDueBills,
   getUtilityBill,
   updateUtilityBill,
-  deleteUtilityBill
+  deleteUtilityBill,
+  getReceiptAccess
 };

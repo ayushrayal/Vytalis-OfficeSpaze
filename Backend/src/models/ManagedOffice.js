@@ -4,7 +4,7 @@ const agreementSchema = new mongoose.Schema(
   {
     url: {
       type: String,
-      required: true
+      default: null
     },
     fileId: {
       type: String,
@@ -13,6 +13,18 @@ const agreementSchema = new mongoose.Schema(
     fileName: {
       type: String,
       required: true
+    },
+    filePath: {
+      type: String,
+      default: null
+    },
+    mimeType: {
+      type: String,
+      default: null
+    },
+    size: {
+      type: Number,
+      default: null
     }
   },
   { _id: false }
@@ -100,6 +112,17 @@ const managedOfficeSchema = new mongoose.Schema(
         ret.id = ret._id;
         delete ret._id;
         delete ret.__v;
+
+        // Response sanitization: never expose permanent document URLs or storage paths
+        if (ret.agreement) {
+          ret.agreement = {
+            fileName: ret.agreement.fileName,
+            available: true
+          };
+        } else {
+          ret.agreement = null;
+        }
+
         return ret;
       }
     }

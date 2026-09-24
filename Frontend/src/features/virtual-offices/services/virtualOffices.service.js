@@ -73,10 +73,16 @@ export const deleteVirtualOffice = async (id) => {
   return response.data;
 };
 
+export const getAgreementAccess = async (id) => {
+  const response = await api.get(`/virtual-offices/${id}/agreement/access`);
+  return response.data?.data;
+};
+
 export default {
   getVirtualOffices,
   getVirtualOffice,
   createVirtualOffice,
   updateVirtualOffice,
-  deleteVirtualOffice
+  deleteVirtualOffice,
+  getAgreementAccess
 };

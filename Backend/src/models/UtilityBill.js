@@ -4,7 +4,7 @@ const receiptSchema = new mongoose.Schema(
   {
     url: {
       type: String,
-      required: true
+      default: null
     },
     fileId: {
       type: String,
@@ -13,6 +13,18 @@ const receiptSchema = new mongoose.Schema(
     fileName: {
       type: String,
       required: true
+    },
+    filePath: {
+      type: String,
+      default: null
+    },
+    mimeType: {
+      type: String,
+      default: null
+    },
+    size: {
+      type: Number,
+      default: null
     }
   },
   { _id: false }
@@ -70,6 +82,17 @@ const utilityBillSchema = new mongoose.Schema(
         ret.id = ret._id;
         delete ret._id;
         delete ret.__v;
+
+        // Response sanitization: never expose permanent document URLs or storage paths
+        if (ret.receipt) {
+          ret.receipt = {
+            fileName: ret.receipt.fileName,
+            available: true
+          };
+        } else {
+          ret.receipt = null;
+        }
+
         return ret;
       }
     }

@@ -10,6 +10,7 @@ router.use(authMiddleware);
 
 router.post('/', requirePermission('virtual_offices', 'create'), uploadAgreementMiddleware, virtualOfficeController.createVirtualOffice);
 router.get('/', requirePermission('virtual_offices', 'view'), virtualOfficeController.getVirtualOffices);
+router.get('/:id/agreement/access', requirePermission('virtual_offices', 'view'), virtualOfficeController.getAgreementAccess);
 router.get('/:id', requirePermission('virtual_offices', 'view'), virtualOfficeController.getVirtualOffice);
 router.put('/:id', requirePermission('virtual_offices', 'update'), uploadAgreementMiddleware, virtualOfficeController.updateVirtualOffice);
 router.delete('/:id', requirePermission('virtual_offices', 'delete'), virtualOfficeController.deleteVirtualOffice);

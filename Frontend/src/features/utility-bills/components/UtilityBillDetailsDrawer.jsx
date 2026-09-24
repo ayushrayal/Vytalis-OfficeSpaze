@@ -25,15 +25,17 @@ const UtilityBillDetailsDrawer = ({
     ? format(new Date(bill.updatedAt), 'dd MMM yyyy, HH:mm')
     : 'Not provided';
 
+  const hasReceipt = Boolean(bill.receipt?.available || bill.receipt?.url || bill.receipt?.fileName);
+
   const footerActions = (
     <div className="flex flex-wrap items-center justify-between w-full gap-2.5 sm:gap-3">
       <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-        {bill.receipt?.url && (
+        {hasReceipt && (
           <button
             type="button"
             onClick={() => {
               onClose();
-              onViewReceipt && onViewReceipt(bill.receipt);
+              onViewReceipt && onViewReceipt(bill);
             }}
             className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-2.5 rounded-xl bg-neutral-100 text-neutral-800 text-xs font-semibold hover:bg-neutral-200 transition-all border border-neutral-200 cursor-pointer"
           >
@@ -124,13 +126,15 @@ const UtilityBillDetailsDrawer = ({
           value={bill.isPaused ? 'Paused Series' : 'Active Recurring'}
           badgeVariant={bill.isPaused ? 'paused' : 'active'}
         />
-        {bill.receipt?.url && (
+        {hasReceipt && (
           <DetailRow
             label="Attached Receipt"
             value="View Receipt File"
             isDocument
-            documentUrl={bill.receipt.url}
-            documentName={bill.receipt.originalName || 'Utility Bill Receipt'}
+            onDocumentClick={() => {
+              onViewReceipt && onViewReceipt(bill);
+            }}
+            documentName={bill.receipt.fileName || bill.receipt.originalName || 'Utility Bill Receipt'}
             fullWidth
           />
         )}

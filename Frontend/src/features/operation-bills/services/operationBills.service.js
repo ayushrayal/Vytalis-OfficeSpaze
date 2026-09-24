@@ -59,10 +59,16 @@ export const deleteOperationBill = async (id) => {
   return response.data;
 };
 
+export const getReceiptAccess = async (id) => {
+  const response = await api.get(`/operation-bills/${id}/receipt/access`);
+  return response.data?.data;
+};
+
 export default {
   getOperationBills,
   getOperationBill,
   createOperationBill,
   updateOperationBill,
-  deleteOperationBill
+  deleteOperationBill,
+  getReceiptAccess
 };

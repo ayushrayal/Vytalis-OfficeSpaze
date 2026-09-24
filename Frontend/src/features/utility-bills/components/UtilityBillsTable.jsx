@@ -105,12 +105,12 @@ const UtilityBillsTable = ({
 
                   {/* 6. Receipt */}
                   <td className="py-3.5 px-4 whitespace-nowrap">
-                    {bill.receipt?.url ? (
+                    {bill.receipt?.available || bill.receipt?.url ? (
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onPreviewReceipt(bill.receipt);
+                          onPreviewReceipt(bill);
                         }}
                         className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-red hover:underline cursor-pointer"
                       >

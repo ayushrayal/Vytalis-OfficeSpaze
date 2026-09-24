@@ -1,5 +1,7 @@
+const mongoose = require('mongoose');
 const virtualOfficeService = require('../services/virtualOffice.service');
 const activityService = require('../services/activity.service');
+const imagekitProvider = require('../providers/imagekit.provider');
 const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -387,10 +389,60 @@ const deleteVirtualOffice = async (req, res, next) => {
   }
 };
 
+const getAgreementAccess = async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid ID format'
+      });
+    }
+
+    const office = await virtualOfficeService.getVirtualOfficeById(id);
+    if (!office) {
+      return res.status(404).json({
+        success: false,
+        message: 'Virtual office not found'
+      });
+    }
+
+    if (!office.agreement || (!office.agreement.filePath && !office.agreement.url)) {
+      return res.status(404).json({
+        success: false,
+        message: 'No agreement document found for this virtual office'
+      });
+    }
+
+    const accessData = imagekitProvider.generateSignedDocumentUrl({
+      filePath: office.agreement.filePath,
+      url: office.agreement.url
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Document access granted',
+      data: {
+        url: accessData.url,
+        expiresAt: accessData.expiresAt
+      }
+    });
+  } catch (error) {
+    if (error.statusCode === 404) {
+      return res.status(404).json({
+        success: false,
+        message: error.message || 'Virtual office not found'
+      });
+    }
+    next(error);
+  }
+};
+
 module.exports = {
   createVirtualOffice,
   getVirtualOffices,
   getVirtualOffice,
   updateVirtualOffice,
-  deleteVirtualOffice
+  deleteVirtualOffice,
+  getAgreementAccess
 };

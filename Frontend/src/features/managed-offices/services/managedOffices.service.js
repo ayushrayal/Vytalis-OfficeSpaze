@@ -74,10 +74,16 @@ export const deleteManagedOffice = async (id) => {
   return response.data;
 };
 
+export const getAgreementAccess = async (id) => {
+  const response = await api.get(`/managed-offices/${id}/agreement/access`);
+  return response.data?.data;
+};
+
 export default {
   getManagedOffices,
   getManagedOffice,
   createManagedOffice,
   updateManagedOffice,
-  deleteManagedOffice
+  deleteManagedOffice,
+  getAgreementAccess
 };

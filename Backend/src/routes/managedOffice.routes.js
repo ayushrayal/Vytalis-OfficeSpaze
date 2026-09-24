@@ -10,6 +10,7 @@ router.use(authMiddleware);
 
 router.post('/', requirePermission('managed_offices', 'create'), uploadAgreementMiddleware, managedOfficeController.createManagedOffice);
 router.get('/', requirePermission('managed_offices', 'view'), managedOfficeController.getManagedOffices);
+router.get('/:id/agreement/access', requirePermission('managed_offices', 'view'), managedOfficeController.getAgreementAccess);
 router.get('/:id', requirePermission('managed_offices', 'view'), managedOfficeController.getManagedOffice);
 router.put('/:id', requirePermission('managed_offices', 'update'), uploadAgreementMiddleware, managedOfficeController.updateManagedOffice);
 router.delete('/:id', requirePermission('managed_offices', 'delete'), managedOfficeController.deleteManagedOffice);

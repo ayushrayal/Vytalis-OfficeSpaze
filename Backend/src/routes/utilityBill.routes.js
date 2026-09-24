@@ -14,6 +14,7 @@ router.get('/', requirePermission('utility_bills', 'view'), utilityBillControlle
 // Define /due route BEFORE /:id so Express does not treat "due" as an ID
 router.get('/due', requirePermission('utility_bills', 'view'), utilityBillController.getDueBills);
 
+router.get('/:id/receipt/access', requirePermission('utility_bills', 'view'), utilityBillController.getReceiptAccess);
 router.get('/:id', requirePermission('utility_bills', 'view'), utilityBillController.getUtilityBill);
 router.put('/:id', requirePermission('utility_bills', 'update'), uploadReceiptMiddleware, utilityBillController.updateUtilityBill);
 router.delete('/:id', requirePermission('utility_bills', 'delete'), utilityBillController.deleteUtilityBill);

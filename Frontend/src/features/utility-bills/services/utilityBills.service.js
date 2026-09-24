@@ -64,11 +64,17 @@ export const deleteUtilityBill = async (id) => {
   return response.data;
 };
 
+export const getReceiptAccess = async (id) => {
+  const response = await api.get(`/utility-bills/${id}/receipt/access`);
+  return response.data?.data;
+};
+
 export default {
   getUtilityBills,
   getDueUtilityBills,
   getUtilityBill,
   createUtilityBill,
   updateUtilityBill,
-  deleteUtilityBill
+  deleteUtilityBill,
+  getReceiptAccess
 };

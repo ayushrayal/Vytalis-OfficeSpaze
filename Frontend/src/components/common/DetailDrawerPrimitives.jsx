@@ -75,6 +75,7 @@ export const DetailRow = ({
   isDocument = false,
   documentUrl = null,
   documentName = null,
+  onDocumentClick = null,
   isCode = false,
   isMultiline = false,
   badgeVariant = null,
@@ -134,7 +135,20 @@ export const DetailRow = ({
       );
     }
 
-    if (isDocument && documentUrl) {
+    if (isDocument && (onDocumentClick || documentUrl)) {
+      if (onDocumentClick) {
+        return (
+          <button
+            type="button"
+            onClick={onDocumentClick}
+            className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-neutral-100 text-neutral-800 text-xs font-semibold hover:bg-neutral-200 transition-all border border-neutral-200 cursor-pointer"
+          >
+            <FileText className="w-4 h-4 text-[#ED1F23]" />
+            <span className="truncate max-w-[180px]">{documentName || 'View Document'}</span>
+            <ExternalLink className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+          </button>
+        );
+      }
       return (
         <a
           href={documentUrl}
