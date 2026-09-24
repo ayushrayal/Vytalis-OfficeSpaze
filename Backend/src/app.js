@@ -25,6 +25,25 @@ const errorMiddleware = require('./middleware/error.middleware');
 
 const app = express();
 
+// Trust Proxy Configuration
+// Explicitly configured via TRUST_PROXY env variable (e.g. TRUST_PROXY=1 on Render).
+// Defaults to false to prevent IP spoofing in local development and unconfigured environments.
+// Never uses boolean true to avoid trusting arbitrary client-supplied proxy chains.
+const rawTrustProxy = process.env.TRUST_PROXY;
+let trustProxyConfig = false;
+
+if (rawTrustProxy !== undefined && rawTrustProxy !== 'false' && rawTrustProxy !== '') {
+  const parsedHops = Number(rawTrustProxy);
+  if (!Number.isNaN(parsedHops) && parsedHops > 0) {
+    trustProxyConfig = parsedHops;
+  } else {
+    // Safe fallback: clamp to 1 hop if someone specifies non-numeric string or 'true'
+    trustProxyConfig = 1;
+  }
+}
+
+app.set('trust proxy', trustProxyConfig);
+
 // Core Middleware
 const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173,http://localhost:5174,http://localhost:5000')
   .split(',')
