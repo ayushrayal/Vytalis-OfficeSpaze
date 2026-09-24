@@ -44,7 +44,8 @@ app.use(
       }
       return callback(null, false);
     },
-    credentials: true
+    credentials: true,
+    exposedHeaders: ['Retry-After', 'RateLimit', 'RateLimit-Policy']
   })
 );
 app.use(express.json());

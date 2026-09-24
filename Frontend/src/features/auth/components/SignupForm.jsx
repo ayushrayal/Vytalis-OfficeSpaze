@@ -4,11 +4,18 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { User, Mail, Key, Loader2, ArrowRight } from 'lucide-react';
+import { User, Mail, Key, Loader2, ArrowRight, Clock } from 'lucide-react';
 import { gsap } from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useAuth } from '../hooks/useAuth';
+import {
+  useRateLimitCooldown,
+  extractRetryAfterSeconds,
+  extractRateLimitPolicy,
+  extractRateLimitRemaining
+} from '../hooks/useRateLimitCooldown';
 import PasswordInput from './PasswordInput';
+import RateLimitAlert from './RateLimitAlert';
 import { ROUTES } from '../../../routes/routeConfig';
 
 const signupSchema = z
@@ -39,6 +46,15 @@ const SignupForm = () => {
   const [serverError, setServerError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const containerRef = useRef(null);
+
+  const {
+    isRateLimited,
+    secondsRemaining,
+    formattedCountdown,
+    policyText,
+    remainingAttempts,
+    startCooldown
+  } = useRateLimitCooldown();
 
   const {
     register,
@@ -73,6 +89,7 @@ const SignupForm = () => {
   );
 
   const onSubmit = async (data) => {
+    if (isRateLimited) return;
     setServerError('');
     setIsSubmitting(true);
 
@@ -99,11 +116,20 @@ const SignupForm = () => {
         toast.error(msg);
       }
     } catch (error) {
-      const message =
-        error.response?.data?.message ||
-        'Unable to complete registration. Please check your credentials or access code.';
-      setServerError(message);
-      toast.error(message);
+      if (error.response?.status === 429) {
+        const retryAfterSecs = extractRetryAfterSeconds(error);
+        const policy = extractRateLimitPolicy(error, 'signup');
+        const remaining = extractRateLimitRemaining(error);
+        startCooldown(retryAfterSecs, { policyText: policy, remainingAttempts: remaining });
+        setServerError('');
+        toast.error('Too many signup attempts. Account creation temporarily paused.');
+      } else {
+        const message =
+          error.response?.data?.message ||
+          'Unable to complete registration. Please check your credentials or access code.';
+        setServerError(message);
+        toast.error(message);
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -111,11 +137,23 @@ const SignupForm = () => {
 
   return (
     <div ref={containerRef} className="w-full max-w-md mx-auto font-urbanist">
-      {serverError && (
-        <div className="anim-element mb-5 p-3.5 rounded-lg bg-soft-red border border-brand-red/20 text-brand-red text-sm font-medium flex items-center justify-between">
+      {isRateLimited ? (
+        <RateLimitAlert
+          title="Too many signup attempts"
+          description="For your security, account creation has been temporarily paused."
+          policyText={policyText || '5 signup attempts are allowed every 15 minutes.'}
+          remainingAttempts={remainingAttempts}
+          secondsRemaining={secondsRemaining}
+          formattedCountdown={formattedCountdown}
+        />
+      ) : serverError ? (
+        <div
+          role="alert"
+          className="anim-element mb-5 p-3.5 rounded-lg bg-soft-red border border-brand-red/20 text-brand-red text-sm font-medium flex items-center justify-between"
+        >
           <span>{serverError}</span>
         </div>
-      )}
+      ) : null}
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4" noValidate>
         {/* Full Name */}
@@ -130,8 +168,9 @@ const SignupForm = () => {
             <input
               {...register('name')}
               type="text"
+              disabled={isRateLimited}
               placeholder="e.g. Alex Morgan"
-              className={`block w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm text-black placeholder:text-light-gray focus:outline-hidden focus:ring-2 transition-all ${
+              className={`block w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm text-black placeholder:text-light-gray focus:outline-hidden focus:ring-2 transition-all disabled:bg-neutral-50 disabled:text-neutral-400 ${
                 errors.name
                   ? 'border-brand-red focus:border-brand-red focus:ring-brand-red/20'
                   : 'border-border focus:border-brand-red focus:ring-brand-red/20'
@@ -155,8 +194,9 @@ const SignupForm = () => {
             <input
               {...register('email')}
               type="email"
+              disabled={isRateLimited}
               placeholder="admin@officespaze.com"
-              className={`block w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm text-black placeholder:text-light-gray focus:outline-hidden focus:ring-2 transition-all ${
+              className={`block w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm text-black placeholder:text-light-gray focus:outline-hidden focus:ring-2 transition-all disabled:bg-neutral-50 disabled:text-neutral-400 ${
                 errors.email
                   ? 'border-brand-red focus:border-brand-red focus:ring-brand-red/20'
                   : 'border-border focus:border-brand-red focus:ring-brand-red/20'
@@ -172,6 +212,7 @@ const SignupForm = () => {
         <div className="anim-element">
           <PasswordInput
             {...register('password')}
+            disabled={isRateLimited}
             label="Password"
             placeholder="Create password (min 6 chars)"
             error={errors.password?.message}
@@ -182,6 +223,7 @@ const SignupForm = () => {
         <div className="anim-element">
           <PasswordInput
             {...register('confirmPassword')}
+            disabled={isRateLimited}
             label="Confirm Password"
             placeholder="Re-enter password"
             error={errors.confirmPassword?.message}
@@ -200,8 +242,9 @@ const SignupForm = () => {
             <input
               {...register('accessCode')}
               type="password"
+              disabled={isRateLimited}
               placeholder="Enter authorization code"
-              className={`block w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm text-black placeholder:text-light-gray focus:outline-hidden focus:ring-2 transition-all ${
+              className={`block w-full rounded-lg border py-2.5 pl-10 pr-3 text-sm text-black placeholder:text-light-gray focus:outline-hidden focus:ring-2 transition-all disabled:bg-neutral-50 disabled:text-neutral-400 ${
                 errors.accessCode
                   ? 'border-brand-red focus:border-brand-red focus:ring-brand-red/20'
                   : 'border-border focus:border-brand-red focus:ring-brand-red/20'
@@ -217,7 +260,8 @@ const SignupForm = () => {
         <div className="anim-element pt-2">
           <button
             type="submit"
-            disabled={isSubmitting}
+            disabled={isSubmitting || isRateLimited}
+            aria-disabled={isSubmitting || isRateLimited}
             className="w-full relative flex items-center justify-center gap-2 rounded-lg bg-brand-red px-4 py-3 text-sm font-semibold text-white shadow-sm hover:bg-[#D0181C] active:bg-[#B51215] focus:outline-hidden focus:ring-2 focus:ring-brand-red/40 disabled:opacity-60 disabled:cursor-not-allowed transition-all cursor-pointer"
           >
             {isSubmitting ? (
@@ -225,6 +269,13 @@ const SignupForm = () => {
                 <Loader2 className="h-4 w-4 animate-spin" />
                 <span>Creating Account...</span>
               </>
+            ) : isRateLimited && secondsRemaining > 0 ? (
+              <>
+                <Clock className="h-4 w-4 animate-pulse" aria-hidden="true" />
+                <span>Try again in {formattedCountdown}</span>
+              </>
+            ) : isRateLimited ? (
+              <span>Too many attempts. Please try again later.</span>
             ) : (
               <>
                 <span>Create Admin Account</span>
