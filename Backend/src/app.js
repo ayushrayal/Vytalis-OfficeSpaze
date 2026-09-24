@@ -83,6 +83,40 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// Temporary SAFE IP Diagnostic Endpoint (P0.2 troubleshooting)
+// Strictly returns networking metadata only - zero PII, zero credentials
+app.get('/api/diagnostic/ip', (req, res) => {
+  res.status(200).json({
+    success: true,
+    data: {
+      reqIp: req.ip,
+      reqIps: req.ips,
+      socketRemoteAddress: req.socket ? req.socket.remoteAddress : null,
+      xForwardedFor: req.get('x-forwarded-for') || null,
+      cfConnectingIp: req.get('cf-connecting-ip') || null,
+      cfRay: req.get('cf-ray') || null,
+      trustProxySetting: req.app.get('trust proxy')
+    }
+  });
+});
+
+// Safe diagnostic logging for rate limiting (P0.2 troubleshooting)
+// Logs strictly network proxy metadata - zero passwords, tokens, or PII
+app.use(['/api/auth/login', '/api/auth/signup'], (req, res, next) => {
+  console.log('[RATE_LIMIT_NETWORK_DIAGNOSTIC]', JSON.stringify({
+    timestamp: new Date().toISOString(),
+    path: req.originalUrl || req.path,
+    reqIp: req.ip,
+    reqIps: req.ips,
+    socketRemoteAddress: req.socket ? req.socket.remoteAddress : null,
+    xForwardedFor: req.get('x-forwarded-for') || null,
+    cfConnectingIp: req.get('cf-connecting-ip') || null,
+    cfRay: req.get('cf-ray') || null,
+    trustProxy: req.app.get('trust proxy')
+  }));
+  next();
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
