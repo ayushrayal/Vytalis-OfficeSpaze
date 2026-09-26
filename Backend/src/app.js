@@ -4,6 +4,8 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const fs = require('fs');
 
+const { corsOptions } = require('./utils/corsOptions.util');
+
 const authRoutes = require('./routes/auth.routes');
 const userRoutes = require('./routes/user.routes');
 const walkInRoutes = require('./routes/walkin.routes');
@@ -45,28 +47,9 @@ if (rawTrustProxy !== undefined && rawTrustProxy !== 'false' && rawTrustProxy !=
 app.set('trust proxy', trustProxyConfig);
 
 // Core Middleware
-const allowedOrigins = (process.env.FRONTEND_URL || 'http://localhost:5173,http://localhost:5174,http://localhost:5000')
-  .split(',')
-  .map((url) => url.trim().replace(/\/$/, ''));
-
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true);
-      const normalizedOrigin = origin.replace(/\/$/, '');
-      if (
-        allowedOrigins.includes(normalizedOrigin) ||
-        normalizedOrigin.includes('localhost:5000') ||
-        normalizedOrigin.includes('127.0.0.1:5000')
-      ) {
-        return callback(null, true);
-      }
-      return callback(null, false);
-    },
-    credentials: true,
-    exposedHeaders: ['Retry-After', 'RateLimit', 'RateLimit-Policy']
-  })
-);
+// P0.3: CORS hardened — strict exact-match origin allowlist via corsOptions utility.
+// See src/utils/corsOptions.util.js for full security rationale and env configuration.
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
