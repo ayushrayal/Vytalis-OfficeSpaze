@@ -1,11 +1,12 @@
 const { rateLimit, MemoryStore } = require('express-rate-limit');
+const { getClientIp } = require('../utils/clientIp.util');
 
 /**
  * P0.2 — Rate Limiting & Brute-Force Protection
  *
  * Scope:
- * - POST /api/auth/login (10 requests / 15 minutes / IP default)
- * - POST /api/auth/signup (5 requests / 15 minutes / IP default)
+ * - POST /api/auth/login (10 requests / 15 minutes / IP)
+ * - POST /api/auth/signup (5 requests / 15 minutes / IP)
  *
  * Explicitly excluded from rate limiting in this phase:
  * - Refresh token, logout, me
@@ -16,6 +17,13 @@ const { rateLimit, MemoryStore } = require('express-rate-limit');
  * - Currently uses in-memory MemoryStore for single backend process.
  * - Prior to horizontal scaling across multiple instances, a shared
  *   distributed store (e.g., Redis) will be required.
+ *
+ * Client IP Strategy:
+ * - Rate limit key is derived from getClientIp(req) — the single trusted
+ *   source of truth for client IP in the Cloudflare + Render topology.
+ * - In production, this resolves CF-Connecting-IP (validated by CF-Ray
+ *   discriminator) rather than the Render internal 10.x.x.x address.
+ * - See src/utils/clientIp.util.js for full security rationale.
  */
 
 // Memory stores for process-local tracking
@@ -51,6 +59,10 @@ const createRateLimitHandler = (message) => {
 /**
  * Login Rate Limiter: 10 requests / 15 min / IP
  * Protects against credential stuffing & brute-force password guessing.
+ *
+ * keyGenerator uses getClientIp(req) so that the rate-limit bucket key is
+ * the actual public client IP (from Cloudflare CF-Connecting-IP when running
+ * in production), not the Render internal 10.x.x.x proxy address.
  */
 const loginRateLimiter = rateLimit({
   windowMs: LOGIN_WINDOW_MS,
@@ -58,12 +70,15 @@ const loginRateLimiter = rateLimit({
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   store: loginStore,
+  keyGenerator: (req) => getClientIp(req),
   handler: createRateLimitHandler('Too many login attempts. Please try again later.')
 });
 
 /**
  * Signup Rate Limiter: 5 requests / 15 min / IP
  * Protects against automated account creation abuse.
+ *
+ * keyGenerator uses getClientIp(req) for the same reason as login limiter.
  */
 const signupRateLimiter = rateLimit({
   windowMs: SIGNUP_WINDOW_MS,
@@ -71,6 +86,7 @@ const signupRateLimiter = rateLimit({
   standardHeaders: 'draft-7',
   legacyHeaders: false,
   store: signupStore,
+  keyGenerator: (req) => getClientIp(req),
   handler: createRateLimitHandler('Too many signup attempts. Please try again later.')
 });
 

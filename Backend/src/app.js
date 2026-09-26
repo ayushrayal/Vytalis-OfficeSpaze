@@ -83,39 +83,31 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Temporary SAFE IP Diagnostic Endpoint (P0.2 troubleshooting)
-// Strictly returns networking metadata only - zero PII, zero credentials
-app.get('/api/diagnostic/ip', (req, res) => {
-  res.status(200).json({
-    success: true,
-    data: {
-      reqIp: req.ip,
-      reqIps: req.ips,
-      socketRemoteAddress: req.socket ? req.socket.remoteAddress : null,
-      xForwardedFor: req.get('x-forwarded-for') || null,
-      cfConnectingIp: req.get('cf-connecting-ip') || null,
-      cfRay: req.get('cf-ray') || null,
-      trustProxySetting: req.app.get('trust proxy')
-    }
+// IP Diagnostic Endpoint — development/staging ONLY
+// Disabled in production to avoid exposing infrastructure metadata.
+// Remove this endpoint entirely once P0.2 is confirmed stable in production.
+if (process.env.NODE_ENV !== 'production') {
+  const { getClientIp } = require('./utils/clientIp.util');
+  app.get('/api/diagnostic/ip', (req, res) => {
+    res.status(200).json({
+      success: true,
+      data: {
+        resolvedClientIp: getClientIp(req),
+        reqIp: req.ip,
+        reqIps: req.ips,
+        socketRemoteAddress: req.socket ? req.socket.remoteAddress : null,
+        xForwardedFor: req.get('x-forwarded-for') || null,
+        cfConnectingIp: req.get('cf-connecting-ip') || null,
+        cfRay: req.get('cf-ray') || null,
+        trustProxySetting: req.app.get('trust proxy')
+      }
+    });
   });
-});
+}
 
-// Safe diagnostic logging for rate limiting (P0.2 troubleshooting)
-// Logs strictly network proxy metadata - zero passwords, tokens, or PII
-app.use(['/api/auth/login', '/api/auth/signup'], (req, res, next) => {
-  console.log('[RATE_LIMIT_NETWORK_DIAGNOSTIC]', JSON.stringify({
-    timestamp: new Date().toISOString(),
-    path: req.originalUrl || req.path,
-    reqIp: req.ip,
-    reqIps: req.ips,
-    socketRemoteAddress: req.socket ? req.socket.remoteAddress : null,
-    xForwardedFor: req.get('x-forwarded-for') || null,
-    cfConnectingIp: req.get('cf-connecting-ip') || null,
-    cfRay: req.get('cf-ray') || null,
-    trustProxy: req.app.get('trust proxy')
-  }));
-  next();
-});
+// P0.2 diagnostic logger removed — IP resolution is now handled correctly
+// by getClientIp() in rateLimiter.middleware.js. Re-add targeted logging
+// here only if a future production anomaly requires it.
 
 // API Routes
 app.use('/api/auth', authRoutes);
