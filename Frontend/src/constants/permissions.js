@@ -21,7 +21,8 @@ export const MODULES = [
   'escalations',
   'recent_activity',
   'user_management',
-  'meta_leads'
+  'meta_leads',
+  'crm_analytics'
 ];
 
 export const ACTIONS = ['view', 'create', 'update', 'delete'];
@@ -54,5 +55,6 @@ export const MODULE_LABELS = {
   escalations: 'Escalations',
   recent_activity: 'Recent Activity',
   user_management: 'User Management',
-  meta_leads: 'Meta Leads'
+  meta_leads: 'Meta Leads',
+  crm_analytics: 'CRM Analytics'
 };

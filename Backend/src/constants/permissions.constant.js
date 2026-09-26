@@ -22,7 +22,8 @@ const MODULES = [
   'escalations',
   'recent_activity',
   'user_management',
-  'meta_leads'
+  'meta_leads',
+  'crm_analytics'
 ];
 
 const ACTIONS = ['view', 'create', 'update', 'delete'];

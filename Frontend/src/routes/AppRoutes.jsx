@@ -146,7 +146,7 @@ const AppRoutes = () => {
           <Route
             path={ROUTES.CRM_ANALYTICS}
             element={
-              <PermissionRoute module="meta_leads" action="view">
+              <PermissionRoute module="crm_analytics" action="view">
                 <LeadAnalyticsPage />
               </PermissionRoute>
             }

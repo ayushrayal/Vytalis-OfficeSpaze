@@ -30,6 +30,11 @@ export const MODULE_DEFINITIONS = [
     description: 'Facebook Lead Ads integration, lead viewing, and synchronization'
   },
   {
+    key: 'crm_analytics',
+    label: 'CRM Analytics',
+    description: 'Lead performance statistics, conversion trends, and follow-up metrics'
+  },
+  {
     key: 'user_management',
     label: 'User Management',
     description: 'Staff accounts, role assignments, and permissions',

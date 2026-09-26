@@ -79,7 +79,7 @@ export const NAVIGATION_SECTIONS = [
         label: 'CRM Analytics',
         path: ROUTES.CRM_ANALYTICS,
         icon: BarChart3,
-        module: 'meta_leads'
+        module: 'crm_analytics'
       }
     ]
   },
