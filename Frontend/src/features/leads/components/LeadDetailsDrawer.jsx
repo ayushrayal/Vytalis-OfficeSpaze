@@ -32,9 +32,11 @@ import {
 import ConvertLeadModal from './ConvertLeadModal';
 import FollowUpScheduleModal from './FollowUpScheduleModal';
 import usePermissions from '../../../hooks/usePermissions';
+import { useAuth } from '../../auth/hooks/useAuth';
 import {
   useLead,
   useAssignLead,
+  useUpdateLeadPriority,
   useUpdateLeadStatus,
   useUpdateLeadNotes,
   useUpdateLeadFollowUp,
@@ -44,6 +46,7 @@ import {
   useCompleteFollowUp,
   useCancelFollowUp
 } from '../hooks/useLeads';
+import LeadPriority from './LeadPriority';
 
 const STATUS_CHOICES = STATUS_OPTIONS.filter((o) => o.value);
 
@@ -126,20 +129,33 @@ const LeadDetailsDrawer = ({
   if (!lead) return null;
 
   const leadId = lead?._id || lead?.id;
-  const { can, isAdmin } = usePermissions();
+  const { user } = useAuth();
+  const { can, isAdmin, role } = usePermissions();
   const canUpdate = isAdmin || can('meta_leads', 'update');
 
   // React Query hook to keep drawer synchronized with mutations & SSE
   const { data: leadQueryRes } = useLead(leadId);
   const currentLead = leadQueryRes?.data?.lead || lead;
 
+  // Priority edit authorization: Admin or Intern (within authorized scope)
+  const isIntern = role === 'INTERN';
+  const isLeadAssignedToCurrentUser =
+    currentLead?.assignedTo?._id === user?._id ||
+    currentLead?.assignedTo === user?._id ||
+    currentLead?.assignedTo?.id === user?.id;
+  const canEditPriority = isAdmin || (isIntern && isLeadAssignedToCurrentUser);
+
   const { data: assigneesRes, isLoading: isLoadingAssignees } = useAssignableUsers({ enabled: isAdmin });
   const assignees = assigneesRes?.data?.assignees || [];
 
   const assignMutation = useAssignLead();
+  const priorityMutation = useUpdateLeadPriority();
   const statusMutation = useUpdateLeadStatus();
   const notesMutation = useUpdateLeadNotes();
   const followUpMutation = useUpdateLeadFollowUp();
+
+  // Local state for optional priority during assignment
+  const [assignmentPriority, setAssignmentPriority] = useState('');
 
   // Activity Timeline pagination state
   const [activityPage, setActivityPage] = useState(1);
@@ -251,6 +267,7 @@ const LeadDetailsDrawer = ({
           <span className="text-xs text-neutral-400 font-mono">
             ID: {currentLead.metaLeadId || currentLead._id || '—'}
           </span>
+          <LeadPriority priority={currentLead.priority} size="sm" />
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold border ${statusCfg.badgeClass}`}>
             <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dotClass}`}></span>
             {statusCfg.label}
@@ -399,30 +416,63 @@ const LeadDetailsDrawer = ({
             )}
           </div>
 
+          {/* Priority Section */}
+          <div className="col-span-1 sm:col-span-2">
+            <span className="text-xs text-neutral-500 font-medium block mb-1.5">Priority</span>
+            <LeadPriority
+              priority={currentLead.priority}
+              editable={canEditPriority && !currentLead.archivedAt && currentLead.status !== 'CONVERTED'}
+              onChange={(newPriority) => {
+                priorityMutation.mutate({ id: leadId, priority: newPriority });
+              }}
+              isPending={priorityMutation.isPending}
+            />
+          </div>
+
           {/* Assignment Section (ADMIN-only editable) */}
           <div className="col-span-1 sm:col-span-2">
             <span className="text-xs text-neutral-500 font-medium block mb-1.5">Lead Assignment</span>
             {isAdmin ? (
-              <div className="flex items-center gap-2.5">
-                <select
-                  value={currentAssigneeId || 'unassigned'}
-                  onChange={(e) => {
-                    const val = e.target.value === 'unassigned' ? null : e.target.value;
-                    assignMutation.mutate({ id: leadId, assignedTo: val });
-                  }}
-                  disabled={assignMutation.isPending || isLoadingAssignees}
-                  className="w-full sm:max-w-xs px-3 py-1.5 text-xs font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-400 transition-all cursor-pointer disabled:opacity-50"
-                >
-                  <option value="unassigned">— Unassigned —</option>
-                  {assignees.map((u) => (
-                    <option key={u.id || u._id} value={u.id || u._id}>
-                      {u.name} ({u.role})
-                    </option>
-                  ))}
-                </select>
-                {assignMutation.isPending && (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-neutral-400" />
-                )}
+              <div className="space-y-2">
+                <div className="flex items-center gap-2.5">
+                  <select
+                    value={currentAssigneeId || 'unassigned'}
+                    onChange={(e) => {
+                      const val = e.target.value === 'unassigned' ? null : e.target.value;
+                      assignMutation.mutate({
+                        id: leadId,
+                        assignedTo: val,
+                        ...(assignmentPriority ? { priority: assignmentPriority } : {})
+                      });
+                    }}
+                    disabled={assignMutation.isPending || isLoadingAssignees}
+                    className="w-full sm:max-w-xs px-3 py-1.5 text-xs font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-400 transition-all cursor-pointer disabled:opacity-50"
+                  >
+                    <option value="unassigned">— Unassigned —</option>
+                    {assignees.map((u) => (
+                      <option key={u.id || u._id} value={u.id || u._id}>
+                        {u.name} ({u.role})
+                      </option>
+                    ))}
+                  </select>
+                  {assignMutation.isPending && (
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin text-neutral-400" />
+                  )}
+                </div>
+
+                <div className="flex items-center gap-2 pt-0.5">
+                  <span className="text-[11px] text-neutral-400 font-medium">Assignment Priority:</span>
+                  <select
+                    value={assignmentPriority}
+                    onChange={(e) => setAssignmentPriority(e.target.value)}
+                    className="px-2.5 py-1 text-[11px] font-semibold rounded-lg border border-neutral-200 bg-white text-neutral-700 focus:outline-none focus:ring-1 focus:ring-neutral-400 transition-all cursor-pointer"
+                  >
+                    <option value="">(Preserve existing: {currentLead.priority || 'MEDIUM'})</option>
+                    <option value="HIGH">High</option>
+                    <option value="MEDIUM">Medium</option>
+                    <option value="LOW">Low</option>
+                  </select>
+                </div>
               </div>
             ) : (
               <div className="text-xs font-semibold text-neutral-800">

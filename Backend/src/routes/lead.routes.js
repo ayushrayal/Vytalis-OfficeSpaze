@@ -23,6 +23,7 @@ router.get('/conversion-targets', authMiddleware, requirePermission('meta_leads'
 
 // Bulk operations (must be mounted before /:id routes)
 router.post('/bulk/assignment', authMiddleware, requireAdmin, leadController.bulkAssignLeads);
+router.post('/bulk/priority', authMiddleware, leadController.bulkUpdateLeadPriority);
 router.post('/bulk/status', authMiddleware, requirePermission('meta_leads', 'update'), leadController.bulkUpdateLeadStatus);
 router.post('/bulk/archive', authMiddleware, requirePermission('meta_leads', 'delete'), leadController.bulkArchiveLeads);
 router.post('/bulk/restore', authMiddleware, requirePermission('meta_leads', 'delete'), leadController.bulkRestoreLeads);
@@ -42,6 +43,7 @@ router.patch('/:id/follow-ups/:followUpId/reschedule', authMiddleware, requirePe
 // CRM mutations
 // Lead assignment: strictly ADMIN-only
 router.patch('/:id/assignment', authMiddleware, requireAdmin, leadController.assignLead);
+router.patch('/:id/priority', authMiddleware, leadController.updateLeadPriority);
 router.patch('/:id/status', authMiddleware, requirePermission('meta_leads', 'update'), leadController.updateLeadStatus);
 router.patch('/:id/notes', authMiddleware, requirePermission('meta_leads', 'update'), leadController.updateLeadNotes);
 router.patch('/:id/follow-up', authMiddleware, requirePermission('meta_leads', 'update'), leadController.updateLeadFollowUp);

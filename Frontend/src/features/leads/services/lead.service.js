@@ -50,9 +50,22 @@ export const leadService = {
    * Assigns or unassigns a lead.
    * @param {string} id
    * @param {string|null} assignedTo
+   * @param {string} [priority]
    */
-  assignLead: async (id, assignedTo) => {
-    const res = await api.patch(`${BASE}/${id}/assignment`, { assignedTo });
+  assignLead: async (id, assignedTo, priority) => {
+    const payload = { assignedTo };
+    if (priority) payload.priority = priority;
+    const res = await api.patch(`${BASE}/${id}/assignment`, payload);
+    return res.data;
+  },
+
+  /**
+   * Updates priority of a lead.
+   * @param {string} id
+   * @param {string} priority
+   */
+  updateLeadPriority: async (id, priority) => {
+    const res = await api.patch(`${BASE}/${id}/priority`, { priority });
     return res.data;
   },
 
@@ -132,6 +145,15 @@ export const leadService = {
    */
   bulkUpdateLeadStatus: async (payload) => {
     const res = await api.post(`${BASE}/bulk/status`, payload);
+    return res.data;
+  },
+
+  /**
+   * Bulk updates priority on leads.
+   * @param {{ mode?: 'ids'|'filtered', leadIds?: string[], filters?: Object, priority: string }} payload
+   */
+  bulkUpdateLeadPriority: async (payload) => {
+    const res = await api.post(`${BASE}/bulk/priority`, payload);
     return res.data;
   },
 

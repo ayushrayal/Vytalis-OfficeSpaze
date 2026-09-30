@@ -22,6 +22,7 @@ const activitySchema = new mongoose.Schema(
         'lead_archived',
         'lead_restored',
         'lead_converted',
+        'lead_priority_updated',
         'lead_followup_scheduled',
         'lead_followup_rescheduled',
         'lead_followup_completed',

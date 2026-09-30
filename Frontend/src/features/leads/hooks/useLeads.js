@@ -88,7 +88,7 @@ export const useAssignLead = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ id, assignedTo }) => leadService.assignLead(id, assignedTo),
+    mutationFn: ({ id, assignedTo, priority }) => leadService.assignLead(id, assignedTo, priority),
     onSuccess: (res, variables) => {
       queryClient.invalidateQueries({ queryKey: LEADS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: ['lead', variables.id] });
@@ -96,6 +96,27 @@ export const useAssignLead = () => {
     },
     onError: (error) => {
       const message = error.response?.data?.message || 'Failed to update lead assignment';
+      toast.error(message);
+    }
+  });
+};
+
+/**
+ * Hook to update lead priority.
+ */
+export const useUpdateLeadPriority = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, priority }) => leadService.updateLeadPriority(id, priority),
+    onSuccess: (res, variables) => {
+      queryClient.invalidateQueries({ queryKey: LEADS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: ['lead', variables.id] });
+      queryClient.invalidateQueries({ queryKey: ['leadActivity', variables.id] });
+      toast.success(res?.message || 'Lead priority updated');
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || 'Failed to update lead priority';
       toast.error(message);
     }
   });
@@ -226,6 +247,26 @@ export const useBulkUpdateLeadStatus = () => {
     },
     onError: (error) => {
       const message = error.response?.data?.message || 'Failed to update status in bulk';
+      toast.error(message);
+    }
+  });
+};
+
+/**
+ * Hook to bulk update lead priority.
+ */
+export const useBulkUpdateLeadPriority = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (payload) => leadService.bulkUpdateLeadPriority(payload),
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: LEADS_QUERY_KEY });
+      queryClient.invalidateQueries({ queryKey: LEAD_STATS_QUERY_KEY });
+      toast.success(res?.message || 'Bulk priority updated successfully');
+    },
+    onError: (error) => {
+      const message = error.response?.data?.message || 'Failed to update priority in bulk';
       toast.error(message);
     }
   });

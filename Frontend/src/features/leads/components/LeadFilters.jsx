@@ -1,8 +1,9 @@
 import React from 'react';
-import { Search, X, Activity, UserCheck, Calendar } from 'lucide-react';
+import { Search, X, Activity, UserCheck, Calendar, Flame } from 'lucide-react';
 import FilterSelect from '../../../components/ui/FilterSelect';
 import {
   STATUS_OPTIONS,
+  PRIORITY_OPTIONS,
   ASSIGNMENT_OPTIONS,
   FOLLOW_UP_FILTER_OPTIONS
 } from '../constants/leads.constant';
@@ -12,6 +13,8 @@ const LeadFilters = ({
   onSearchChange,
   statusFilter,
   onStatusFilterChange,
+  priorityFilter = '',
+  onPriorityFilterChange,
   followUpFilter = '',
   onFollowUpFilterChange,
   assignmentFilter,
@@ -22,6 +25,7 @@ const LeadFilters = ({
   const hasActiveFilters = Boolean(
     search ||
     statusFilter ||
+    priorityFilter ||
     followUpFilter ||
     (isAdmin && assignmentFilter)
   );
@@ -53,6 +57,15 @@ const LeadFilters = ({
 
         {/* Filter Dropdowns */}
         <div className="flex flex-wrap items-center gap-2.5 sm:gap-3 w-full md:w-auto">
+          <FilterSelect
+            label="Priority"
+            value={priorityFilter}
+            onChange={onPriorityFilterChange}
+            options={PRIORITY_OPTIONS}
+            icon={Flame}
+            className="w-full sm:w-auto min-w-[140px]"
+          />
+
           <FilterSelect
             label="Status"
             value={statusFilter}

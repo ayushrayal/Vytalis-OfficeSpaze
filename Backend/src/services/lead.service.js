@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const { Lead, LEAD_STATUS, CONVERSION_TYPES, CONVERSION_TARGET_TYPES } = require('../models/Lead');
+const { Lead, LEAD_STATUS, LEAD_PRIORITY, PRIORITY_WEIGHTS, CONVERSION_TYPES, CONVERSION_TARGET_TYPES } = require('../models/Lead');
 const User = require('../models/User');
 const Activity = require('../models/Activity');
 const VirtualOffice = require('../models/VirtualOffice');
@@ -10,7 +10,8 @@ const windsorProvider = require('../providers/windsor.provider');
 const { LeadFollowUp } = require('../models/LeadFollowUp');
 const leadFollowUpService = require('./leadFollowUp.service');
 const { logActivity } = require('./activity.service');
-const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
+const dashboardBroadcaster = require('../utils/dashboardBroadcaster.util');
+const broadcastDashboardUpdate = (payload) => dashboardBroadcaster.broadcastDashboardUpdate(payload);
 const { getKolkataDayBounds } = require('../utils/timezone.util');
 
 const KNOWN_RAW_FIELDS = new Set([
@@ -121,6 +122,8 @@ const upsertLead = async (normalizedLead) => {
     const created = await Lead.create({
       ...normalizedLead,
       status: 'NEW',
+      priority: 'MEDIUM',
+      priorityWeight: 2,
       lastSyncedAt: new Date()
     });
     return { lead: created, isNew: true };
@@ -255,11 +258,14 @@ const getLeads = async ({
   limit = 20,
   search,
   status,
+  priority,
   assignedTo,
   followUpStatus,
   dateFrom,
   dateTo,
   archived,
+  sortBy,
+  sortOrder,
   actor
 } = {}) => {
   const parsedPage = Math.max(1, parseInt(page, 10) || 1);
@@ -314,6 +320,32 @@ const getLeads = async ({
     query.status = status.toUpperCase();
   }
 
+  // 3b. Priority Filter (Server-side, respects authorized scope)
+  if (priority && typeof priority === 'string') {
+    const upperPriority = priority.trim().toUpperCase();
+    if (LEAD_PRIORITY.includes(upperPriority)) {
+      if (upperPriority === 'MEDIUM') {
+        // Match explicit MEDIUM or legacy records without priority
+        const priorityCondition = {
+          $or: [
+            { priority: 'MEDIUM' },
+            { priority: { $exists: false } },
+            { priority: null },
+            { priority: '' }
+          ]
+        };
+        if (query.$or) {
+          query.$and = [{ $or: query.$or }, priorityCondition];
+          delete query.$or;
+        } else {
+          query.$or = priorityCondition.$or;
+        }
+      } else {
+        query.priority = upperPriority;
+      }
+    }
+  }
+
   // 4. Mutually Exclusive Follow-Up Status Filter using Asia/Kolkata day bounds
   if (followUpStatus) {
     const { startOfToday, startOfTomorrow } = getKolkataDayBounds();
@@ -356,6 +388,13 @@ const getLeads = async ({
     ];
   }
 
+  // 7. Deterministic Sorting (Supports priority order: HIGH -> MEDIUM -> LOW)
+  let sortOptions = { createdTime: -1, createdAt: -1 };
+  if (sortBy === 'priority') {
+    const order = sortOrder === 'desc' ? -1 : 1;
+    sortOptions = { priorityWeight: order, createdTime: -1, createdAt: -1 };
+  }
+
   const [total, leads] = await Promise.all([
     Lead.countDocuments(query),
     Lead.find(query)
@@ -363,7 +402,7 @@ const getLeads = async ({
       .populate('assignedBy', 'name email')
       .populate('archivedBy', 'name email')
       .populate('convertedBy', 'name email')
-      .sort({ createdTime: -1, createdAt: -1 })
+      .sort(sortOptions)
       .skip(skip)
       .limit(parsedLimit)
   ]);
@@ -529,13 +568,15 @@ const getSyncStatus = async () => {
 
 /**
  * Assigns or unassigns a lead to an active staff member (GM, TEAM_MANAGER, INTERN).
+ * Optionally sets or preserves lead priority during assignment.
  *
  * @param {string} leadId
  * @param {string|null} assignedTo - target user ID or null to unassign
  * @param {Object} actor - authenticated user
+ * @param {string} [priority] - optional priority ('HIGH'|'MEDIUM'|'LOW')
  * @returns {Promise<Object>} populated lead
  */
-const assignLead = async (leadId, assignedTo, actor) => {
+const assignLead = async (leadId, assignedTo, actor, priority) => {
   if (actor && actor.role !== 'ADMIN') {
     const error = new Error('Only administrators can assign leads');
     error.statusCode = 403;
@@ -622,7 +663,46 @@ const assignLead = async (leadId, assignedTo, actor) => {
   lead.assignedTo = targetUser._id;
   lead.assignedAt = new Date();
   lead.assignedBy = actor?._id || actor?.id || null;
+
+  // Optional Priority Setting during assignment (Preserves existing if omitted)
+  let priorityChanged = false;
+  let prevPriority = lead.priority || 'MEDIUM';
+  if (priority !== undefined && priority !== null && priority !== '') {
+    if (typeof priority !== 'string' || !LEAD_PRIORITY.includes(priority.trim().toUpperCase()) || priority !== priority.trim().toUpperCase()) {
+      const error = new Error(`Priority must be one of: ${LEAD_PRIORITY.join(', ')}`);
+      error.statusCode = 400;
+      throw error;
+    }
+    const normPriority = priority.trim().toUpperCase();
+    if (lead.priority !== normPriority) {
+      priorityChanged = true;
+      lead.priority = normPriority;
+      lead.priorityWeight = PRIORITY_WEIGHTS[normPriority] || 2;
+    }
+  }
+
   await lead.save();
+
+  if (priorityChanged) {
+    await logActivity({
+      action: 'lead_priority_updated',
+      entityType: 'meta_lead',
+      entityId: lead._id,
+      entityName: `Lead ${lead.metaLeadId || lead._id}`,
+      actor: {
+        id: actor?._id || actor?.id || null,
+        name: actor?.name || 'Staff User',
+        email: actor?.email || '',
+        role: actor?.role || 'ADMIN'
+      },
+      metadata: {
+        leadId: lead._id.toString(),
+        previousPriority: prevPriority,
+        newPriority: lead.priority,
+        actorId: actor?._id?.toString() || actor?.id?.toString() || null
+      }
+    });
+  }
 
   await logActivity({
     action: 'lead_assigned',
@@ -645,6 +725,77 @@ const assignLead = async (leadId, assignedTo, actor) => {
     entity: 'meta_lead',
     entityId: lead._id.toString(),
     action: 'assigned'
+  });
+
+  return await getLeadById(lead._id, actor);
+};
+
+/**
+ * Updates priority of a lead.
+ * Allowed for ADMIN (any lead) and INTERN (leads within authorized scope).
+ * GM and TEAM_MANAGER are strictly forbidden.
+ *
+ * @param {string} leadId
+ * @param {string} priority - 'HIGH' | 'MEDIUM' | 'LOW'
+ * @param {Object} actor - Authenticated user
+ * @returns {Promise<Object>} populated lead
+ */
+const updateLeadPriority = async (leadId, priority, actor) => {
+  if (!actor || (actor.role !== 'ADMIN' && actor.role !== 'INTERN')) {
+    const error = new Error('Only administrators and interns can update lead priority');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  if (typeof priority !== 'string' || !LEAD_PRIORITY.includes(priority.trim().toUpperCase()) || priority !== priority.trim().toUpperCase()) {
+    const error = new Error(`Priority must be one of: ${LEAD_PRIORITY.join(', ')}`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const normalizedPriority = priority.trim().toUpperCase();
+  const isAdmin = actor.role === 'ADMIN';
+  const query = {
+    _id: leadId,
+    ...(isAdmin ? {} : { assignedTo: actor._id })
+  };
+
+  const lead = await Lead.findOne(query);
+  if (!lead) {
+    const error = new Error('Lead not found');
+    error.statusCode = 404;
+    throw error;
+  }
+
+  const previousPriority = lead.priority || 'MEDIUM';
+  lead.priority = normalizedPriority;
+  lead.priorityWeight = PRIORITY_WEIGHTS[normalizedPriority] || 2;
+  await lead.save();
+
+  await logActivity({
+    action: 'lead_priority_updated',
+    entityType: 'meta_lead',
+    entityId: lead._id,
+    entityName: `Lead ${lead.metaLeadId || lead._id}`,
+    actor: {
+      id: actor?._id || actor?.id || null,
+      name: actor?.name || 'Staff User',
+      email: actor?.email || '',
+      role: actor?.role || 'Staff'
+    },
+    metadata: {
+      leadId: lead._id.toString(),
+      previousPriority,
+      newPriority: normalizedPriority,
+      actorId: actor?._id?.toString() || actor?.id?.toString() || null
+    }
+  });
+
+  broadcastDashboardUpdate({
+    type: 'LEAD_MUTATED',
+    entity: 'meta_lead',
+    entityId: lead._id.toString(),
+    action: 'priority_updated'
   });
 
   return await getLeadById(lead._id, actor);
@@ -1130,7 +1281,24 @@ const resolveTargetLeadIds = async ({ mode = 'ids', leadIds = [], filters = {} }
       ];
     }
 
-    const leads = await Lead.find(query).select('_id metaLeadId fullName assignedTo archivedAt status').lean();
+    // Priority filter
+    if (filters.priority && typeof filters.priority === 'string') {
+      const upperPri = filters.priority.trim().toUpperCase();
+      if (LEAD_PRIORITY.includes(upperPri)) {
+        if (upperPri === 'MEDIUM') {
+          query.$or = [
+            { priority: 'MEDIUM' },
+            { priority: { $exists: false } },
+            { priority: null },
+            { priority: '' }
+          ];
+        } else {
+          query.priority = upperPri;
+        }
+      }
+    }
+
+    const leads = await Lead.find(query).select('_id metaLeadId fullName assignedTo archivedAt status priority').lean();
     if (!leads || leads.length === 0) {
       const error = new Error('No matching leads found for bulk operation');
       error.statusCode = 404;
@@ -1161,7 +1329,7 @@ const resolveTargetLeadIds = async ({ mode = 'ids', leadIds = [], filters = {} }
   }
 
   const leads = await Lead.find({ _id: { $in: leadIds } })
-    .select('_id metaLeadId fullName assignedTo archivedAt status')
+    .select('_id metaLeadId fullName assignedTo archivedAt status priority')
     .lean();
 
   if (leads.length !== leadIds.length) {
@@ -1210,7 +1378,7 @@ const resolveTargetLeadIds = async ({ mode = 'ids', leadIds = [], filters = {} }
  * @param {Object} actor - Authenticated user
  * @returns {Promise<{ requestedCount: number, updatedCount: number }>}
  */
-const bulkAssignLeads = async ({ mode, leadIds, filters, assignedTo }, actor) => {
+const bulkAssignLeads = async ({ mode, leadIds, filters, assignedTo, priority }, actor) => {
   if (actor && actor.role !== 'ADMIN') {
     const error = new Error('Only administrators can bulk assign leads');
     error.statusCode = 403;
@@ -1260,9 +1428,24 @@ const bulkAssignLeads = async ({ mode, leadIds, filters, assignedTo }, actor) =>
     ? { assignedTo: targetUserId, assignedAt: now, assignedBy: actor?._id || null }
     : { assignedTo: null, assignedAt: null, assignedBy: actor?._id || null };
 
+  // Optional Priority Setting during bulk assignment
+  let priorityChanged = false;
+  let normalizedPriority = null;
+  if (priority !== undefined && priority !== null && priority !== '') {
+    if (typeof priority !== 'string' || !LEAD_PRIORITY.includes(priority.trim().toUpperCase()) || priority !== priority.trim().toUpperCase()) {
+      const error = new Error(`Priority must be one of: ${LEAD_PRIORITY.join(', ')}`);
+      error.statusCode = 400;
+      throw error;
+    }
+    normalizedPriority = priority.trim().toUpperCase();
+    updateData.priority = normalizedPriority;
+    updateData.priorityWeight = PRIORITY_WEIGHTS[normalizedPriority] || 2;
+    priorityChanged = true;
+  }
+
   await Lead.updateMany({ _id: { $in: targetIds } }, { $set: updateData });
 
-  // Batch Activity Logging
+  // Batch Activity Logging for Assignment
   const actionName = targetUserId ? 'lead_assigned' : 'lead_unassigned';
   const activities = leads.map((l) => ({
     action: actionName,
@@ -1279,6 +1462,31 @@ const bulkAssignLeads = async ({ mode, leadIds, filters, assignedTo }, actor) =>
       ? { assignedTo: targetUserName }
       : { previousAssignee: l.assignedTo ? 'Staff User' : null }
   }));
+
+  // If priority also changed in bulk assignment, add priority activity records
+  if (priorityChanged) {
+    leads.forEach((l) => {
+      activities.push({
+        action: 'lead_priority_updated',
+        entityType: 'meta_lead',
+        entityId: l._id,
+        entityName: `Lead ${l.metaLeadId || l._id}`,
+        actor: {
+          id: actor?._id || actor?.id || null,
+          name: actor?.name || 'Admin',
+          email: actor?.email || '',
+          role: actor?.role || 'ADMIN'
+        },
+        metadata: {
+          leadId: l._id.toString(),
+          previousPriority: l.priority || 'MEDIUM',
+          newPriority: normalizedPriority,
+          actorId: actor?._id?.toString() || actor?.id?.toString() || null
+        }
+      });
+    });
+  }
+
   await Activity.insertMany(activities);
 
   broadcastDashboardUpdate({
@@ -1290,6 +1498,75 @@ const bulkAssignLeads = async ({ mode, leadIds, filters, assignedTo }, actor) =>
   return {
     requestedCount: targetIds.length,
     updatedCount: targetIds.length
+  };
+};
+
+/**
+ * Bulk updates lead priority.
+ * Allowed for ADMIN and INTERN (within their authorized scope).
+ * GM and TEAM_MANAGER are strictly forbidden.
+ *
+ * @param {Object} params
+ * @param {'ids'|'filtered'} [params.mode='ids']
+ * @param {Array<string>} [params.leadIds=[]]
+ * @param {Object} [params.filters={}]
+ * @param {string} params.priority - 'HIGH' | 'MEDIUM' | 'LOW'
+ * @param {Object} actor - Authenticated user
+ * @returns {Promise<{ requestedCount: number, updatedCount: number, priority: string }>}
+ */
+const bulkUpdateLeadPriority = async ({ mode, leadIds, filters, priority }, actor) => {
+  if (!actor || (actor.role !== 'ADMIN' && actor.role !== 'INTERN')) {
+    const error = new Error('Only administrators and interns can update lead priority');
+    error.statusCode = 403;
+    throw error;
+  }
+
+  if (typeof priority !== 'string' || !LEAD_PRIORITY.includes(priority.trim().toUpperCase()) || priority !== priority.trim().toUpperCase()) {
+    const error = new Error(`Priority must be one of: ${LEAD_PRIORITY.join(', ')}`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  const normalizedPriority = priority.trim().toUpperCase();
+  const leads = await resolveTargetLeadIds({ mode, leadIds, filters }, actor, { targetArchived: false });
+  const targetIds = leads.map((l) => l._id);
+
+  const weight = PRIORITY_WEIGHTS[normalizedPriority] || 2;
+  await Lead.updateMany(
+    { _id: { $in: targetIds } },
+    { $set: { priority: normalizedPriority, priorityWeight: weight } }
+  );
+
+  const activities = leads.map((l) => ({
+    action: 'lead_priority_updated',
+    entityType: 'meta_lead',
+    entityId: l._id,
+    entityName: `Lead ${l.metaLeadId || l._id}`,
+    actor: {
+      id: actor?._id || actor?.id || null,
+      name: actor?.name || 'Staff User',
+      email: actor?.email || '',
+      role: actor?.role || 'Staff'
+    },
+    metadata: {
+      leadId: l._id.toString(),
+      previousPriority: l.priority || 'MEDIUM',
+      newPriority: normalizedPriority,
+      actorId: actor?._id?.toString() || actor?.id?.toString() || null
+    }
+  }));
+  await Activity.insertMany(activities);
+
+  broadcastDashboardUpdate({
+    type: 'LEADS_BULK_MUTATED',
+    action: 'priority_updated',
+    count: targetIds.length
+  });
+
+  return {
+    requestedCount: targetIds.length,
+    updatedCount: targetIds.length,
+    priority: normalizedPriority
   };
 };
 
@@ -2024,6 +2301,8 @@ module.exports = {
   resolveTargetLeadIds,
   bulkAssignLeads,
   bulkUpdateLeadStatus,
+  bulkUpdateLeadPriority,
+  updateLeadPriority,
   bulkArchiveLeads,
   bulkRestoreLeads,
   bulkPermanentDeleteLeads,

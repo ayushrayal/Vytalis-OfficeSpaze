@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 
 const LEAD_STATUS = ['NEW', 'CONTACTED', 'FOLLOW_UP', 'QUALIFIED', 'CONVERTED', 'LOST'];
+const LEAD_PRIORITY = ['HIGH', 'MEDIUM', 'LOW'];
+const PRIORITY_WEIGHTS = {
+  HIGH: 1,
+  MEDIUM: 2,
+  LOW: 3
+};
 
 const CONVERSION_TYPES = [
   'VIRTUAL_OFFICE',
@@ -151,6 +157,20 @@ const leadSchema = new mongoose.Schema(
       default: 'NEW',
       index: true
     },
+    priority: {
+      type: String,
+      enum: {
+        values: LEAD_PRIORITY,
+        message: 'Priority must be one of: ' + LEAD_PRIORITY.join(', ')
+      },
+      default: 'MEDIUM',
+      index: true
+    },
+    priorityWeight: {
+      type: Number,
+      default: 2,
+      index: true
+    },
     assignedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
@@ -225,6 +245,7 @@ const leadSchema = new mongoose.Schema(
     toJSON: {
       transform(doc, ret) {
         ret.id = ret._id ? ret._id.toString() : ret._id;
+        ret.priority = ret.priority || 'MEDIUM';
         delete ret._id;
         delete ret.__v;
         return ret;
@@ -232,6 +253,14 @@ const leadSchema = new mongoose.Schema(
     }
   }
 );
+
+// Pre-save hook to ensure priorityWeight is always synchronized with priority
+leadSchema.pre('save', function (next) {
+  if (this.priority) {
+    this.priorityWeight = PRIORITY_WEIGHTS[this.priority] || 2;
+  }
+  next();
+});
 
 // Compound indexes for fast CRM searches & filtering
 leadSchema.index({ status: 1, createdAt: -1 });
@@ -244,6 +273,9 @@ leadSchema.index({ archivedAt: 1, assignedTo: 1, createdAt: -1 });
 // Analytics indexes for deterministic date-range filtering on createdTime
 leadSchema.index({ archivedAt: 1, createdTime: -1 });
 leadSchema.index({ assignedTo: 1, archivedAt: 1, createdTime: -1 });
+leadSchema.index({ priority: 1, createdAt: -1 });
+leadSchema.index({ priorityWeight: 1, createdAt: -1 });
+leadSchema.index({ assignedTo: 1, priority: 1 });
 leadSchema.index({ createdAt: -1 });
 leadSchema.index({ fullName: 'text', email: 'text', phoneNumber: 'text' });
 
@@ -252,6 +284,8 @@ const Lead = mongoose.model('Lead', leadSchema);
 module.exports = {
   Lead,
   LEAD_STATUS,
+  LEAD_PRIORITY,
+  PRIORITY_WEIGHTS,
   CONVERSION_TYPES,
   CONVERSION_TARGET_TYPES
 };

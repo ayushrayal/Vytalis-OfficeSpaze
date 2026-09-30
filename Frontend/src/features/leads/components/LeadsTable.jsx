@@ -1,11 +1,12 @@
 import React from 'react';
-import { Eye, User, Phone, Mail, Megaphone, Calendar, AlertCircle, Clock } from 'lucide-react';
+import { Eye, User, Phone, Mail, Megaphone, Calendar, AlertCircle, Clock, ArrowUpDown, ArrowUp, ArrowDown } from 'lucide-react';
 import { format, isValid } from 'date-fns';
 import {
   LEAD_STATUS_CONFIG,
   FOLLOW_UP_STATUS_CONFIG,
   getFollowUpCategory
 } from '../constants/leads.constant';
+import LeadPriority from './LeadPriority';
 
 const formatMetaDate = (dateVal) => {
   if (!dateVal) return '—';
@@ -28,7 +29,10 @@ const LeadsTable = ({
   onToggleSelectAllCurrentPage,
   isAllCurrentPageSelected = false,
   isPartiallySelected = false,
-  currentView = 'active'
+  currentView = 'active',
+  sortBy = '',
+  sortOrder = 'asc',
+  onSortChange
 }) => {
   if (isLoading) {
     return (
@@ -129,6 +133,25 @@ const LeadsTable = ({
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Email</th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Source</th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Campaign</th>
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+                <button
+                  type="button"
+                  onClick={() => onSortChange && onSortChange('priority')}
+                  className="inline-flex items-center gap-1 hover:text-neutral-900 transition-colors cursor-pointer"
+                  title="Sort by priority (High -> Medium -> Low)"
+                >
+                  <span>Priority</span>
+                  {sortBy === 'priority' ? (
+                    sortOrder === 'desc' ? (
+                      <ArrowDown className="w-3 h-3 text-[#ED1F23]" />
+                    ) : (
+                      <ArrowUp className="w-3 h-3 text-[#ED1F23]" />
+                    )
+                  ) : (
+                    <ArrowUpDown className="w-3 h-3 opacity-40 hover:opacity-100" />
+                  )}
+                </button>
+              </th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Status</th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Follow-up</th>
               <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Assigned To</th>
@@ -228,6 +251,11 @@ const LeadsTable = ({
                     ) : (
                       <span className="text-neutral-400">—</span>
                     )}
+                  </td>
+
+                  {/* 5b. Priority */}
+                  <td className="py-3.5 px-4 whitespace-nowrap">
+                    <LeadPriority priority={lead.priority} size="sm" />
                   </td>
 
                   {/* 6. Status Badge */}
@@ -350,10 +378,13 @@ const LeadsTable = ({
                     </div>
 
                     <div className="flex flex-col items-end gap-1 shrink-0">
-                      <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${statusCfg.badgeClass}`}>
-                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dotClass}`}></span>
-                        {statusCfg.label}
-                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <LeadPriority priority={lead.priority} size="sm" />
+                        <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-semibold border ${statusCfg.badgeClass}`}>
+                          <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dotClass}`}></span>
+                          {statusCfg.label}
+                        </span>
+                      </div>
                       {lead.nextFollowUpAt && (
                         <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold border ${followUpCfg.badgeClass}`}>
                           <span className={`w-1.5 h-1.5 rounded-full ${followUpCfg.dotClass}`}></span>

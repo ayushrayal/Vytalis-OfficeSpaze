@@ -43,18 +43,21 @@ const syncLeads = async (req, res, next) => {
  */
 const getLeads = async (req, res, next) => {
   try {
-    const { page, limit, search, status, assignedTo, followUpStatus, dateFrom, dateTo, archived } = req.query;
+    const { page, limit, search, status, priority, assignedTo, followUpStatus, dateFrom, dateTo, archived, sortBy, sortOrder } = req.query;
 
     const result = await leadService.getLeads({
       page,
       limit,
       search,
       status,
+      priority,
       assignedTo,
       followUpStatus,
       dateFrom,
       dateTo,
       archived,
+      sortBy,
+      sortOrder,
       actor: req.user
     });
 
@@ -152,12 +155,36 @@ const testWindsor = async (req, res, next) => {
  */
 const assignLead = async (req, res, next) => {
   try {
-    const { assignedTo } = req.body || {};
-    const lead = await leadService.assignLead(req.params.id, assignedTo, req.user);
+    const { assignedTo, priority } = req.body || {};
+    const lead = await leadService.assignLead(req.params.id, assignedTo, req.user, priority);
 
     return res.status(200).json({
       success: true,
       message: assignedTo && assignedTo !== 'unassigned' ? 'Lead assigned successfully' : 'Lead unassigned successfully',
+      data: {
+        lead
+      },
+      errors: null
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Updates priority of a lead.
+ * Allowed for ADMIN and INTERN.
+ *
+ * PATCH /api/leads/:id/priority
+ */
+const updateLeadPriority = async (req, res, next) => {
+  try {
+    const { priority } = req.body || {};
+    const lead = await leadService.updateLeadPriority(req.params.id, priority, req.user);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Lead priority updated successfully',
       data: {
         lead
       },
@@ -314,9 +341,9 @@ const getLeadActivity = async (req, res, next) => {
  */
 const bulkAssignLeads = async (req, res, next) => {
   try {
-    const { mode, leadIds, filters, assignedTo } = req.body || {};
+    const { mode, leadIds, filters, assignedTo, priority } = req.body || {};
     const result = await leadService.bulkAssignLeads(
-      { mode, leadIds, filters, assignedTo },
+      { mode, leadIds, filters, assignedTo, priority },
       req.user
     );
 
@@ -325,6 +352,31 @@ const bulkAssignLeads = async (req, res, next) => {
       message: assignedTo && assignedTo !== 'unassigned'
         ? `Successfully assigned ${result.updatedCount} leads`
         : `Successfully unassigned ${result.updatedCount} leads`,
+      data: result,
+      errors: null
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+/**
+ * Bulk updates lead priority.
+ * Allowed for ADMIN and INTERN.
+ *
+ * POST /api/leads/bulk/priority
+ */
+const bulkUpdateLeadPriority = async (req, res, next) => {
+  try {
+    const { mode, leadIds, filters, priority } = req.body || {};
+    const result = await leadService.bulkUpdateLeadPriority(
+      { mode, leadIds, filters, priority },
+      req.user
+    );
+
+    return res.status(200).json({
+      success: true,
+      message: `Successfully updated priority to ${result.priority} for ${result.updatedCount} leads`,
       data: result,
       errors: null
     });
@@ -493,6 +545,8 @@ module.exports = {
   getAssignableUsers,
   bulkAssignLeads,
   bulkUpdateLeadStatus,
+  bulkUpdateLeadPriority,
+  updateLeadPriority,
   bulkArchiveLeads,
   bulkRestoreLeads,
   bulkPermanentDeleteLeads,

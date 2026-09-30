@@ -41,6 +41,37 @@ export const STATUS_OPTIONS = [
   { value: 'LOST', label: 'Lost' }
 ];
 
+export const LEAD_PRIORITY_CONFIG = {
+  HIGH: {
+    label: 'High',
+    badgeClass: 'bg-rose-50 text-rose-700 border-rose-200/80',
+    dotClass: 'bg-rose-500'
+  },
+  MEDIUM: {
+    label: 'Medium',
+    badgeClass: 'bg-amber-50 text-amber-700 border-amber-200/80',
+    dotClass: 'bg-amber-500'
+  },
+  LOW: {
+    label: 'Low',
+    badgeClass: 'bg-slate-50 text-slate-600 border-slate-200/80',
+    dotClass: 'bg-slate-400'
+  }
+};
+
+export const PRIORITY_OPTIONS = [
+  { value: '', label: 'All Priorities' },
+  { value: 'HIGH', label: 'High' },
+  { value: 'MEDIUM', label: 'Medium' },
+  { value: 'LOW', label: 'Low' }
+];
+
+export const PRIORITY_SELECT_OPTIONS = [
+  { value: 'HIGH', label: 'High' },
+  { value: 'MEDIUM', label: 'Medium' },
+  { value: 'LOW', label: 'Low' }
+];
+
 export const ASSIGNMENT_OPTIONS = [
   { value: '', label: 'All Assignments' },
   { value: 'assigned', label: 'Assigned' },

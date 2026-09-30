@@ -14,6 +14,7 @@ import {
   useSyncLeads,
   useAssignableUsers,
   useBulkAssignLeads,
+  useBulkUpdateLeadPriority,
   useBulkUpdateLeadStatus,
   useBulkArchiveLeads,
   useBulkRestoreLeads,
@@ -27,9 +28,10 @@ import LeadDetailsDrawer from '../components/LeadDetailsDrawer';
 import BulkActionBar from '../components/BulkActionBar';
 
 const LeadsPage = () => {
-  const { isAdmin, can } = usePermissions();
+  const { isAdmin, can, role } = usePermissions();
   const canUpdate = isAdmin || can('meta_leads', 'update');
   const canDelete = isAdmin || can('meta_leads', 'delete');
+  const canEditPriority = isAdmin || role === 'INTERN';
 
   // Listen to SSE updates on this page for real-time invalidation
   useDashboardSse();
@@ -43,8 +45,11 @@ const LeadsPage = () => {
   const [searchInput, setSearchInput] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
+  const [priorityFilter, setPriorityFilter] = useState('');
   const [followUpFilter, setFollowUpFilter] = useState('');
   const [assignmentFilter, setAssignmentFilter] = useState('');
+  const [sortBy, setSortBy] = useState('');
+  const [sortOrder, setSortOrder] = useState('asc');
 
   // State: Selection
   const [selectedIds, setSelectedIds] = useState([]);
@@ -77,9 +82,12 @@ const LeadsPage = () => {
     limit,
     search: debouncedSearch,
     status: statusFilter,
+    priority: priorityFilter,
     followUpStatus: followUpFilter,
     assignedTo: assignmentFilter,
-    archived: currentView === 'archived'
+    archived: currentView === 'archived',
+    sortBy,
+    sortOrder
   });
 
   const { data: statsRes, isLoading: isStatsLoading } = useLeadStats();
@@ -94,6 +102,7 @@ const LeadsPage = () => {
 
   // Bulk Mutations
   const bulkAssignMutation = useBulkAssignLeads();
+  const bulkPriorityMutation = useBulkUpdateLeadPriority();
   const bulkStatusMutation = useBulkUpdateLeadStatus();
   const bulkArchiveMutation = useBulkArchiveLeads();
   const bulkRestoreMutation = useBulkRestoreLeads();
@@ -101,6 +110,7 @@ const LeadsPage = () => {
 
   const isBulkPending =
     bulkAssignMutation.isPending ||
+    bulkPriorityMutation.isPending ||
     bulkStatusMutation.isPending ||
     bulkArchiveMutation.isPending ||
     bulkRestoreMutation.isPending ||
@@ -167,8 +177,11 @@ const LeadsPage = () => {
     setSearchInput('');
     setDebouncedSearch('');
     setStatusFilter('');
+    setPriorityFilter('');
     setFollowUpFilter('');
     setAssignmentFilter('');
+    setSortBy('');
+    setSortOrder('asc');
     handleClearSelection();
     setPage(1);
   };
@@ -177,6 +190,27 @@ const LeadsPage = () => {
     setStatusFilter(val);
     handleClearSelection();
     setPage(1);
+  };
+
+  const handlePriorityFilterChange = (val) => {
+    setPriorityFilter(val);
+    handleClearSelection();
+    setPage(1);
+  };
+
+  const handleSortChange = (column) => {
+    if (column === 'priority') {
+      if (sortBy !== 'priority') {
+        setSortBy('priority');
+        setSortOrder('asc'); // HIGH -> MEDIUM -> LOW
+      } else if (sortOrder === 'asc') {
+        setSortOrder('desc'); // LOW -> MEDIUM -> HIGH
+      } else {
+        setSortBy('');
+        setSortOrder('asc');
+      }
+      setPage(1);
+    }
   };
 
   const handleFollowUpFilterChange = (val) => {
@@ -216,16 +250,24 @@ const LeadsPage = () => {
   const activeFilters = {
     search: debouncedSearch,
     status: statusFilter,
+    priority: priorityFilter,
     followUpStatus: followUpFilter,
     assignedTo: assignmentFilter
   };
 
   // Bulk Handlers
-  const handleBulkAssign = (assignedTo) => {
+  const handleBulkAssign = (assignedTo, priority) => {
     const payload = isAllMatchingSelected
-      ? { mode: 'filtered', filters: activeFilters, assignedTo }
-      : { mode: 'ids', leadIds: selectedIds, assignedTo };
+      ? { mode: 'filtered', filters: activeFilters, assignedTo, ...(priority ? { priority } : {}) }
+      : { mode: 'ids', leadIds: selectedIds, assignedTo, ...(priority ? { priority } : {}) };
     bulkAssignMutation.mutate(payload, { onSuccess: handleClearSelection });
+  };
+
+  const handleBulkPriority = (priority) => {
+    const payload = isAllMatchingSelected
+      ? { mode: 'filtered', filters: activeFilters, priority }
+      : { mode: 'ids', leadIds: selectedIds, priority };
+    bulkPriorityMutation.mutate(payload, { onSuccess: handleClearSelection });
   };
 
   const handleBulkStatus = (status) => {
@@ -354,6 +396,8 @@ const LeadsPage = () => {
         onSearchChange={setSearchInput}
         statusFilter={statusFilter}
         onStatusFilterChange={handleStatusFilterChange}
+        priorityFilter={priorityFilter}
+        onPriorityFilterChange={handlePriorityFilterChange}
         followUpFilter={followUpFilter}
         onFollowUpFilterChange={handleFollowUpFilterChange}
         assignmentFilter={assignmentFilter}
@@ -372,12 +416,14 @@ const LeadsPage = () => {
         onClearSelection={handleClearSelection}
         currentView={currentView}
         onBulkAssign={handleBulkAssign}
+        onBulkPriority={handleBulkPriority}
         onBulkStatus={handleBulkStatus}
         onBulkArchive={handleBulkArchive}
         onBulkRestore={handleBulkRestore}
         onBulkPermanentDelete={handleBulkPermanentDelete}
         isPending={isBulkPending}
         isAdmin={isAdmin}
+        canEditPriority={canEditPriority}
         canUpdate={canUpdate}
         canDelete={canDelete}
         assignees={assignees}
@@ -412,6 +458,9 @@ const LeadsPage = () => {
         isAllCurrentPageSelected={isAllCurrentPageSelected}
         isPartiallySelected={isPartiallySelected}
         currentView={currentView}
+        sortBy={sortBy}
+        sortOrder={sortOrder}
+        onSortChange={handleSortChange}
       />
 
       {/* ─── SERVER-SIDE PAGINATION ─────────────────────────────────── */}
