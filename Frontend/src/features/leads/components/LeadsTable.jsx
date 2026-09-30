@@ -128,12 +128,12 @@ const LeadsTable = ({
                   aria-label="Select all leads on current page"
                 />
               </th>
-              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Lead</th>
-              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Phone</th>
-              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Email</th>
-              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Source</th>
-              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Campaign</th>
-              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 whitespace-nowrap">Lead</th>
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 whitespace-nowrap">Phone</th>
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 whitespace-nowrap">Email</th>
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 whitespace-nowrap">Source</th>
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 whitespace-nowrap">Campaign</th>
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 whitespace-nowrap">
                 <button
                   type="button"
                   onClick={() => onSortChange && onSortChange('priority')}
@@ -152,13 +152,13 @@ const LeadsTable = ({
                   )}
                 </button>
               </th>
-              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Status</th>
-              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Follow-up</th>
-              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">Assigned To</th>
-              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500">
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 whitespace-nowrap">Status</th>
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 whitespace-nowrap">Follow-up</th>
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 whitespace-nowrap">Assigned To</th>
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 whitespace-nowrap">
                 {currentView === 'archived' ? 'Archived At' : 'Created'}
               </th>
-              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 text-right">Actions</th>
+              <th className="py-3 px-4 text-[11px] font-bold uppercase tracking-wider text-neutral-500 text-right whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-neutral-100 text-sm">
