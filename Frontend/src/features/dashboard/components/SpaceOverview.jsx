@@ -53,7 +53,7 @@ const SpaceOverview = ({ data }) => {
   ];
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-border shadow-xs space-y-6">
+    <div className="h-full bg-white p-6 rounded-2xl border border-border shadow-xs flex flex-col justify-between space-y-6">
       <div>
         <h2 className="text-base font-extrabold text-black tracking-tight">Workspace Occupancy</h2>
         <p className="text-xs text-muted-text">Distribution and active status across space modules.</p>

@@ -11,11 +11,11 @@ import {
 const AnalyticsKpiCards = ({ kpis = {}, isLoading = false }) => {
   if (isLoading) {
     return (
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 xl:gap-3">
         {[...Array(6)].map((_, i) => (
           <div
             key={i}
-            className="bg-white p-4 rounded-2xl border border-border animate-pulse space-y-2.5"
+            className="bg-white p-3 xl:p-4 rounded-2xl border border-border animate-pulse space-y-2.5"
           >
             <div className="w-6 h-6 bg-neutral-200 rounded-lg" />
             <div className="w-16 h-3 bg-neutral-200 rounded" />
@@ -78,19 +78,22 @@ const AnalyticsKpiCards = ({ kpis = {}, isLoading = false }) => {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5 xl:gap-3 items-stretch">
       {cards.map((card, index) => {
         const Icon = card.icon;
         return (
           <div
             key={index}
-            className="bg-white p-4 rounded-2xl border border-border shadow-xs flex flex-col justify-between hover:border-neutral-400 transition-colors"
+            className="h-full bg-white p-3 xl:p-4 rounded-2xl border border-border shadow-xs flex flex-col justify-between hover:border-neutral-400 transition-colors"
           >
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold text-muted-text uppercase tracking-wider">
+            <div className="flex items-center justify-between gap-1 mb-2 min-h-[22px]">
+              <span
+                className="text-[10px] xl:text-[11px] 2xl:text-xs font-semibold text-muted-text uppercase tracking-tight whitespace-nowrap truncate"
+                title={card.label}
+              >
                 {card.label}
               </span>
-              <div className={`p-1.5 rounded-lg ${card.bgColor}`}>
+              <div className={`p-1 rounded-md xl:p-1.5 xl:rounded-lg shrink-0 ${card.bgColor}`}>
                 <Icon className={`w-3.5 h-3.5 ${card.iconColor}`} />
               </div>
             </div>
@@ -99,7 +102,7 @@ const AnalyticsKpiCards = ({ kpis = {}, isLoading = false }) => {
               <div className="text-2xl font-bold text-black tracking-tight">
                 {card.value}
               </div>
-              <p className="text-[11px] text-muted-text mt-0.5 truncate">
+              <p className="text-[11px] text-muted-text mt-0.5 truncate" title={card.subtitle}>
                 {card.subtitle}
               </p>
             </div>

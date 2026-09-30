@@ -156,12 +156,13 @@ const LeadsTable = ({
               return (
                 <tr
                   key={leadId || lead.metaLeadId}
-                  className={`transition-colors group ${
+                  onClick={() => onViewDetails && onViewDetails(lead)}
+                  className={`transition-colors group cursor-pointer ${
                     isSelected ? 'bg-rose-50/40 hover:bg-rose-50/70' : 'hover:bg-neutral-50/60'
                   }`}
                 >
                   {/* Checkbox Column */}
-                  <td className="py-3.5 px-4 w-10">
+                  <td className="py-3.5 px-4 w-10" onClick={(e) => e.stopPropagation()}>
                     <input
                       type="checkbox"
                       checked={isSelected}
@@ -281,7 +282,7 @@ const LeadsTable = ({
                   </td>
 
                   {/* 10. Actions */}
-                  <td className="py-3.5 px-4 whitespace-nowrap text-right">
+                  <td className="py-3.5 px-4 whitespace-nowrap text-right" onClick={(e) => e.stopPropagation()}>
                     <button
                       type="button"
                       onClick={() => onViewDetails(lead)}
@@ -317,7 +318,8 @@ const LeadsTable = ({
           return (
             <div
               key={leadId || lead.metaLeadId}
-              className={`p-4 space-y-3 transition-colors ${
+              onClick={() => onViewDetails && onViewDetails(lead)}
+              className={`p-4 space-y-3 transition-colors cursor-pointer ${
                 isSelected ? 'bg-rose-50/40' : 'hover:bg-neutral-50/50'
               }`}
             >
@@ -325,6 +327,7 @@ const LeadsTable = ({
                 <input
                   type="checkbox"
                   checked={isSelected}
+                  onClick={(e) => e.stopPropagation()}
                   onChange={() => onToggleSelect && onToggleSelect(leadId)}
                   className="w-4 h-4 mt-1 rounded border-neutral-300 text-[#ED1F23] focus:ring-[#ED1F23]/20 cursor-pointer shrink-0"
                   aria-label={`Select lead ${lead.fullName || lead.metaLeadId}`}
@@ -401,7 +404,10 @@ const LeadsTable = ({
 
                 <button
                   type="button"
-                  onClick={() => onViewDetails(lead)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onViewDetails(lead);
+                  }}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-neutral-200 bg-white text-xs font-semibold text-neutral-800 hover:text-[#ED1F23] transition-all cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5" />

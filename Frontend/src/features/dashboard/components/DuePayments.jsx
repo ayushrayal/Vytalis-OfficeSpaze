@@ -41,27 +41,27 @@ const DuePayments = ({ data }) => {
   ];
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-border shadow-xs space-y-4">
-      <div className="flex items-center justify-between">
+    <div className="h-full bg-white p-6 rounded-2xl border border-border shadow-xs flex flex-col justify-between space-y-4">
+      <div className="flex items-center justify-between shrink-0">
         <div>
           <h2 className="text-base font-extrabold text-black tracking-tight">Pending Due Payments</h2>
           <p className="text-xs text-muted-text">Outstanding items across Utility Bills, Salaries, and Operation Bills.</p>
         </div>
-        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-soft-red text-brand-red text-xs font-bold">
+        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-soft-red text-brand-red text-xs font-bold shrink-0">
           <AlertCircle className="w-3.5 h-3.5" />
           <span>{combinedDueList.length} Pending</span>
         </span>
       </div>
 
       {combinedDueList.length === 0 ? (
-        <div className="p-8 text-center bg-warm-bg/50 rounded-xl border border-dashed border-border space-y-2">
+        <div className="h-[210px] sm:h-[216px] flex flex-col items-center justify-center p-6 text-center bg-warm-bg/50 rounded-xl border border-dashed border-border space-y-2">
           <Clock className="w-6 h-6 text-muted-text mx-auto" />
           <p className="text-xs font-bold text-black">No pending due payments</p>
           <p className="text-[11px] text-muted-text">All utility bills, salaries, and operational expenses are clear.</p>
         </div>
       ) : (
-        <div className="divide-y divide-border border border-border rounded-xl overflow-hidden">
-          {combinedDueList.slice(0, 6).map((item) => (
+        <div className="max-h-[210px] sm:max-h-[216px] overflow-y-auto divide-y divide-border border border-border rounded-xl scrollbar-thin">
+          {combinedDueList.map((item) => (
             <div key={`${item.category}-${item.id}`} className="p-3 sm:p-4 bg-white hover:bg-warm-bg/30 flex items-center justify-between gap-3 sm:gap-4 transition-all min-w-0">
               <div className="space-y-1 min-w-0 flex-1">
                 <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">

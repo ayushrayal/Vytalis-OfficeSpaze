@@ -552,7 +552,7 @@ const LeadDetailsDrawer = ({
                 </div>
               </div>
             ) : (
-              <div className="p-3 bg-neutral-50 rounded-xl border border-dashed border-neutral-200 text-xs text-neutral-500 flex items-center justify-between">
+              <div className="p-3 bg-neutral-50 rounded-xl border border-dashed border-neutral-200 text-xs text-neutral-500">
                 <span>
                   {currentLead.archivedAt
                     ? 'Lead is archived. Restore the lead to schedule follow-ups.'
@@ -560,18 +560,6 @@ const LeadDetailsDrawer = ({
                     ? 'Lead is converted. New follow-ups cannot be scheduled.'
                     : 'No active follow-up scheduled.'}
                 </span>
-                {canUpdate && !currentLead.archivedAt && currentLead.status !== 'CONVERTED' && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsRescheduleMode(false);
-                      setIsScheduleModalOpen(true);
-                    }}
-                    className="text-amber-700 font-semibold hover:underline cursor-pointer"
-                  >
-                    + Schedule Now
-                  </button>
-                )}
               </div>
             )}
 

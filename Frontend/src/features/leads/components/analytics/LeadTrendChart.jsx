@@ -47,7 +47,7 @@ const LeadTrendChart = ({ trends = [], isLoading = false }) => {
   }
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-border shadow-xs space-y-4">
+    <div className="h-full bg-white p-6 rounded-2xl border border-border shadow-xs flex flex-col">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div>
           <h3 className="text-sm font-bold uppercase tracking-wider text-black">
@@ -60,12 +60,12 @@ const LeadTrendChart = ({ trends = [], isLoading = false }) => {
       </div>
 
       {!hasData ? (
-        <div className="h-64 flex flex-col items-center justify-center text-xs text-muted-text bg-warm-bg/50 rounded-xl border border-dashed border-border gap-1">
+        <div className="flex-1 min-h-[260px] flex flex-col items-center justify-center text-xs text-muted-text bg-warm-bg/50 rounded-xl border border-dashed border-border gap-1 mt-4">
           <p className="font-medium text-black">No lead activity recorded for this period</p>
           <p className="text-[11px] text-muted-text">Try expanding your date range filter.</p>
         </div>
       ) : (
-        <div className="h-64 w-full">
+        <div className="flex-1 w-full min-h-[280px] mt-4">
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={trends} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
               <defs>

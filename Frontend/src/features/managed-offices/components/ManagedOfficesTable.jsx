@@ -55,13 +55,15 @@ const ManagedOfficesTable = ({
 
                   {/* 2. Client Name */}
                   <td className="py-3.5 px-4 font-bold text-black whitespace-nowrap">
-                    <div>
-                      <span className="block text-black font-bold">
+                    <div className="flex items-center gap-2">
+                      <span className="text-black font-bold">
                         {office.firstName} {office.lastName}
                       </span>
-                      <span className="text-[10px] text-neutral-400 font-medium block mt-0.5">
-                        By: {office.allottedBy}
-                      </span>
+                      {office.allottedBy && (
+                        <span className="text-[11px] text-neutral-400 font-medium">
+                          By: {office.allottedBy}
+                        </span>
+                      )}
                     </div>
                   </td>
 

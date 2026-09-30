@@ -4,11 +4,11 @@ import { Calendar, Clock, AlertTriangle, CheckCircle, XCircle, AlertOctagon } fr
 const FollowUpHealthCards = ({ followUpSummary = {}, isLoading = false }) => {
   if (isLoading) {
     return (
-      <div className="bg-white p-6 rounded-2xl border border-border shadow-xs space-y-4">
+      <div className="bg-white p-4 sm:p-5 xl:p-6 rounded-2xl border border-border shadow-xs space-y-4">
         <div className="w-40 h-4 bg-neutral-200 rounded animate-pulse" />
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 xl:gap-2.5">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-16 bg-warm-bg rounded-xl animate-pulse" />
+            <div key={i} className="h-[84px] bg-warm-bg rounded-xl animate-pulse" />
           ))}
         </div>
       </div>
@@ -72,7 +72,7 @@ const FollowUpHealthCards = ({ followUpSummary = {}, isLoading = false }) => {
   ];
 
   return (
-    <div className="bg-white p-6 rounded-2xl border border-border shadow-xs space-y-4">
+    <div className="bg-white p-4 sm:p-5 xl:p-6 rounded-2xl border border-border shadow-xs space-y-4">
       <div>
         <h3 className="text-sm font-bold uppercase tracking-wider text-black">
           Follow-up Health & Activity
@@ -83,24 +83,36 @@ const FollowUpHealthCards = ({ followUpSummary = {}, isLoading = false }) => {
       </div>
 
       {/* Snapshot Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 xl:gap-2.5 items-stretch">
         {snapshot.map((card, idx) => {
           const Icon = card.icon;
           return (
             <div
               key={idx}
-              className="p-3.5 rounded-xl border border-border bg-warm-bg/30 flex flex-col justify-between"
+              className="h-full px-2 py-2.5 sm:px-2.5 sm:py-3 xl:px-3 rounded-xl border border-border bg-warm-bg/30 flex flex-col justify-between transition-colors"
             >
-              <div className="flex items-center justify-between mb-1">
-                <span className="text-[11px] font-semibold text-muted-text uppercase">
-                  {card.label}
-                </span>
-                <div className={`p-1 rounded-md ${card.bg}`}>
-                  <Icon className={`w-3.5 h-3.5 ${card.color}`} />
+              <div>
+                <div className="flex items-center justify-between gap-1 mb-1 min-h-[20px]">
+                  <span
+                    className="text-[9.5px] lg:text-[9px] xl:text-[10.5px] 2xl:text-[11px] font-semibold text-muted-text uppercase tracking-tight whitespace-nowrap truncate"
+                    title={card.label}
+                  >
+                    {card.label}
+                  </span>
+                  <div className={`p-0.5 sm:p-1 rounded shrink-0 ${card.bg}`}>
+                    <Icon className={`w-3 h-3 sm:w-3.5 sm:h-3.5 ${card.color}`} />
+                  </div>
+                </div>
+                <div className="text-xl sm:text-2xl font-bold text-black tracking-tight leading-tight my-0.5">
+                  {card.value}
                 </div>
               </div>
-              <div className="text-xl font-bold text-black">{card.value}</div>
-              <p className="text-[10px] text-muted-text mt-0.5">{card.description}</p>
+              <p
+                className="text-[9.5px] lg:text-[9px] xl:text-[10px] 2xl:text-[10.5px] text-muted-text tracking-tight whitespace-nowrap truncate leading-normal mt-1"
+                title={card.description}
+              >
+                {card.description}
+              </p>
             </div>
           );
         })}

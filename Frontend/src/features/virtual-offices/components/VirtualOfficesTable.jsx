@@ -48,13 +48,15 @@ const VirtualOfficesTable = ({
                 >
                   {/* 1. Client Name */}
                   <td className="py-3.5 px-4 font-bold text-black whitespace-nowrap">
-                    <div>
-                      <span className="block text-black font-bold">
+                    <div className="flex items-center gap-2">
+                      <span className="text-black font-bold">
                         {office.firstName} {office.lastName}
                       </span>
-                      <span className="text-[10px] text-neutral-400 font-medium block mt-0.5">
-                        By: {office.allottedBy}
-                      </span>
+                      {office.allottedBy && (
+                        <span className="text-[11px] text-neutral-400 font-medium">
+                          By: {office.allottedBy}
+                        </span>
+                      )}
                     </div>
                   </td>
 
@@ -134,10 +136,10 @@ const VirtualOfficesTable = ({
 
                   {/* 10. Status & Agreement */}
                   <td className="py-3.5 px-4 whitespace-nowrap">
-                    <div className="flex flex-col gap-1.5 items-start">
+                    <div className="flex items-center gap-2.5">
                       {/* Active / Expired derived badge */}
                       <span
-                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
+                        className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider shrink-0 ${
                           isActive
                             ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
                             : 'bg-neutral-100 text-neutral-600 border border-neutral-200'
@@ -159,13 +161,13 @@ const VirtualOfficesTable = ({
                             e.stopPropagation();
                             onPreviewAgreement(office);
                           }}
-                          className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-red hover:underline cursor-pointer"
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-red hover:underline cursor-pointer shrink-0"
                         >
                           <FileText className="w-3.5 h-3.5" />
                           <span>View Agreement</span>
                         </button>
                       ) : (
-                        <span className="text-[11px] font-medium text-neutral-400 italic">
+                        <span className="text-[11px] font-medium text-neutral-400 italic shrink-0">
                           No Agreement
                         </span>
                       )}
