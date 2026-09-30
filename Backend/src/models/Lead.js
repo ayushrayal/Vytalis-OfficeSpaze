@@ -255,12 +255,27 @@ const leadSchema = new mongoose.Schema(
 );
 
 // Pre-save hook to ensure priorityWeight is always synchronized with priority
-leadSchema.pre('save', function (next) {
+leadSchema.pre('save', function () {
   if (this.priority) {
     this.priorityWeight = PRIORITY_WEIGHTS[this.priority] || 2;
   }
-  next();
 });
+
+// Pre-update hooks for findOneAndUpdate / updateOne / updateMany
+function syncPriorityWeightOnUpdate() {
+  const update = this.getUpdate ? this.getUpdate() : null;
+  if (update) {
+    if (update.priority && PRIORITY_WEIGHTS[update.priority]) {
+      update.priorityWeight = PRIORITY_WEIGHTS[update.priority];
+    } else if (update.$set && update.$set.priority && PRIORITY_WEIGHTS[update.$set.priority]) {
+      update.$set.priorityWeight = PRIORITY_WEIGHTS[update.$set.priority];
+    }
+  }
+}
+
+leadSchema.pre('findOneAndUpdate', syncPriorityWeightOnUpdate);
+leadSchema.pre('updateOne', syncPriorityWeightOnUpdate);
+leadSchema.pre('updateMany', syncPriorityWeightOnUpdate);
 
 // Compound indexes for fast CRM searches & filtering
 leadSchema.index({ status: 1, createdAt: -1 });
