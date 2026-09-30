@@ -47,8 +47,13 @@ import {
   useCancelFollowUp
 } from '../hooks/useLeads';
 import LeadPriority from './LeadPriority';
+import FilterSelect from '../../../components/ui/FilterSelect';
 
-const STATUS_CHOICES = STATUS_OPTIONS.filter((o) => o.value);
+const STATUS_DROPDOWN_OPTIONS = STATUS_OPTIONS.filter((o) => o.value).map((opt) => ({
+  value: opt.value,
+  label: opt.label,
+  dotClass: LEAD_STATUS_CONFIG[opt.value]?.dotClass
+}));
 
 const formatTimestamp = (dateVal) => {
   if (!dateVal) return null;
@@ -379,31 +384,21 @@ const LeadDetailsDrawer = ({
               </div>
             ) : canUpdate ? (
               <div className="flex flex-wrap items-center gap-2.5">
-                <select
+                <FilterSelect
                   value={currentLead.status || 'NEW'}
-                  onChange={(e) => {
-                    if (e.target.value === 'CONVERTED') {
+                  onChange={(val) => {
+                    if (val === 'CONVERTED') {
                       setIsConvertModalOpen(true);
                       return;
                     }
-                    statusMutation.mutate({ id: leadId, status: e.target.value });
+                    statusMutation.mutate({ id: leadId, status: val });
                   }}
+                  options={STATUS_DROPDOWN_OPTIONS}
                   disabled={statusMutation.isPending}
-                  className="px-3 py-1.5 text-xs font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-400 transition-all cursor-pointer disabled:opacity-50"
-                >
-                  {STATUS_CHOICES.map((opt) => (
-                    <option key={opt.value} value={opt.value}>
-                      {opt.label}
-                    </option>
-                  ))}
-                </select>
-                <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${statusCfg.badgeClass}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dotClass}`}></span>
-                  {statusCfg.label}
-                </span>
-                {statusMutation.isPending && (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-neutral-400" />
-                )}
+                  isPending={statusMutation.isPending}
+                  className="w-full sm:w-auto min-w-[150px]"
+                  buttonClassName="bg-white py-1.5 px-3 border-neutral-200"
+                />
               </div>
             ) : (
               <span className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${statusCfg.badgeClass}`}>
@@ -431,28 +426,27 @@ const LeadDetailsDrawer = ({
             <span className="text-xs text-neutral-500 font-medium block mb-1.5">Lead Assignment</span>
             {isAdmin ? (
               <div className="flex items-center gap-2.5">
-                <select
+                <FilterSelect
                   value={currentAssigneeId || 'unassigned'}
-                  onChange={(e) => {
-                    const val = e.target.value === 'unassigned' ? null : e.target.value;
+                  onChange={(val) => {
+                    const assignedVal = val === 'unassigned' ? null : val;
                     assignMutation.mutate({
                       id: leadId,
-                      assignedTo: val
+                      assignedTo: assignedVal
                     });
                   }}
+                  options={[
+                    { value: 'unassigned', label: '— Unassigned —' },
+                    ...assignees.map((u) => ({
+                      value: u.id || u._id,
+                      label: `${u.name} (${u.role})`
+                    }))
+                  ]}
                   disabled={assignMutation.isPending || isLoadingAssignees}
-                  className="w-full sm:max-w-xs px-3 py-1.5 text-xs font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-400 transition-all cursor-pointer disabled:opacity-50"
-                >
-                  <option value="unassigned">— Unassigned —</option>
-                  {assignees.map((u) => (
-                    <option key={u.id || u._id} value={u.id || u._id}>
-                      {u.name} ({u.role})
-                    </option>
-                  ))}
-                </select>
-                {assignMutation.isPending && (
-                  <RefreshCw className="w-3.5 h-3.5 animate-spin text-neutral-400" />
-                )}
+                  isPending={assignMutation.isPending}
+                  className="w-full sm:max-w-xs"
+                  buttonClassName="bg-white py-1.5 px-3 border-neutral-200"
+                />
               </div>
             ) : (
               <div className="text-xs font-semibold text-neutral-800">

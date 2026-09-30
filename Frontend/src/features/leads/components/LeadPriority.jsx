@@ -1,6 +1,12 @@
 import React from 'react';
-import { RefreshCw } from 'lucide-react';
+import FilterSelect from '../../../components/ui/FilterSelect';
 import { LEAD_PRIORITY_CONFIG, PRIORITY_SELECT_OPTIONS } from '../constants/leads.constant';
+
+const PRIORITY_DROPDOWN_OPTIONS = PRIORITY_SELECT_OPTIONS.map((opt) => ({
+  value: opt.value,
+  label: opt.label,
+  dotClass: LEAD_PRIORITY_CONFIG[opt.value]?.dotClass
+}));
 
 /**
  * Reusable LeadPriority component.
@@ -43,25 +49,15 @@ const LeadPriority = ({
 
   return (
     <div className={`inline-flex items-center gap-2 ${className}`}>
-      <select
+      <FilterSelect
         value={normPriority}
-        onChange={(e) => onChange && onChange(e.target.value)}
+        onChange={(val) => onChange && onChange(val)}
+        options={PRIORITY_DROPDOWN_OPTIONS}
         disabled={isPending}
-        className="px-2.5 py-1 text-xs font-semibold rounded-xl border border-neutral-200 bg-white text-neutral-800 focus:outline-none focus:ring-2 focus:ring-neutral-900/10 focus:border-neutral-400 transition-all cursor-pointer disabled:opacity-50"
-      >
-        {PRIORITY_SELECT_OPTIONS.map((opt) => (
-          <option key={opt.value} value={opt.value}>
-            {opt.label}
-          </option>
-        ))}
-      </select>
-      <span
-        className={`inline-flex items-center gap-1.5 rounded-full font-semibold border ${cfg.badgeClass} ${sizeClasses}`}
-      >
-        <span className={`w-1.5 h-1.5 rounded-full ${cfg.dotClass}`} />
-        <span>{cfg.label}</span>
-      </span>
-      {isPending && <RefreshCw className="w-3.5 h-3.5 animate-spin text-neutral-400" />}
+        isPending={isPending}
+        className="w-full sm:w-auto min-w-[130px]"
+        buttonClassName="bg-white py-1.5 px-3 border-neutral-200"
+      />
     </div>
   );
 };
