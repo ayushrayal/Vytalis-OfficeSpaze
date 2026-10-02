@@ -347,7 +347,7 @@ const CoworkSpaceForm = ({
           Agreement Document (Optional)
         </label>
         <p className="text-[11px] text-[#505050] mb-2">
-          Accepted formats: PDF, JPG, JPEG, PNG (Max size: 5 MB)
+          Accepted formats: PDF, JPG, JPEG, PNG (Max 50 MB)
         </p>
 
         {/* Existing agreement notification during edit */}

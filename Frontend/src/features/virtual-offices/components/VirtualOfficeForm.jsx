@@ -529,7 +529,7 @@ const VirtualOfficeForm = ({
                 <div className="flex items-center gap-2 min-w-0">
                   <FileText className="w-4 h-4 text-brand-red shrink-0" />
                   <span className="text-xs font-semibold text-black truncate">
-                    {selectedFile.name} ({Math.round(selectedFile.size / 1024)} KB)
+                    {selectedFile.name} ({selectedFile.size >= 1024 * 1024 ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB` : `${Math.round(selectedFile.size / 1024)} KB`})
                   </span>
                 </div>
                 <button
@@ -548,7 +548,7 @@ const VirtualOfficeForm = ({
                   Click or drag file to upload
                 </p>
                 <p className="text-[11px] text-neutral-400 font-medium my-0">
-                  PDF, JPG, JPEG, PNG (Max 5 MB)
+                  PDF, JPG, JPEG, PNG (Max 50 MB)
                 </p>
               </div>
             )}

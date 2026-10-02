@@ -79,24 +79,40 @@ const generateSignedDocumentUrl = ({ filePath, url }) => {
  * Preserves url as a legacy database field for backward compatibility,
  * but API responses must strip it before sending to clients.
  */
-const uploadAgreement = async (fileBuffer, fileName, folder) => {
+const uploadAgreement = async (fileInput, fileName, folder) => {
   const safeFileName = fileName || `agreement_${Date.now()}`;
-  const file = await ImageKit.toFile(fileBuffer, safeFileName);
+  let file;
+  if (fileInput && (typeof fileInput.pipe === 'function' || typeof fileInput.read === 'function')) {
+    file = fileInput;
+  } else {
+    file = await ImageKit.toFile(fileInput, safeFileName);
+  }
 
-  const response = await client.files.upload({
-    file,
-    fileName: safeFileName,
-    folder: folder || '/VytalisOfficeSpaze/agreements'
-  });
+  try {
+    const response = await client.files.upload({
+      file,
+      fileName: safeFileName,
+      folder: folder || '/VytalisOfficeSpaze/agreements'
+    });
 
-  return {
-    fileId: response.fileId,
-    filePath: response.filePath || null,
-    fileName: response.name || safeFileName,
-    url: response.url, // Legacy compatibility only; stripped from normal API responses
-    mimeType: response.mime || response.fileType || null,
-    size: response.size || null
-  };
+    return {
+      fileId: response.fileId,
+      filePath: response.filePath || null,
+      fileName: response.name || safeFileName,
+      url: response.url, // Legacy compatibility only; stripped from normal API responses
+      mimeType: response.mime || response.fileType || null,
+      size: response.size || null
+    };
+  } catch (err) {
+    if (err.message && (err.message.includes('26214400') || err.message.toLowerCase().includes('exceeds 26214400'))) {
+      const error = new Error(
+        'Upload failed: The file size exceeds the storage provider (ImageKit) plan limit of 25 MB (26,214,400 bytes). To support files up to 50 MB, the ImageKit plan must be upgraded to Pro.'
+      );
+      error.statusCode = 400;
+      throw error;
+    }
+    throw err;
+  }
 };
 
 /**

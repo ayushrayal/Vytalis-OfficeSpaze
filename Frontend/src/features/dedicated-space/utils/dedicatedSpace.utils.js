@@ -94,7 +94,7 @@ export const calculateDerivedStatus = (startDate, endDate) => {
 export const validateAgreementFile = (file) => {
   if (!file) return { valid: true };
 
-  const MAX_SIZE = 5 * 1024 * 1024; // 5 MB
+  const MAX_SIZE = 50 * 1024 * 1024; // 50 MB
   const allowedExtensions = ['.pdf', '.jpg', '.jpeg', '.png'];
   const fileName = file.name || '';
   const ext = fileName.slice(fileName.lastIndexOf('.')).toLowerCase();
@@ -109,14 +109,14 @@ export const validateAgreementFile = (file) => {
   if (!allowedExtensions.includes(ext) && !allowedTypes.includes(file.type)) {
     return {
       valid: false,
-      error: 'File must be PDF, JPG, JPEG or PNG and smaller than 5 MB.'
+      error: 'File must be PDF, JPG, JPEG or PNG and smaller than 50 MB.'
     };
   }
 
   if (file.size > MAX_SIZE) {
     return {
       valid: false,
-      error: 'File must be PDF, JPG, JPEG or PNG and smaller than 5 MB.'
+      error: 'File must be PDF, JPG, JPEG or PNG and smaller than 50 MB.'
     };
   }
 

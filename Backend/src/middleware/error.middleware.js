@@ -4,7 +4,15 @@ const errorMiddleware = (err, req, res, next) => {
 
   if (err.code === 'LIMIT_FILE_SIZE') {
     statusCode = 400;
-    message = 'File size limit exceeded. Maximum allowed size is 5MB.';
+    const isAgreementRoute = req.originalUrl && (
+      req.originalUrl.includes('/virtual-offices') ||
+      req.originalUrl.includes('/managed-offices') ||
+      req.originalUrl.includes('/cowork-spaces') ||
+      req.originalUrl.includes('/dedicated-spaces')
+    );
+    message = isAgreementRoute
+      ? 'File size limit exceeded. Maximum allowed size is 50MB.'
+      : 'File size limit exceeded. Maximum allowed size is 5MB.';
   }
 
   if (err.name === 'CastError') {
