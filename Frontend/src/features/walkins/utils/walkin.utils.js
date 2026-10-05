@@ -152,8 +152,9 @@ export const filterWalkins = (walkins = [], { search = '', dateFilter = 'all', s
       const emailMatch = item.email?.toLowerCase().includes(trimmedSearch);
       const sourceMatch = item.source?.toLowerCase().includes(trimmedSearch);
       const notesMatch = item.notes?.toLowerCase().includes(trimmedSearch);
+      const statusMatch = item.status?.toLowerCase().includes(trimmedSearch);
 
-      if (!nameMatch && !phoneMatch && !emailMatch && !sourceMatch && !notesMatch) {
+      if (!nameMatch && !phoneMatch && !emailMatch && !sourceMatch && !notesMatch && !statusMatch) {
         return false;
       }
     }

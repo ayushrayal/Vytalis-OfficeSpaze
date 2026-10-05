@@ -1,11 +1,12 @@
 const walkInService = require('../services/walkin.service');
+const walkInFollowUpService = require('../services/walkinFollowUp.service');
 const { broadcastDashboardUpdate } = require('../utils/dashboardBroadcaster.util');
 
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 const createWalkIn = async (req, res, next) => {
   try {
-    const { name, phone, email, date, source, notes } = req.body;
+    const { name, phone, email, date, source, notes, status } = req.body;
 
     if (!name || typeof name !== 'string' || !name.trim()) {
       return res.status(400).json({ success: false, message: 'Name is required' });
@@ -33,7 +34,8 @@ const createWalkIn = async (req, res, next) => {
       email,
       date,
       source,
-      notes
+      notes,
+      status
     });
 
     broadcastDashboardUpdate({
@@ -57,13 +59,31 @@ const createWalkIn = async (req, res, next) => {
 
 const getWalkIns = async (req, res, next) => {
   try {
-    const walkIns = await walkInService.getWalkIns();
+    const result = await walkInService.getWalkIns(req.query);
+    const walkIns = Array.isArray(result) ? result : (result.walkIns || []);
+    const stats = result.stats || null;
+    const sources = result.sources || [];
 
     res.status(200).json({
       success: true,
       data: {
-        walkIns
+        walkIns,
+        stats,
+        sources
       }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getGlobalFollowUps = async (req, res, next) => {
+  try {
+    const result = await walkInFollowUpService.getGlobalFollowUps(req.query);
+
+    res.status(200).json({
+      success: true,
+      data: result
     });
   } catch (error) {
     next(error);
@@ -87,7 +107,7 @@ const getWalkIn = async (req, res, next) => {
 
 const updateWalkIn = async (req, res, next) => {
   try {
-    const { name, phone, email, date, source, notes } = req.body;
+    const { name, phone, email, date, source, notes, status } = req.body;
 
     if (name !== undefined && (typeof name !== 'string' || !name.trim())) {
       return res.status(400).json({ success: false, message: 'Name cannot be empty' });
@@ -115,7 +135,8 @@ const updateWalkIn = async (req, res, next) => {
       email,
       date,
       source,
-      notes
+      notes,
+      status
     });
 
     broadcastDashboardUpdate({
@@ -157,10 +178,188 @@ const deleteWalkIn = async (req, res, next) => {
   }
 };
 
+const updateWalkInStatus = async (req, res, next) => {
+  try {
+    const { status, note } = req.body;
+
+    if (!status || typeof status !== 'string') {
+      return res.status(400).json({ success: false, message: 'Status is required' });
+    }
+
+    const walkIn = await walkInService.updateWalkInStatus(
+      req.params.id,
+      { status: status.trim(), note },
+      req.user
+    );
+
+    broadcastDashboardUpdate({
+      type: 'WALK_IN_UPDATED',
+      entity: 'walkin',
+      entityId: walkIn._id,
+      action: 'status_updated'
+    });
+
+    res.status(200).json({
+      success: true,
+      message: 'Walk-in status updated successfully',
+      data: {
+        walkIn
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const scheduleFollowUp = async (req, res, next) => {
+  try {
+    const { dueAt, note, notes } = req.body;
+
+    const followUp = await walkInFollowUpService.scheduleFollowUp(
+      req.params.id,
+      { dueAt, note, notes },
+      req.user
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Follow-up scheduled successfully',
+      data: {
+        followUp
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const rescheduleFollowUp = async (req, res, next) => {
+  try {
+    const { dueAt, note, notes } = req.body;
+
+    const followUp = await walkInFollowUpService.rescheduleFollowUp(
+      req.params.id,
+      req.params.followUpId,
+      { dueAt, note, notes },
+      req.user
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Follow-up rescheduled successfully',
+      data: {
+        followUp
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const completeFollowUp = async (req, res, next) => {
+  try {
+    const { note, notes } = req.body;
+
+    const followUp = await walkInFollowUpService.completeFollowUp(
+      req.params.id,
+      req.params.followUpId,
+      { note, notes },
+      req.user
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Follow-up marked as completed',
+      data: {
+        followUp
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const cancelFollowUp = async (req, res, next) => {
+  try {
+    const { note, notes } = req.body;
+
+    const followUp = await walkInFollowUpService.cancelFollowUp(
+      req.params.id,
+      req.params.followUpId,
+      { note, notes },
+      req.user
+    );
+
+    res.status(200).json({
+      success: true,
+      message: 'Follow-up cancelled successfully',
+      data: {
+        followUp
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getFollowUps = async (req, res, next) => {
+  try {
+    const data = await walkInFollowUpService.getWalkInFollowUps(req.params.id);
+
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const getActivity = async (req, res, next) => {
+  try {
+    const { page, limit } = req.query;
+    const data = await walkInService.getWalkInActivity(req.params.id, { page, limit });
+
+    res.status(200).json({
+      success: true,
+      data
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+const addNote = async (req, res, next) => {
+  try {
+    const { note } = req.body;
+    const activity = await walkInService.addWalkInNote(req.params.id, { note }, req.user);
+
+    res.status(201).json({
+      success: true,
+      message: 'Note added to activity timeline',
+      data: {
+        activity
+      }
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
 module.exports = {
   createWalkIn,
   getWalkIns,
+  getGlobalFollowUps,
   getWalkIn,
   updateWalkIn,
-  deleteWalkIn
+  deleteWalkIn,
+  updateWalkInStatus,
+  scheduleFollowUp,
+  rescheduleFollowUp,
+  completeFollowUp,
+  cancelFollowUp,
+  getFollowUps,
+  getActivity,
+  addNote
 };
+

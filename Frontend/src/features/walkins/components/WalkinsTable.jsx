@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Edit2, Trash2, Mail, Phone, Calendar, User, Tag, FileText, Info } from 'lucide-react';
 import { formatDateDisplay } from '../utils/walkin.utils';
+import { WALKIN_STATUS_CONFIG } from '../constants/walkin.constant';
 import { format } from 'date-fns';
 
 const WalkinsTable = ({ walkins = [], onEdit, onDelete, onSelectRecord }) => {
@@ -18,6 +19,7 @@ const WalkinsTable = ({ walkins = [], onEdit, onDelete, onSelectRecord }) => {
                 <th className="py-4 px-4 whitespace-nowrap">Email</th>
                 <th className="py-4 px-4 whitespace-nowrap">Walk-in Date</th>
                 <th className="py-4 px-4 whitespace-nowrap">Source</th>
+                <th className="py-4 px-4 whitespace-nowrap">Status</th>
                 <th className="py-4 px-4 whitespace-nowrap">Notes</th>
                 <th className="py-4 px-4 whitespace-nowrap">Created</th>
                 <th className="py-4 px-4 sm:px-6 text-right whitespace-nowrap">Actions</th>
@@ -29,6 +31,7 @@ const WalkinsTable = ({ walkins = [], onEdit, onDelete, onSelectRecord }) => {
                 const createdDate = item.createdAt
                   ? format(new Date(item.createdAt), 'dd MMM yyyy, HH:mm')
                   : '—';
+                const statusCfg = WALKIN_STATUS_CONFIG[item.status || 'NEW'] || WALKIN_STATUS_CONFIG.NEW;
 
                 return (
                   <tr
@@ -79,6 +82,14 @@ const WalkinsTable = ({ walkins = [], onEdit, onDelete, onSelectRecord }) => {
                       <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold bg-neutral-100 text-neutral-800 border border-neutral-200 whitespace-nowrap">
                         <Tag className="w-3 h-3 text-neutral-500 shrink-0" />
                         <span className="whitespace-nowrap">{item.source}</span>
+                      </span>
+                    </td>
+
+                    {/* Status */}
+                    <td className="py-4 px-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border ${statusCfg.badgeClass}`}>
+                        <span className={`w-1.5 h-1.5 rounded-full ${statusCfg.dotClass}`}></span>
+                        {statusCfg.label}
                       </span>
                     </td>
 

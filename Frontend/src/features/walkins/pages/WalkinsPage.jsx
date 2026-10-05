@@ -20,7 +20,9 @@ import WalkinModal from '../components/WalkinModal';
 import DeleteWalkinModal from '../components/DeleteWalkinModal';
 import WalkinDetailsDrawer from '../components/WalkinDetailsDrawer';
 import WalkinsEmptyState from '../components/WalkinsEmptyState';
+
 import WalkinsSkeleton from '../components/WalkinsSkeleton';
+import WalkinsFollowUpsSection from '../components/WalkinsFollowUpsSection';
 
 const WalkinsPage = () => {
   const containerRef = useRef(null);
@@ -36,16 +38,26 @@ const WalkinsPage = () => {
   const [deletingWalkin, setDeletingWalkin] = useState(null);
   const [selectedWalkin, setSelectedWalkin] = useState(null);
 
-  // Queries & Mutations
-  const { data: walkins = [], isLoading, isError, error, refetch } = useWalkins();
+  // Queries & Mutations (server-side date and source filtering)
+  const {
+    data: walkinsData = [],
+    isLoading,
+    isError,
+    error,
+    refetch
+  } = useWalkins({
+    dateRange: dateFilter,
+    source: sourceFilter,
+    search
+  });
   const createMutation = useCreateWalkin();
   const updateMutation = useUpdateWalkin();
   const deleteMutation = useDeleteWalkin();
 
-  // Derived Values
-  const metrics = calculateSummaryMetrics(walkins);
-  const sources = deriveUniqueSources(walkins);
-  const filteredWalkins = filterWalkins(walkins, { search, dateFilter, sourceFilter });
+  // Derived Values - use server calculated metrics & sources when available
+  const walkins = Array.isArray(walkinsData) ? walkinsData : (walkinsData.walkIns || []);
+  const metrics = walkinsData.stats || calculateSummaryMetrics(walkins);
+  const sources = walkinsData.sources?.length ? walkinsData.sources : deriveUniqueSources(walkins);
 
   const isFiltered = Boolean(search || dateFilter !== 'all' || sourceFilter !== 'all');
 
@@ -169,9 +181,9 @@ const WalkinsPage = () => {
 
       {/* Main Table or Empty State */}
       <div className="walkin-section relative z-0">
-        {filteredWalkins.length > 0 ? (
+        {walkins.length > 0 ? (
           <WalkinsTable
-            walkins={filteredWalkins}
+            walkins={walkins}
             onEdit={handleOpenEditModal}
             onDelete={setDeletingWalkin}
             onSelectRecord={setSelectedWalkin}
@@ -183,6 +195,11 @@ const WalkinsPage = () => {
             onClearFilters={handleClearFilters}
           />
         )}
+      </div>
+
+      {/* Dedicated Follow-ups Section */}
+      <div className="walkin-section">
+        <WalkinsFollowUpsSection onSelectWalkin={setSelectedWalkin} />
       </div>
 
       {/* Details Drawer */}

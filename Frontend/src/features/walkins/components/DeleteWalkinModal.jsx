@@ -1,11 +1,14 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, X } from 'lucide-react';
 import { formatDateDisplay } from '../utils/walkin.utils';
 
 const DeleteWalkinModal = ({ isOpen, onClose, onConfirm, walkin, isDeleting }) => {
   useEffect(() => {
+    if (!isOpen) return;
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && isOpen) {
+      if (e.key === 'Escape') {
+        e.stopImmediatePropagation();
         onClose();
       }
     };
@@ -17,15 +20,19 @@ const DeleteWalkinModal = ({ isOpen, onClose, onConfirm, walkin, isDeleting }) =
 
   const formattedDate = formatDateDisplay(walkin.date);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-neutral-900/40 backdrop-blur-xs font-urbanist animate-fade-in">
+  const modalContent = (
+    <div
+      className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-4 overflow-y-auto bg-neutral-900/50 backdrop-blur-xs font-urbanist animate-fade-in"
+      role="dialog"
+      aria-modal="true"
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !isDeleting) onClose();
+      }}
+    >
       <div
-        className="fixed inset-0"
-        onClick={onClose}
-        aria-hidden="true"
-      />
-
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl border border-neutral-200 overflow-hidden z-10 p-4 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto">
+        className="relative w-full max-w-md bg-white rounded-2xl shadow-xl border border-neutral-200 overflow-hidden z-10 p-4 sm:p-6 space-y-4 max-h-[90vh] overflow-y-auto my-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between border-b border-neutral-100 pb-3">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-xl bg-[#ED1F23]/10 text-[#ED1F23]">
@@ -38,9 +45,9 @@ const DeleteWalkinModal = ({ isOpen, onClose, onConfirm, walkin, isDeleting }) =
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-neutral-400 hover:text-neutral-600 rounded-lg hover:bg-neutral-100 transition-colors"
+            className="p-1.5 text-neutral-400 hover:text-neutral-600 rounded-lg hover:bg-neutral-100 transition-colors cursor-pointer"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
@@ -60,7 +67,7 @@ const DeleteWalkinModal = ({ isOpen, onClose, onConfirm, walkin, isDeleting }) =
             type="button"
             onClick={onClose}
             disabled={isDeleting}
-            className="px-4 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-all text-center"
+            className="px-4 py-2.5 rounded-xl border border-neutral-200 bg-white text-sm font-semibold text-neutral-700 hover:bg-neutral-50 transition-all text-center cursor-pointer"
           >
             Cancel
           </button>
@@ -68,7 +75,7 @@ const DeleteWalkinModal = ({ isOpen, onClose, onConfirm, walkin, isDeleting }) =
             type="button"
             onClick={() => onConfirm(walkin.id || walkin._id)}
             disabled={isDeleting}
-            className="px-4 py-2.5 rounded-xl bg-[#ED1F23] text-white text-sm font-semibold hover:bg-[#d0191d] transition-all disabled:opacity-50 text-center"
+            className="px-4 py-2.5 rounded-xl bg-[#ED1F23] text-white text-sm font-semibold hover:bg-[#d0191d] transition-all disabled:opacity-50 text-center cursor-pointer"
           >
             {isDeleting ? 'Deleting...' : 'Delete Record'}
           </button>
@@ -76,6 +83,8 @@ const DeleteWalkinModal = ({ isOpen, onClose, onConfirm, walkin, isDeleting }) =
       </div>
     </div>
   );
+
+  return createPortal(modalContent, document.body);
 };
 
 export default DeleteWalkinModal;

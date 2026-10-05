@@ -221,11 +221,59 @@ const generateContinuousDateBuckets = (startDate, endDate) => {
   return buckets;
 };
 
+/**
+ * Resolves standard Asia/Kolkata date range bounds for CRM modules:
+ * - 'all': no date restriction ({ start: null, end: null })
+ * - 'today': today 00:00:00 IST to tomorrow 00:00:00 IST
+ * - 'week' / 'this_week': Monday 00:00:00 IST through next Monday 00:00:00 IST
+ * - 'month' / 'this_month': First day of current month 00:00:00 IST through first day of next month 00:00:00 IST
+ *
+ * @param {string} range
+ * @param {Date} [refDate=new Date()]
+ * @returns {{ start: Date|null, end: Date|null }}
+ */
+const getKolkataDateRangeBounds = (range = 'all', refDate = new Date()) => {
+  const norm = String(range || 'all').trim().toLowerCase().replace(/-/g, '_');
+  if (norm === 'all' || !norm) {
+    return { start: null, end: null };
+  }
+
+  const { startOfToday, startOfTomorrow } = getKolkataDayBounds(refDate);
+
+  if (norm === 'today') {
+    return { start: startOfToday, end: startOfTomorrow };
+  }
+
+  if (norm === 'week' || norm === 'this_week' || norm === 'thisweek') {
+    const weekday = new Intl.DateTimeFormat('en-US', { timeZone: TIMEZONE, weekday: 'short' }).format(startOfToday);
+    const dayMap = { Mon: 0, Tue: 1, Wed: 2, Thu: 3, Fri: 4, Sat: 5, Sun: 6 };
+    const daysSinceMonday = dayMap[weekday] !== undefined ? dayMap[weekday] : 0;
+    const startOfWeek = new Date(startOfToday.getTime() - daysSinceMonday * 24 * 60 * 60 * 1000);
+    const startOfNextWeek = new Date(startOfWeek.getTime() + 7 * 24 * 60 * 60 * 1000);
+    return { start: startOfWeek, end: startOfNextWeek };
+  }
+
+  if (norm === 'month' || norm === 'this_month' || norm === 'thismonth') {
+    const { year, month } = getKolkataYMD(refDate);
+    const monthStr = String(month).padStart(2, '0');
+    const startOfMonth = new Date(`${year}-${monthStr}-01T00:00:00.000+05:30`);
+    const nextYear = month === 12 ? year + 1 : year;
+    const nextMonth = month === 12 ? 1 : month + 1;
+    const nextMonthStr = String(nextMonth).padStart(2, '0');
+    const startOfNextMonth = new Date(`${nextYear}-${nextMonthStr}-01T00:00:00.000+05:30`);
+    return { start: startOfMonth, end: startOfNextMonth };
+  }
+
+  return { start: null, end: null };
+};
+
 module.exports = {
   TIMEZONE,
   getKolkataDayBounds,
   classifyFollowUpCategory,
   getKolkataYMD,
   getKolkataAnalyticsRange,
-  generateContinuousDateBuckets
+  generateContinuousDateBuckets,
+  getKolkataDateRangeBounds
 };
+

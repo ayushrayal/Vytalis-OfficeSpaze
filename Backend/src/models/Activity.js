@@ -27,7 +27,14 @@ const activitySchema = new mongoose.Schema(
         'lead_followup_rescheduled',
         'lead_followup_completed',
         'lead_followup_cancelled',
-        'lead_followup_missed'
+        'lead_followup_missed',
+        'walk_in_status_updated',
+        'walk_in_follow_up_scheduled',
+        'walk_in_follow_up_completed',
+        'walk_in_follow_up_cancelled',
+        'walk_in_follow_up_rescheduled',
+        'walk_in_follow_up_missed',
+        'walk_in_note_added'
       ]
     },
     entityType: {
@@ -42,7 +49,8 @@ const activitySchema = new mongoose.Schema(
         'utility_bill',
         'operation_bill',
         'user',
-        'meta_lead'
+        'meta_lead',
+        'walk_in'
       ]
     },
     entityId: {
@@ -95,6 +103,7 @@ const activitySchema = new mongoose.Schema(
 // Performance indexes for chronologically ordered timeline queries
 activitySchema.index({ createdAt: -1 });
 activitySchema.index({ entityType: 1, createdAt: -1 });
+activitySchema.index({ entityType: 1, entityId: 1, createdAt: -1 });
 
 const Activity = mongoose.model('Activity', activitySchema);
 

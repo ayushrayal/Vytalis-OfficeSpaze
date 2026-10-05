@@ -53,7 +53,8 @@ const VALID_ENTITY_TYPES = [
   'utility_bill',
   'operation_bill',
   'user',
-  'meta_lead'
+  'meta_lead',
+  'walk_in'
 ];
 
 /**
